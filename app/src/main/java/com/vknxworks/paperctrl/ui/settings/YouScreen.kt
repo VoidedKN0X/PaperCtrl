@@ -17,15 +17,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,12 +37,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.BuildConfig
 import com.vknxworks.paperctrl.R
+import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.ScreenTopBar
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
+import com.vknxworks.paperctrl.ui.nav.ServersRoute
 import com.vknxworks.paperctrl.ui.nav.SettingsRoute
 import com.vknxworks.paperctrl.ui.theme.Gutter
 
@@ -51,7 +57,18 @@ private const val SPONSOR_URL = "https://github.com/sponsors/VoidedKN0X"
 @Composable
 fun YouScreen() {
     val context = LocalContext.current
+    val c = context.container
     val nav = LocalNavigator.current
+    val session by c.sessions.active.collectAsStateWithLifecycle()
+    val s = session ?: return
+    val server = s.server
+
+    // Keep the saved name, admin rights and server version current.
+    LaunchedEffect(server.id) {
+        runCatching { s.client.uiSettings() }.getOrNull()?.let { ui ->
+            c.sessions.refreshDetails(server.id, ui.user.displayName, ui.user.isSuperuser, null)
+        }
+    }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.you))
@@ -64,16 +81,32 @@ fun YouScreen() {
                     Modifier.size(96.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Filled.AccountCircle, null, Modifier.size(56.dp), tint = MaterialTheme.colorScheme.primary)
+                    Text(server.displayName.take(1).uppercase(), style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
                 }
                 Spacer(Modifier.height(14.dp))
-                Text(stringResource(R.string.you_not_connected), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+                Text(server.displayName, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
                 Text(
-                    stringResource(R.string.you_not_connected_body),
+                    listOfNotNull(
+                        server.username.takeIf { it != server.displayName },
+                        server.serverVersion?.let { stringResource(R.string.you_paperless_version, it) },
+                        stringResource(R.string.you_admin).takeIf { server.isSuperuser },
+                    ).joinToString("  ·  "),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
+            }
+
+            Group(stringResource(R.string.you_server)) {
+                GroupRow(
+                    s.address.removeSuffix("/"),
+                    listOfNotNull(
+                        stringResource(if (s.viaLan) R.string.you_via_home else R.string.you_via_main).takeIf { server.lanUrl != null },
+                        stringResource(R.string.not_encrypted).takeIf { !server.isEncrypted(s.address) },
+                    ).joinToString("  ·  ").ifEmpty { null },
+                    icon = if (s.viaLan) Icons.Filled.Home else Icons.Filled.Dns,
+                )
+                GroupRow(stringResource(R.string.servers_title), icon = Icons.Filled.SwapHoriz, showChevron = true, onClick = { nav.navigate(ServersRoute) })
             }
 
             Group {

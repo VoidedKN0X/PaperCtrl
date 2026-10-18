@@ -47,11 +47,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.R
+import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.YouRoute
 import com.vknxworks.paperctrl.ui.theme.Gutter
@@ -99,8 +104,10 @@ fun TabTitle(
 
 /** The signed-in user's picture; tapping it opens the You page with the account and settings. */
 @Composable
-fun ProfileButton(name: String = "") {
+fun ProfileButton() {
     val nav = LocalNavigator.current
+    val session by LocalContext.current.container.sessions.active.collectAsStateWithLifecycle()
+    val name = session?.server?.displayName.orEmpty()
     val you = stringResource(R.string.you)
     IconButton(onClick = { nav.navigate(YouRoute) }) {
         Box(
@@ -110,7 +117,12 @@ fun ProfileButton(name: String = "") {
             if (name.isEmpty()) {
                 Icon(Icons.Filled.AccountCircle, you, tint = MaterialTheme.colorScheme.primary)
             } else {
-                Text(name.take(1).uppercase(), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    name.take(1).uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.semantics { contentDescription = you },
+                )
             }
         }
     }
