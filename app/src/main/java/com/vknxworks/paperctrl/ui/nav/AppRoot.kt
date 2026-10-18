@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vknxworks.paperctrl.container
+import com.vknxworks.paperctrl.ui.auth.ServerSetupScreen
+import com.vknxworks.paperctrl.ui.components.LoadingView
+import com.vknxworks.paperctrl.ui.settings.ServersScreen
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.LocalHazeState
@@ -66,8 +73,16 @@ import dev.chrisbanes.haze.rememberHazeState
 
 @Composable
 fun AppRoot() {
+    val c = LocalContext.current.container
+    val ready by c.sessions.ready.collectAsStateWithLifecycle()
+    val active by c.sessions.active.collectAsStateWithLifecycle()
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        MainScaffold()
+        when {
+            !ready -> LoadingView()
+            active == null -> ServerSetupScreen(onDone = {}, onCancel = null)
+            // A fresh navigation stack per server, so nothing from the previous server stays on screen.
+            else -> key(active!!.server.id) { MainScaffold() }
+        }
     }
 }
 
@@ -179,5 +194,10 @@ private fun AppNavHost(navController: NavHostController) {
 
         composable<YouRoute> { YouScreen() }
         composable<SettingsRoute> { SettingsScreen() }
+        composable<ServersRoute> { ServersScreen() }
+        composable<AddServerRoute> {
+            val navigator = LocalNavigator.current
+            ServerSetupScreen(onDone = { navController.popBackStack(InboxRoute, false) }, onCancel = navigator::back)
+        }
     }
 }
