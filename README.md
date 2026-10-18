@@ -1,0 +1,90 @@
+# PaperCtrl
+
+**Scan paper into Paperless-ngx and browse your documents.**
+
+[![Latest release](https://img.shields.io/github/v/release/VoidedKN0X/PaperCtrl?label=download)](https://github.com/VoidedKN0X/PaperCtrl/releases/latest) ![Android 13+](https://img.shields.io/badge/Android-13%2B-3DDC84?logo=android&logoColor=white) [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE) [![Sponsor](https://img.shields.io/badge/sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VoidedKN0X)
+
+PaperCtrl is an Android app for self-hosted [Paperless-ngx](https://docs.paperless-ngx.com/) servers: a document scanner that gets paper into Paperless in a few taps, and a fast document browser made for your phone.
+
+Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
+
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/PaperCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
+
+> **Early development.** The first releases lay the foundation; the features below arrive update by update. See [CHANGELOG.md](CHANGELOG.md) for what's in each version.
+
+## Features
+
+- **Scanner** with edge detection, auto-capture, multi-page documents, cropping and filters, built entirely on open-source libraries
+- **Upload queue** that works offline and uploads when your server is reachable
+- **Share to PaperCtrl** from any app, for PDFs, images and other files Paperless accepts
+- **Inbox** to sort new documents with swipes and Paperless' own suggestions
+- **Documents** with full-text search, filters, saved views and bulk editing
+- **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
+- **Organise** tags, correspondents, document types, storage paths and custom fields
+- **Widget, quick settings tile and shortcuts** to start a scan in one tap
+- **Several servers**, self-signed certificates you confirm by fingerprint, and an optional app lock
+
+## Requirements
+
+- Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
+- A Paperless-ngx server
+
+## Install
+
+1. Download the latest `.apk` file from the [Releases page](https://github.com/VoidedKN0X/PaperCtrl/releases/latest).
+2. Open it on your phone. Android may ask you to allow installing apps from your browser or file manager.
+3. Updates install over the old version. Your settings and login are kept.
+
+**Automatic updates:** on your phone, tap one of the buttons below.
+
+- **Obtainium:** install [Obtainium](https://github.com/ImranR98/Obtainium) first. The button adds PaperCtrl and installs every new release for you.
+- **F-Droid:** adds the [CtrlF-Droid repo](https://voidedkn0x.github.io/CtrlF-Droid/) to F-Droid, Droid-ify or Neo Store, with every Ctrl app and automatic updates.
+
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/PaperCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
+
+If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/PaperCtrl` in Obtainium by hand.
+
+## Build from source
+
+You need [Android Studio](https://developer.android.com/studio), or JDK 17 and the Android SDK.
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/VoidedKN0X/PaperCtrl.git
+   cd PaperCtrl
+   ```
+2. Build the app:
+   ```bash
+   ./gradlew assembleDebug
+   ```
+   On Windows, use `gradlew.bat assembleDebug`.
+3. The APK is in `app/build/outputs/apk/debug/`. Copy it to your phone and install it.
+
+Or open the folder in Android Studio and press **Run** with your phone connected.
+
+## Support the project
+
+PaperCtrl is free and open source. If it's useful to you, you can support development on [GitHub Sponsors](https://github.com/sponsors/VoidedKN0X). Starring the repo and [reporting bugs](https://github.com/VoidedKN0X/PaperCtrl/issues) helps too.
+
+## The Ctrl series
+
+Native Android apps for self-hosted services and everyday tools, all with the same Material You design.
+
+| App | What it's for |
+| --- | --- |
+| [BeamCtrl](https://github.com/VoidedKN0X/BeamCtrl) | TV remote for phones with an IR blaster |
+| [CraftyCtrl](https://github.com/VoidedKN0X/CraftyCtrl) | Manage Minecraft servers on Crafty Controller |
+| [ElementCtrl](https://github.com/VoidedKN0X/ElementCtrl) | Matrix chat client for matrix.org and self-hosted Synapse |
+| [FilesCtrl](https://github.com/VoidedKN0X/FilesCtrl) | File manager with NFS, SMB, SFTP, FTP and WebDAV |
+| [FrigateCtrl](https://github.com/VoidedKN0X/FrigateCtrl) | Watch and review your Frigate NVR cameras |
+| [ImmichCtrl](https://github.com/VoidedKN0X/ImmichCtrl) | Photos and backup for your Immich server |
+| [JellyCtrl](https://github.com/VoidedKN0X/JellyCtrl) | Movies, shows, music and Live TV from Jellyfin |
+| [NaviCtrl](https://github.com/VoidedKN0X/NaviCtrl) | Music player for Navidrome servers |
+| **PaperCtrl** (this app) | Scan and browse documents on Paperless-ngx |
+| [SeerrCtrl](https://github.com/VoidedKN0X/SeerrCtrl) | Request movies and shows on Seerr / Jellyseerr |
+
+## License
+
+PaperCtrl is licensed under the [GNU General Public License v3.0](LICENSE). © VKNXWorks
+
+The Manrope font is licensed under the SIL Open Font License; see `FONT-LICENSE-Manrope.txt`.
