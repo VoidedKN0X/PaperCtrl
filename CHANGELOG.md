@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.2
+
+### Changed
+- **One About section in every Ctrl app**: Support, Report a bug, Source code and Licence (GPL-3.0), with the version underneath, at the bottom of the **You** page (tap your profile picture). Every Ctrl app now has the same four rows, in the same order, with the same wording and icons.
+- **Report a bug** now sits right below **Support PaperCtrl** and explains what it's for: "Found a problem or have an idea? Open an issue on GitHub". It opens PaperCtrl's GitHub issues page.
+- **Source code** now shows the repository address (github.com/VoidedKN0X/PaperCtrl) instead of "GitHub · GPL-3.0", and opens PaperCtrl's GitHub repository.
+- **Licence** is a new row that opens the GNU General Public License v3.0, the licence PaperCtrl is released under.
+- The heart on **Support PaperCtrl** is no longer red, matching the other rows and the other Ctrl apps.
+
 ## 0.3.1
 
 ### Changed
