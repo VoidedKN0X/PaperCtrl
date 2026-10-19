@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0
 
 ### New
 - **Share to PaperCtrl:** share PDFs, photos, text and other files Paperless accepts (office documents need Tika on the server) from any app, one or many at once. PaperCtrl copies them straight away, so the sharing app can be closed.
