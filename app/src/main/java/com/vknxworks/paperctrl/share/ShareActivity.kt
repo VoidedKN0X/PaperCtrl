@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -29,8 +31,11 @@ import com.vknxworks.paperctrl.data.api.UploadMeta
 import com.vknxworks.paperctrl.data.queue.StagedFile
 import com.vknxworks.paperctrl.data.queue.Staging
 import com.vknxworks.paperctrl.data.settings.ThemeChoice
+import com.vknxworks.paperctrl.data.telemetry.Telemetry
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -107,7 +112,10 @@ class ShareActivity : ComponentActivity() {
                 }
                 // A title only makes sense for a single document.
                 val perDoc = if (docs.size == 1) meta else meta.copy(title = null)
+                // Read before queueing: the queue moves the files.
+                val stats = uploadStats(all, docs)
                 docs.forEach { c.queue.enqueue(serverId, it.file, it.name, it.mimeType, perDoc) }
+                stats.forEach { c.telemetry.track("document_uploaded", it) }
                 Toast.makeText(
                     this@ShareActivity,
                     resources.getQuantityString(R.plurals.share_queued, docs.size, docs.size),
@@ -120,6 +128,40 @@ class ShareActivity : ComponentActivity() {
                 Toast.makeText(this@ShareActivity, getString(R.string.share_prepare_failed), Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    /**
+     * Usage stats (only if the user opted in): where each document came from, roughly how many pages it
+     * has and what kind of file it is. Never its name, contents, details or server.
+     */
+    private suspend fun uploadStats(all: List<StagedFile>, docs: List<StagedFile>): List<Map<String, Any>> {
+        if (!container.telemetry.available) return emptyList()
+        val source = if (intent.getStringExtra(EXTRA_SOURCE) == SOURCE_IMPORT) "import" else "share"
+        val imageCount = all.count { it.isImage }
+        return docs.map { doc ->
+            // The PDF made by combining the shared images isn't one of the shared files.
+            val merged = doc.isPdf && all.none { it.file == doc.file }
+            val pages = when {
+                merged -> imageCount
+                doc.isImage -> 1
+                doc.isPdf -> pdfPageCount(doc.file)
+                else -> null
+            }
+            val kind = when {
+                merged -> "images_merged"
+                doc.isPdf -> "pdf"
+                doc.isImage -> "image"
+                doc.mimeType.startsWith("text/") -> "text"
+                else -> "other"
+            }
+            mapOf("source" to source, "pages" to Telemetry.pageBucket(pages), "file_kind" to kind)
+        }
+    }
+
+    private suspend fun pdfPageCount(file: File): Int? = withContext(Dispatchers.IO) {
+        runCatching {
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd -> PdfRenderer(fd).use { it.pageCount } }
+        }.getOrNull()
     }
 
     override fun onDestroy() {
@@ -157,11 +199,16 @@ class ShareActivity : ComponentActivity() {
             "application/vnd.oasis.opendocument.presentation",
         )
 
+        /** Where the files came from, for the opt-in usage stats only. */
+        private const val EXTRA_SOURCE = "com.vknxworks.paperctrl.extra.SOURCE"
+        private const val SOURCE_IMPORT = "import"
+
         /** Opens the share screen for files picked inside the app. */
         fun intent(context: Context, uris: List<Uri>): Intent =
             Intent(context, ShareActivity::class.java)
                 .setAction(Intent.ACTION_SEND_MULTIPLE)
                 .putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                .putExtra(EXTRA_SOURCE, SOURCE_IMPORT)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 }

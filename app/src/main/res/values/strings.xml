@@ -56,6 +56,15 @@
     <string name="settings_theme">Theme</string>
     <string name="settings_dynamic">Use wallpaper colours</string>
     <string name="settings_dynamic_body">Replaces the default colours with ones from your wallpaper</string>
+    <string name="settings_usage_stats">Usage stats</string>
+    <string name="settings_usage_stats_switch">Share anonymous usage stats</string>
+    <string name="settings_usage_stats_body">Helps decide what to improve next</string>
+    <string name="usage_stats_description">Which screens you open, whether you upload by sharing or by picking files, roughly how many pages (1, 2–5 or 6+) and what kind of file, the app version, Android version, phone model and language. Never your server address, username, or anything about your documents: no titles, contents, tags, correspondents, file names or IDs. Sent to VKNXWorks\' own server, not to any analytics company.</string>
+    <string name="usage_stats_prompt_title">Help improve PaperCtrl?</string>
+    <string name="usage_stats_prompt_body">Share anonymous usage stats so I can see which features people use and which Android versions to support.</string>
+    <string name="usage_stats_prompt_later">You can change this any time in Settings.</string>
+    <string name="usage_stats_share">Share stats</string>
+    <string name="usage_stats_decline">No thanks</string>
     <string name="theme_system">Follow system</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>

@@ -39,6 +39,16 @@ fun SettingsScreen() {
         topBar = { ScreenTopBar(stringResource(R.string.settings)) },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
+            if (c.telemetry.available) {
+                Group(stringResource(R.string.settings_usage_stats), footer = stringResource(R.string.usage_stats_description)) {
+                    GroupSwitch(
+                        stringResource(R.string.settings_usage_stats_switch),
+                        stringResource(R.string.settings_usage_stats_body),
+                        s.usageStats,
+                    ) { v -> update { it.copy(usageStats = v, usageStatsAsked = true) } }
+                }
+            }
+
             Group(stringResource(R.string.settings_appearance)) {
                 GroupChoice(
                     stringResource(R.string.settings_theme),
