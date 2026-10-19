@@ -387,12 +387,14 @@ private fun OptionRow(label: String, detail: String?, color: Color?, selected: B
 
 private fun clearButton(show: Boolean, onClear: () -> Unit): (@Composable () -> Unit)? {
     if (!show) return null
-    return @Composable { IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.clear)) } }
+    val content: @Composable () -> Unit = { IconButton(onClick = onClear) { Icon(Icons.Filled.Close, stringResource(R.string.clear)) } }
+    return content
 }
 
 private fun loadingMark(loading: Boolean): (@Composable () -> Unit)? {
     if (!loading) return null
-    return @Composable { CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) }
+    val content: @Composable () -> Unit = { CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) }
+    return content
 }
 
 @Composable
