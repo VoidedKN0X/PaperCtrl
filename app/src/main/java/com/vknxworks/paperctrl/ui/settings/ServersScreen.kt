@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,15 +32,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.auth.Server
+import com.vknxworks.paperctrl.ui.components.AddressPickerSheet
 import com.vknxworks.paperctrl.ui.components.ConfirmDialog
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.ScreenTopBar
+import com.vknxworks.paperctrl.ui.components.addressKind
 import com.vknxworks.paperctrl.ui.nav.AddServerRoute
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import kotlinx.coroutines.launch
 
-/** Saved servers: switch between them, add one, or remove one from this phone. */
+/** Saved servers: switch between them, pick the address each one uses, add one, or remove one from this phone. */
 @Composable
 fun ServersScreen() {
     val c = LocalContext.current.container
@@ -47,6 +51,7 @@ fun ServersScreen() {
     val servers by c.sessions.servers.collectAsStateWithLifecycle()
     val active by c.sessions.active.collectAsStateWithLifecycle()
     var removing by remember { mutableStateOf<Server?>(null) }
+    var picking by remember { mutableStateOf<Server?>(null) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -72,10 +77,33 @@ fun ServersScreen() {
                     )
                 }
             }
+            val withHome = servers.filter { it.lanUrl != null }
+            if (withHome.isNotEmpty()) {
+                Group(stringResource(R.string.address_title), footer = stringResource(R.string.address_footer)) {
+                    withHome.forEach { s ->
+                        GroupRow(
+                            if (withHome.size > 1) stringResource(R.string.servers_row_title, s.displayName, s.host) else addressKind(s.usesLan),
+                            if (withHome.size > 1) {
+                                stringResource(R.string.address_option, addressKind(s.usesLan), s.activeUrl.removeSuffix("/"))
+                            } else {
+                                s.activeUrl.removeSuffix("/")
+                            },
+                            icon = if (s.usesLan) Icons.Filled.Home else Icons.Filled.Dns,
+                            showChevron = true,
+                            onClick = { picking = s },
+                        )
+                    }
+                }
+            }
             Group {
                 GroupRow(stringResource(R.string.servers_add), icon = Icons.Filled.Add, showChevron = true, onClick = { nav.navigate(AddServerRoute) })
             }
         }
+    }
+
+    picking?.let { p ->
+        // Show the saved server as it is now, so the tick follows the current choice.
+        AddressPickerSheet(servers.firstOrNull { it.id == p.id } ?: p, onDismiss = { picking = null })
     }
 
     removing?.let { s ->
@@ -95,6 +123,7 @@ fun ServersScreen() {
 private fun serverSubtitle(s: Server): String {
     val parts = mutableListOf(s.url.removeSuffix("/"))
     s.lanUrl?.let { parts += stringResource(R.string.servers_home_address, it.removeSuffix("/")) }
+    if (s.lanUrl != null) parts += stringResource(if (s.usesLan) R.string.servers_using_home else R.string.servers_using_main)
     s.serverVersion?.let { parts += stringResource(R.string.servers_version, it) }
     if (!s.isEncrypted()) parts += stringResource(R.string.not_encrypted)
     s.lanUrl?.let { if (!s.isEncrypted(it)) parts += stringResource(R.string.servers_home_not_encrypted) }

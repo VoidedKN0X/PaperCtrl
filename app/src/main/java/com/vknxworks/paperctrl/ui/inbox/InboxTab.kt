@@ -70,6 +70,7 @@ import com.vknxworks.paperctrl.notify.WidgetState
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.MessageView
 import com.vknxworks.paperctrl.ui.components.PillButton
+import com.vknxworks.paperctrl.ui.components.SwitchAddressBar
 import com.vknxworks.paperctrl.ui.components.TabTitle
 import com.vknxworks.paperctrl.ui.components.friendlyMessage
 import com.vknxworks.paperctrl.ui.docs.BulkBar
@@ -144,6 +145,7 @@ fun InboxTab() {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             TabTitle(stringResource(R.string.tab_inbox))
             if (model.offline) OfflineBanner()
+            if (model.offline || (model.loaded && model.items.isEmpty() && model.error != null)) SwitchAddressBar { model.refresh() }
             Box(Modifier.weight(1f)) {
                 PullToRefreshBox(isRefreshing = model.refreshing, onRefresh = { model.refresh() }, modifier = Modifier.fillMaxSize()) {
                     when {

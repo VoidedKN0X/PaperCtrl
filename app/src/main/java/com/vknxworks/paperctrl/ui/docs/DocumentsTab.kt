@@ -81,6 +81,7 @@ import com.vknxworks.paperctrl.data.search.TextMode
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.MessageView
 import com.vknxworks.paperctrl.ui.components.ProfileButton
+import com.vknxworks.paperctrl.ui.components.SwitchAddressBar
 import com.vknxworks.paperctrl.ui.nav.DocumentRoute
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.theme.Gutter
@@ -232,6 +233,7 @@ fun DocumentsTab() {
             }
         }
         if (model.offline) OfflineBanner()
+        if (model.offline || (model.loaded && model.items.isEmpty() && model.error != null)) SwitchAddressBar { model.refresh() }
 
         Box(Modifier.weight(1f)) {
             PullToRefreshBox(isRefreshing = model.refreshing, onRefresh = { model.refresh() }, modifier = Modifier.fillMaxSize()) {

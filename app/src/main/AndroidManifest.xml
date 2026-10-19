@@ -125,6 +125,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- Google-free: don't ask Google Play services for a downloadable emoji font on start.
+             Emoji use the phone's own font. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                tools:node="remove" />
+        </provider>
+
         <!-- WorkManager's foreground service needs its type declared on Android 14+. -->
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"

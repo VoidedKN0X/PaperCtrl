@@ -22,13 +22,14 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through your own ntfy server (no Google services)
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
-- **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address used when it answers
+- **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional app lock with fingerprint, face or screen lock, optional screenshot blocking, and a blank preview in recent apps
 
 ## Requirements
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
 - A recent Paperless-ngx server (PaperCtrl tells you if yours is too old)
+- No Google Play services needed: PaperCtrl is Google-free (no Firebase, Play services or Google servers; emoji use your phone's own font), so it works on de-Googled phones
 
 ## Install
 
@@ -47,11 +48,13 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 
 ## Getting started
 
-1. Open PaperCtrl and enter your **Server address**, the one you'd open in a browser. If Paperless runs under a sub-path, include it (`example.com/paperless`). Optionally tap **Add a home-network address** (for example `192.168.1.20:8000`): PaperCtrl uses it whenever Paperless answers there, and the main address everywhere else.
+1. Open PaperCtrl and enter your **Server address**, the one you'd open in a browser. If Paperless runs under a sub-path, include it (`example.com/paperless`). Optionally tap **Add a home-network address** (for example `192.168.1.20:8000`). PaperCtrl starts on the main address; switch to the home-network address yourself (see below).
 2. Sign in with your **Username** and **Password**, or switch to **API token** if you use single sign-on (in the Paperless web app: your profile picture → My Profile). With two-factor authentication, tap **I use two-factor authentication** and enter the code.
 3. Tap **Connect**. If your server uses a self-signed certificate, check the SHA-256 fingerprint and tap **Trust this certificate**.
 
 Settings, more servers and accounts are under **You** (the profile picture at the top right of every tab).
+
+**Main or home-network address:** if you saved both, pick the one to use under **You → Servers and accounts → Address in use** (or tap the address on the **You** page). PaperCtrl stays on that address until you change it; it never switches by itself when your Wi-Fi or network changes. When the server can't be reached, the Documents and Inbox tabs offer a button to try the other address.
 
 ## Push notifications with ntfy
 
