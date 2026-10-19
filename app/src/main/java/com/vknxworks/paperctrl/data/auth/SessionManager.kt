@@ -118,6 +118,17 @@ class SessionManager(
         return client(s, s.url, token)
     }
 
+    /**
+     * A call for an image request (thumbnails). Requests to the active server's address go through
+     * its own client (pinned certificate) with its token; anything else gets the base client and no
+     * credentials.
+     */
+    fun imageCall(request: okhttp3.Request): okhttp3.Call {
+        val s = _active.value
+        if (s != null && request.url.toString().startsWith(s.client.baseUrl)) return s.client.http.newCall(s.client.authorize(request))
+        return baseHttp.newCall(request)
+    }
+
     /** OkHttp client that trusts the system's CAs plus the one certificate pinned for [origin] (if any). */
     fun httpFor(server: Server, address: String): OkHttpClient {
         val pin = server.pins[originOf(address)]

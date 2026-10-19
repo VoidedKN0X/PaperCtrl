@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Numbers
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material3.Checkbox
@@ -65,6 +66,7 @@ import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.UploadMeta
 import com.vknxworks.paperctrl.data.api.nextAsn
 import com.vknxworks.paperctrl.data.metadata.ServerMetadata
+import com.vknxworks.paperctrl.scan.AsnScanDialog
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.friendlyMessage
@@ -104,6 +106,7 @@ fun MetadataEditor(
     var pickDate by remember { mutableStateOf(false) }
     var asnText by remember(meta.asn) { mutableStateOf(meta.asn?.toString().orEmpty()) }
     var asnBusy by remember { mutableStateOf(false) }
+    var scanAsn by remember { mutableStateOf(false) }
 
     LaunchedEffect(serverId, reload) {
         val client = c.sessions.clientFor(serverId) ?: return@LaunchedEffect
@@ -202,6 +205,7 @@ fun MetadataEditor(
                     colors = fieldColors(),
                     modifier = Modifier.weight(1f),
                 )
+                IconButton(onClick = { scanAsn = true }) { Icon(Icons.Outlined.QrCodeScanner, stringResource(R.string.asn_scan)) }
                 if (asnBusy) {
                     CircularProgressIndicator(Modifier.padding(horizontal = 16.dp).size(20.dp), strokeWidth = 2.dp)
                 } else {
@@ -218,6 +222,14 @@ fun MetadataEditor(
                     }) { Text(stringResource(R.string.meta_asn_next)) }
                 }
             }
+        }
+    }
+
+    if (scanAsn) {
+        AsnScanDialog(onDismiss = { scanAsn = false }) { asn ->
+            scanAsn = false
+            asnText = asn.toString()
+            onChange(meta.copy(asn = asn))
         }
     }
 
@@ -296,6 +308,7 @@ fun PickerSheet(
     multi: Boolean,
     loading: Boolean,
     onDismiss: () -> Unit,
+    noneLabel: String? = null,
     onDone: (Set<Int>) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
@@ -326,7 +339,7 @@ fun PickerSheet(
         LazyColumn(Modifier.navigationBarsPadding().imePadding(), contentPadding = PaddingValues(bottom = 16.dp)) {
             if (!multi && query.isBlank()) {
                 item(key = "auto") {
-                    OptionRow(stringResource(R.string.meta_auto_long), null, null, selected = selected.isEmpty(), multi = false) { onDone(emptySet()) }
+                    OptionRow(noneLabel ?: stringResource(R.string.meta_auto_long), null, null, selected = selected.isEmpty(), multi = false) { onDone(emptySet()) }
                 }
             }
             if (loading) {

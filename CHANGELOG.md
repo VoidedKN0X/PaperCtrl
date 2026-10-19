@@ -1,9 +1,45 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
+
+The full app: everything PaperCtrl was planned to do is in this version.
+
+### New
+- **Document scanner.** The Scan tab opens the camera. PaperCtrl outlines the page live, straightens it and crops it. With **auto-capture** on, it takes the picture by itself once the page holds still; or tap the shutter. There's a flashlight button, and **Add from gallery** imports photos you already took.
+- **Multi-page scans.** Keep scanning to add pages, then review them all in a grid. Long-press and drag a page to change the order. Tap a page to move its corners, rotate it, let PaperCtrl find the edges again, use the full photo, retake it or delete it.
+- **Four filters:** Original, Enhanced, Greyscale and Black & white. **Use for all pages** applies one to the whole scan, and PaperCtrl remembers the last filter you used for the next scan.
+- **PDF quality setting** (Compact 150 dpi, Standard 200 dpi, High 300 dpi) in **Settings → Scanning**.
+- **Unfinished scans are kept.** If you leave the scanner, the Scan tab shows how many pages are waiting and lets you continue or discard them.
+- **Upload with details.** Before a scan uploads you can set title, correspondent, document type, storage path, tags and the archive serial number (ASN). **Scan ASN label** reads a barcode or QR code with the camera; you can also take the next free ASN from your server. Scans go through the same upload queue as shared files.
+- **Documents tab.** Your whole library as a list or a grid with thumbnails, loading more as you scroll. Search titles and text, titles only, full text (with highlighted matches and suggestions as you type) or ASN. Sort by created, added, title, correspondent, ASN or relevance.
+- **Filters:** tags (any, all, or without), correspondent, document type, storage path, owner, custom fields, created and added dates, and "only in the inbox".
+- **Saved views.** Your Paperless saved views appear as chips above the list, the ones shown on the dashboard or sidebar first. Tap one to see its documents.
+- **Bulk actions.** Long-press a document to select several, then add or remove tags, set correspondent, document type or storage path, download them as a ZIP, rotate them, merge them into one new document, or delete them.
+- **Offline list.** The first page of your documents and inbox is kept on the phone, so you still see something (with an "Offline" banner) when the server can't be reached.
+- **Document screen** with five tabs:
+  - **Preview:** the PDF with pinch to zoom and page thumbnails; switch between the searchable PDF and the original file. Files PaperCtrl can't show open in another app.
+  - **Details:** edit title, created date, correspondent, document type, storage path, tags and ASN, plus custom fields of every type (text, long text, link, date, yes/no, whole number, number, money, choice and linked documents).
+  - **Text:** the text Paperless read from the document, with find-in-text and match count.
+  - **Notes:** read, add and delete notes.
+  - **History:** what changed and who changed it (when the audit log is on in Paperless).
+- **Document actions:** save to Downloads (Downloads/PaperCtrl), share the file, create share links with an expiry (1, 7, 30, 365 days or never) and revoke them, open in the browser, **More like this**, reprocess, change owner and who can view or edit, and delete (with how long it stays in the trash).
+- **Inbox tab.** Every document with an inbox tag. **Swipe right** to mark it done (removes the inbox tags; **Undo** in the message puts them back). **Swipe left** for a quick edit sheet with Paperless' own suggestions as chips, and **Save and mark done**. Select several for bulk actions.
+- **Organise tab.** Tags, correspondents, document types, storage paths, custom fields and saved views, each with how many documents use it. Add, edit (name, colour, inbox tag, automatic matching, path template, field type and choices) and delete them. Tap one to see its documents.
+- **Trash.** Restore deleted documents or empty the trash, from the Organise tab.
+- **Notifications:**
+  - **Document added** and **Upload failed** notifications can each be turned off in **Settings → Notifications**. "Document added" now opens the document.
+  - **Daily inbox reminder** around 9:00 when documents are waiting (off by default).
+  - **Push from Paperless through ntfy.** For documents Paperless gets by email or from the consume folder: PaperCtrl registers with the ntfy app (or any UnifiedPush app) and shows a push address plus step-by-step instructions and the webhook body for a Paperless workflow. No Google services involved; see the README.
+- **Home screen widget** with a Scan button and how many documents wait in the inbox.
+- **Quick Settings tile** "Scan to Paperless".
+- **App shortcuts:** long-press the PaperCtrl icon for Scan, Inbox and Search.
+- **App lock** (Settings → Privacy): unlock with your fingerprint, face or screen lock when opening PaperCtrl, and again after a minute in the background.
+- **Block screenshots** (Settings → Privacy): keeps documents out of screenshots and screen recordings.
 
 ### Changed
-- Groundwork for the document scanner, home screen widget and app lock (camera, image processing, barcode and biometric libraries added; no visible change yet).
+- The Scan tab now starts the camera scanner; **Upload files** is still there for PDFs and photos on the phone.
+- Downloaded and shared document files are kept in the app's private cache and deleted when PaperCtrl starts again or when you remove the server.
+- Removing a server also deletes its offline document list.
 
 ## 0.1.3
 

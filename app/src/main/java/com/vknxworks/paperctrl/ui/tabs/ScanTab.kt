@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -20,6 +23,7 @@ import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.Badge
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,14 +51,17 @@ import com.vknxworks.paperctrl.ui.components.PillButton
 import com.vknxworks.paperctrl.ui.components.TabTitle
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.QueueRoute
+import com.vknxworks.paperctrl.ui.nav.ScanReviewRoute
+import com.vknxworks.paperctrl.ui.nav.ScannerRoute
 
-/** Getting paper and files into Paperless. The camera scanner joins this tab in the next update. */
+/** Getting paper and files into Paperless: the camera scanner, files from the phone, and the upload queue. */
 @Composable
 fun ScanTab() {
     val context = LocalContext.current
     val c = context.container
     val nav = LocalNavigator.current
     val items by c.queue.items.collectAsStateWithLifecycle()
+    val scanPages by c.scan.pages.collectAsStateWithLifecycle()
     val active = items.count { it.isActive }
     val failed = items.count { it.status == QueueStatus.FAILED }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
@@ -90,11 +97,27 @@ fun ScanTab() {
                     textAlign = TextAlign.Center,
                 )
                 PillButton(
-                    stringResource(R.string.scan_pick_files),
-                    onClick = { pick.launch(ShareActivity.SUPPORTED_TYPES) },
-                    icon = Icons.Outlined.UploadFile,
+                    stringResource(if (scanPages.isEmpty()) R.string.scan_start else R.string.scan_continue),
+                    onClick = { nav.navigate(if (scanPages.isEmpty()) ScannerRoute() else ScanReviewRoute) },
+                    icon = Icons.Outlined.DocumentScanner,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
+                if (scanPages.isNotEmpty()) {
+                    Text(
+                        pluralStringResource(R.plurals.scan_pages_waiting, scanPages.size, scanPages.size),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                OutlinedButton(
+                    onClick = { pick.launch(ShareActivity.SUPPORTED_TYPES) },
+                    shape = CircleShape,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                ) {
+                    Icon(Icons.Outlined.UploadFile, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.scan_pick_files), style = MaterialTheme.typography.titleMedium)
+                }
                 Text(
                     stringResource(R.string.scan_share_hint),
                     style = MaterialTheme.typography.bodySmall,

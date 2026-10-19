@@ -10,8 +10,6 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/PaperCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
 
-> **Early development.** The first releases lay the foundation; the features below arrive update by update. See [CHANGELOG.md](CHANGELOG.md) for what's in each version.
-
 ## Features
 
 - **Scanner** with edge detection, auto-capture, multi-page documents, cropping and filters, built entirely on open-source libraries
@@ -21,8 +19,9 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Documents** with full-text search, filters, saved views and bulk editing
 - **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
 - **Organise** tags, correspondents, document types, storage paths and custom fields
+- **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through your own ntfy server (no Google services)
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
-- **Several servers**, self-signed certificates you confirm by fingerprint, and an optional app lock
+- **Several servers**, self-signed certificates you confirm by fingerprint, an optional app lock and screenshot blocking
 
 ## Requirements
 
@@ -43,6 +42,23 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/PaperCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
 
 If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/PaperCtrl` in Obtainium by hand.
+
+## Push notifications with ntfy
+
+PaperCtrl tells you about its own uploads by itself. To also hear about documents Paperless gets another way (email, the consume folder, the web app), let Paperless push them to your phone through your own [ntfy](https://ntfy.sh/) server:
+
+1. Install the ntfy app (from F-Droid) on your phone and point it at your ntfy server.
+2. In PaperCtrl, open **Settings → Notifications → Push from Paperless (ntfy)** and turn it on. PaperCtrl shows its push address.
+3. In Paperless, go to **Workflows** and add one:
+   - **Trigger:** Document Added (add Document Updated too if you like).
+   - **Action:** Webhook. **URL:** PaperCtrl's push address. Turn on **Send as JSON**, leave **Use parameters** off.
+   - **Body:**
+     ```json
+     {"event": "added", "id": "{{doc_id}}", "title": "{{doc_title}}", "correspondent": "{{correspondent}}"}
+     ```
+4. Save, and use **Send a test** in PaperCtrl to check the address works.
+
+If your ntfy server is only on your home network, Paperless blocks webhooks to local addresses by default: set `PAPERLESS_WEBHOOKS_ALLOW_INTERNAL_REQUESTS=true` on the server, or use ntfy's public HTTPS address. Tapping a notification opens the document.
 
 ## Usage stats
 

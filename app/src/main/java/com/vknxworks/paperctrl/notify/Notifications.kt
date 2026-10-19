@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.vknxworks.paperctrl.MainActivity
 import com.vknxworks.paperctrl.R
+import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.queue.QueueItem
 
 /**
@@ -23,10 +24,17 @@ import com.vknxworks.paperctrl.data.queue.QueueItem
 object Notifications {
     const val CH_UPLOADS = "uploads"
     const val CH_RESULTS = "upload_results"
+    const val CH_DIGEST = "inbox_digest"
+    const val CH_EVENTS = "paperless_events"
 
     /** Extra on MainActivity's intent: which screen to open. */
     const val EXTRA_OPEN = "open"
     const val OPEN_QUEUE = "queue"
+    const val OPEN_SCAN = "scan"
+    const val OPEN_INBOX = "inbox"
+    const val OPEN_SEARCH = "search"
+    /** Followed by the document id. */
+    const val OPEN_DOCUMENT = "document:"
 
     fun ensureChannels(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java) ?: return
@@ -41,7 +49,62 @@ object Notifications {
                 description = context.getString(R.string.channel_results_desc)
             },
         )
+        nm.createNotificationChannel(
+            NotificationChannel(CH_DIGEST, context.getString(R.string.channel_digest), NotificationManager.IMPORTANCE_LOW).apply {
+                description = context.getString(R.string.channel_digest_desc)
+            },
+        )
+        nm.createNotificationChannel(
+            NotificationChannel(CH_EVENTS, context.getString(R.string.channel_events), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = context.getString(R.string.channel_events_desc)
+            },
+        )
     }
+
+    /** Opens MainActivity on [what] (one of the OPEN_ values). */
+    fun open(context: Context, what: String, requestCode: Int): PendingIntent = PendingIntent.getActivity(
+        context,
+        requestCode,
+        Intent(context, MainActivity::class.java)
+            .putExtra(EXTRA_OPEN, what)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
+
+    /** The daily "documents in your inbox" reminder. */
+    fun digest(context: Context, count: Int) {
+        post(
+            context,
+            DIGEST_ID,
+            NotificationCompat.Builder(context, CH_DIGEST)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(context.resources.getQuantityString(R.plurals.digest_title, count, count))
+                .setContentText(context.getString(R.string.digest_body))
+                .setAutoCancel(true)
+                .setContentIntent(open(context, OPEN_INBOX, 2))
+                .build(),
+        )
+    }
+
+    /** A Paperless event pushed through UnifiedPush (a workflow webhook to ntfy). */
+    fun event(context: Context, title: String, text: String?, documentId: Int?) {
+        val id = documentId?.let { 200000 + it } ?: (300000 + (System.currentTimeMillis() % 10000).toInt())
+        post(
+            context,
+            id,
+            NotificationCompat.Builder(context, CH_EVENTS)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+                .setPublicVersion(publicVersion(context, CH_EVENTS, title))
+                .setAutoCancel(true)
+                .setContentIntent(open(context, documentId?.let { OPEN_DOCUMENT + it } ?: OPEN_INBOX, id))
+                .build(),
+        )
+    }
+
+    private const val DIGEST_ID = 4242
 
     fun progressId(item: QueueItem) = 1000 + (item.id.hashCode() and 0xFFFF)
     private fun resultId(item: QueueItem) = 100000 + (item.id.hashCode() and 0xFFFF)
@@ -79,6 +142,7 @@ object Notifications {
     }
 
     fun added(context: Context, item: QueueItem, title: String?) {
+        if (!context.container.settings.settings.value.notifyAdded) return
         post(
             context,
             resultId(item),
@@ -89,12 +153,13 @@ object Notifications {
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setPublicVersion(publicVersion(context, CH_RESULTS, context.getString(R.string.notif_added_title)))
                 .setAutoCancel(true)
-                .setContentIntent(openQueue(context))
+                .setContentIntent(item.documentId?.let { open(context, OPEN_DOCUMENT + it, resultId(item)) } ?: openQueue(context))
                 .build(),
         )
     }
 
     fun failed(context: Context, item: QueueItem, message: String?) {
+        if (!context.container.settings.settings.value.notifyFailed) return
         val text = listOfNotNull(item.fileName, message).joinToString(": ")
         post(
             context,

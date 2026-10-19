@@ -45,6 +45,9 @@ class PaperlessClient(
             .header("Authorization", "Token $token")
             .header("Accept", accept)
 
+    /** [request] with this server's token added (for images loaded by Coil). */
+    fun authorize(request: Request): Request = request.newBuilder().header("Authorization", "Token $token").build()
+
     suspend fun get(path: String, query: Map<String, String?> = emptyMap()): JsonElement =
         execute(request(url(path, query)).get().build())
 
