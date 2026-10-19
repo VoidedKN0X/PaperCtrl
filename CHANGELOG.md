@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+### New
+- **Optional anonymous usage stats.** After you connect to your server, PaperCtrl asks once whether you'd like to share anonymous usage stats. Nothing is sent unless you tap **Share stats**, and you can switch it on or off any time in **You → Settings → Usage stats**. The setting shows exactly what's shared.
+- **What's shared:** which screens you open (for example "Inbox", "Scan", "Queue" or "Settings"), and for each upload whether it came from sharing or from **Upload files**, roughly how many pages it has (1, 2–5 or 6+) and what kind of file it is (PDF, image, combined images, text or other). Also the app version, Android version, phone model, language, phone or tablet, and which theme you use.
+- **What's never shared:** your server address, username, password or token, and nothing about your documents: no titles, contents, tags, correspondents, document types, file names, search text or document IDs. There's no ID that follows you between sessions either: each session gets a new random ID, and stats from before and after you switch them off and on again aren't linked.
+- **Where it goes:** to VKNXWorks' own self-hosted server (Aptabase), not to Google or any analytics company. Builds you make from source can't send stats at all, and the setting doesn't appear in them.
+
 ## 0.1.1
 
 ### Fixed

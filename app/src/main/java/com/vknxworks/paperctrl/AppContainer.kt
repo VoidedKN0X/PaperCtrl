@@ -7,6 +7,7 @@ import com.vknxworks.paperctrl.data.queue.UploadQueue
 import com.vknxworks.paperctrl.data.net.CleartextPolicy
 import com.vknxworks.paperctrl.data.net.RedirectGuard
 import com.vknxworks.paperctrl.data.settings.SettingsRepository
+import com.vknxworks.paperctrl.data.telemetry.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +33,7 @@ class AppContainer(val context: Context) {
         .build()
 
     val settings = SettingsRepository(context, appScope)
+    val telemetry = Telemetry(context, settings, appScope)
     val sessions = SessionManager(context, http, appScope)
     val metadata = MetadataRepository()
     val queue = UploadQueue(context)

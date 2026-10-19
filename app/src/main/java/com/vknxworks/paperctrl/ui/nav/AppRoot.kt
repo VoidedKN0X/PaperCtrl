@@ -66,6 +66,7 @@ import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.LocalHazeState
 import com.vknxworks.paperctrl.ui.settings.SettingsScreen
+import com.vknxworks.paperctrl.ui.settings.UsageStatsPrompt
 import com.vknxworks.paperctrl.ui.settings.YouScreen
 import com.vknxworks.paperctrl.ui.tabs.DocumentsTab
 import com.vknxworks.paperctrl.ui.tabs.InboxTab
@@ -115,8 +116,17 @@ private fun MainScaffold() {
         }
     }
 
-    // A notification tap asked for a screen (the upload queue).
     val c = LocalContext.current.container
+
+    // Usage stats (only if the user opted in): the kind of screen, never what it shows.
+    val entryId = backStack?.id
+    val screen = dest?.route?.let(::screenName)
+    LaunchedEffect(entryId) {
+        if (screen != null) c.telemetry.track("screen_viewed", mapOf("screen" to screen))
+    }
+    UsageStatsPrompt()
+
+    // A notification tap asked for a screen (the upload queue).
     val pendingOpen by c.pendingOpen.collectAsStateWithLifecycle()
     LaunchedEffect(pendingOpen) {
         if (pendingOpen == Notifications.OPEN_QUEUE) navController.navigate(QueueRoute) { launchSingleTop = true }
@@ -194,6 +204,10 @@ private fun PhoneLayout(
         }
     }
 }
+
+/** "com.vknxworks.paperctrl.ui.nav.QueueRoute" -> "Queue". Only the route's class name, never its arguments. */
+private fun screenName(route: String): String =
+    route.substringBefore('/').substringBefore('?').substringAfterLast('.').removeSuffix("Route")
 
 @Composable
 private fun AppNavHost(navController: NavHostController) {
