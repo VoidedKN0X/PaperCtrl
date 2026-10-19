@@ -1,9 +1,23 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
+
+PaperCtrl no longer switches between your main and home-network address on its own: you choose which one it uses. It is also fully Google-free now.
 
 ### Changed
-- **README brought up to date with 0.2.0.** The feature list now also covers adding photos from the gallery, setting details and reading ASN labels before uploading, the offline document list, saved views and the trash in Organise, two-factor sign-in and the optional home-network address, and spells out the privacy features (password never saved, encrypted token, app lock, screenshot blocking, blank recent-apps preview). A new **Getting started** section walks through connecting to your server, the usage stats section now says scanner uploads are counted too, and a new paragraph lists everything PaperCtrl connects to besides your server. No change to the app itself.
+- **You choose the address.** If you saved a home-network address next to the main one, pick which one PaperCtrl uses under **You → Servers and accounts → Address in use**, or tap the address on the **You** page. PaperCtrl stays on the address you pick until you change it, also when your Wi-Fi, mobile data or VPN changes.
+- **After updating, PaperCtrl uses your main address.** Your home-network address is still saved; if you want to use it at home, pick it under **Address in use**.
+- **New servers start on the main address.** The home-network address you add while signing in is checked once and saved, and you switch to it yourself.
+- **"Can't reach the server" offers the other address.** When the Documents or Inbox tab can't reach Paperless (or is showing what was loaded last time) and the server has a second address, a bar says which address failed with a **Use home address** or **Use main address** button. Nothing changes until you tap it.
+- **Servers and accounts** now says for each server with two addresses which one is in use, and the address row on the **You** page says "tap to change".
+- **README** brought up to date: the feature list covers adding photos from the gallery, setting details and reading ASN labels before uploading, the offline document list, saved views and the trash in Organise, two-factor sign-in, the home-network address and the privacy features; there's a **Getting started** section, the usage stats section says scanner uploads are counted too, and a paragraph lists everything PaperCtrl connects to besides your server.
+
+### Removed
+- **Automatic address switching.** PaperCtrl no longer checks in the background whether the home-network address answers, and no longer watches for network changes to move between addresses.
+
+### Privacy
+- **Google-free.** PaperCtrl no longer asks Google Play services for an emoji font when it starts; emoji use your phone's own font. PaperCtrl uses no Google Play services, Firebase or Google servers.
+- **Your token only goes to the address you picked.** Because PaperCtrl no longer tries the home-network address by itself, it never sends anything to that address unless you chose it.
 
 ## 0.2.0
 

@@ -21,7 +21,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 /** How to sign in. */
 sealed interface Credentials {
@@ -82,11 +81,10 @@ fun hasExplicitScheme(raw: String) = raw.trim().contains("://")
  */
 class ServerConnector(private val baseHttp: OkHttpClient) {
 
-    private fun clientFor(trust: PinnedTrust, quick: Boolean = false): OkHttpClient =
+    private fun clientFor(trust: PinnedTrust): OkHttpClient =
         baseHttp.newBuilder()
             .sslSocketFactory(trust.sslSocketFactory, trust.trustManager)
             .hostnameVerifier(trust.hostnameVerifier)
-            .apply { if (quick) connectTimeout(3, TimeUnit.SECONDS).readTimeout(5, TimeUnit.SECONDS) }
             .build()
 
     /**
@@ -125,22 +123,6 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
             throw PaperlessException(ErrorKind.UNEXPECTED, "This address leads to a different Paperless server.")
         }
         return api
-    }
-
-    /**
-     * True when a Paperless API answers quickly at [base] (with a trusted certificate). The token is
-     * only sent to the home-network address after this, so a different device that happens to use
-     * that address on another network (a café's router, a hotel printer) must not count: it has to
-     * give the same JSON answer to an anonymous request that Paperless gives, without redirecting.
-     */
-    suspend fun isReachable(base: String, pin: String?): Boolean = withContext(Dispatchers.IO) {
-        val http = clientFor(PinnedTrust(pin), quick = true).newBuilder().followRedirects(false).followSslRedirects(false).build()
-        val url = base.toHttpUrlOrNull()?.resolve("api/$PROBE_PATH") ?: return@withContext false
-        runCatching {
-            http.newCall(Request.Builder().url(url).header("Accept", "application/json").get().build()).execute().use { r ->
-                r.code in listOf(200, 401, 403) && r.header("Content-Type").orEmpty().contains("json", ignoreCase = true)
-            }
-        }.getOrDefault(false)
     }
 
     /**

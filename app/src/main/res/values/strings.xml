@@ -41,8 +41,8 @@
     <string name="you_paperless_version">Paperless-ngx %1$s</string>
     <string name="you_admin">Administrator</string>
     <string name="you_server">Server</string>
-    <string name="you_via_home">Using the home-network address</string>
-    <string name="you_via_main">Using the main address</string>
+    <string name="you_via_home">Using the home-network address · tap to change</string>
+    <string name="you_via_main">Using the main address · tap to change</string>
     <string name="settings">Settings</string>
     <string name="support_title">Support PaperCtrl</string>
     <string name="support_body">PaperCtrl is free and open source. Sponsoring helps keep it that way.</string>
@@ -78,8 +78,8 @@
     <string name="setup_lan_add">Add a home-network address</string>
     <string name="setup_lan_address">Home-network address (optional)</string>
     <string name="setup_lan_address_hint">192.168.1.20:8000</string>
-    <string name="setup_lan_http_notice">Not encrypted (HTTP). At home, your token and documents go to this address in the clear. PaperCtrl only switches to it when Paperless answers there.</string>
-    <string name="setup_lan_notice">PaperCtrl uses this address whenever it answers, which is faster at home, and the main address everywhere else. It switches by itself when your network changes.</string>
+    <string name="setup_lan_http_notice">Not encrypted (HTTP). While you use this address, your token and documents go to it in the clear.</string>
+    <string name="setup_lan_notice">PaperCtrl starts on the main address. To use this one (faster at home), pick it under You → Servers and accounts → Address in use. PaperCtrl never switches by itself: it stays on the address you pick until you change it.</string>
     <string name="setup_method_password">Password</string>
     <string name="setup_method_token">API token</string>
     <string name="setup_username">Username</string>
@@ -123,6 +123,18 @@
     <string name="servers_remove_body">PaperCtrl forgets the server and its token, and deletes anything still waiting in the upload queue for it. The token stays valid on the server; you can delete it there from your profile.</string>
     <string name="servers_home_address">home: %1$s</string>
     <string name="servers_home_not_encrypted">home address not encrypted (HTTP)</string>
+    <string name="servers_using_main">using the main address</string>
+    <string name="servers_using_home">using the home address</string>
+    <string name="address_title">Address in use</string>
+    <string name="address_footer">PaperCtrl uses the address you pick here and stays on it until you change it. It never switches by itself, so pick the home-network address when you\'re at home and the main address when you\'re out.</string>
+    <string name="address_main">Main address</string>
+    <string name="address_home">Home-network address</string>
+    <string name="address_option">%1$s · %2$s</string>
+    <string name="address_pick_title">Address for %1$s</string>
+    <string name="address_unreachable_main">Can\'t reach Paperless on the main address.</string>
+    <string name="address_unreachable_home">Can\'t reach Paperless on the home-network address.</string>
+    <string name="address_use_main">Use main address</string>
+    <string name="address_use_home">Use home address</string>
     <string name="servers_version">Paperless-ngx %1$s</string>
 
     <!-- Errors -->

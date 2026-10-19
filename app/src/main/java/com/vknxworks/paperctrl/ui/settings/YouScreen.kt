@@ -29,6 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.BuildConfig
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
+import com.vknxworks.paperctrl.ui.components.AddressPickerSheet
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.ScreenTopBar
@@ -62,6 +66,7 @@ fun YouScreen() {
     val session by c.sessions.active.collectAsStateWithLifecycle()
     val s = session ?: return
     val server = s.server
+    var picking by remember { mutableStateOf(false) }
 
     // Keep the saved name, admin rights and server version current.
     LaunchedEffect(server.id) {
@@ -69,6 +74,8 @@ fun YouScreen() {
             c.sessions.refreshDetails(server.id, ui.user.displayName, ui.user.isSuperuser, null)
         }
     }
+
+    if (picking) AddressPickerSheet(server, onDismiss = { picking = false })
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.you))
@@ -105,6 +112,8 @@ fun YouScreen() {
                         stringResource(R.string.not_encrypted).takeIf { !server.isEncrypted(s.address) },
                     ).joinToString("  ·  ").ifEmpty { null },
                     icon = if (s.viaLan) Icons.Filled.Home else Icons.Filled.Dns,
+                    showChevron = server.lanUrl != null,
+                    onClick = if (server.lanUrl != null) { { picking = true } } else null,
                 )
                 GroupRow(stringResource(R.string.servers_title), icon = Icons.Filled.SwapHoriz, showChevron = true, onClick = { nav.navigate(ServersRoute) })
             }

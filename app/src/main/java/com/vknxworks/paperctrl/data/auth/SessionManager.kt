@@ -1,8 +1,6 @@
 package com.vknxworks.paperctrl.data.auth
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.vknxworks.paperctrl.data.api.ApiJson
@@ -12,8 +10,6 @@ import com.vknxworks.paperctrl.data.appDataStore
 import com.vknxworks.paperctrl.data.net.CleartextPolicy
 import com.vknxworks.paperctrl.data.net.PinnedTrust
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,8 +29,13 @@ data class Server(
     val id: String,
     /** Main address, used anywhere (usually the HTTPS domain). Ends in "/". */
     val url: String,
-    /** Optional home-network address, preferred whenever it answers. Ends in "/". */
+    /** Optional home-network address. Only used while the user has picked it ([useLan]). Ends in "/". */
     val lanUrl: String? = null,
+    /**
+     * True when the user picked the home-network address. PaperCtrl never changes this by itself;
+     * servers saved by older versions don't have it and stay on the main address.
+     */
+    val useLan: Boolean = false,
     val username: String,
     val displayName: String = username,
     val userId: Int = 0,
@@ -47,15 +48,22 @@ data class Server(
     val serverVersion: String? = null,
 ) {
     val host: String get() = url.toHttpUrlOrNull()?.host ?: url
+
+    /** The address the user picked: the home-network one when chosen (and saved), otherwise the main one. */
+    val activeUrl: String get() = lanUrl?.takeIf { useLan } ?: url
+    val usesLan: Boolean get() = useLan && lanUrl != null
     fun isEncrypted(address: String = url) = address.startsWith("https://", ignoreCase = true)
 }
 
-/** The server in use and a client for whichever of its addresses is reachable right now. */
+/** The server in use and a client for the address the user picked for it. */
 data class ActiveSession(val server: Server, val client: PaperlessClient, val viaLan: Boolean) {
     val address: String get() = client.baseUrl
 }
 
-/** Saved servers, the active one, and switching between its home-network and main address. */
+/**
+ * Saved servers and the active one. Each server is reached on the address the user picked (main or
+ * home-network); the app never probes addresses or switches between them on its own.
+ */
 class SessionManager(
     private val context: Context,
     private val baseHttp: OkHttpClient,
@@ -79,12 +87,8 @@ class SessionManager(
     /** One OkHttp client per set of trust settings; they share the base client's connection pool. */
     private val clients = mutableMapOf<String?, OkHttpClient>()
 
-    // Declared before init: the network callback registered there can fire straight away.
-    @Volatile private var rerouteJob: Job? = null
-
     init {
         scope.launch { load() }
-        watchNetwork()
     }
 
     private suspend fun load() {
@@ -106,16 +110,16 @@ class SessionManager(
     fun server(id: String): Server? = _servers.value.firstOrNull { it.id == id }
 
     /**
-     * A client for [serverId]: the active session's (which may be on the home-network address), or
-     * one on the main address for another saved server. Null when the server was removed or its
-     * token can't be decrypted any more.
+     * A client for [serverId] on the address the user picked for it: the active session's, or a new
+     * one for another saved server. Null when the server was removed or its token can't be decrypted
+     * any more.
      */
     fun clientFor(serverId: String): PaperlessClient? {
         _active.value?.let { if (it.server.id == serverId) return it.client }
         val s = server(serverId) ?: return null
         val token = KeystoreCrypto.decrypt(s.tokenEnc) ?: return null
-        CleartextPolicy.allowServer(s.url)
-        return client(s, s.url, token)
+        CleartextPolicy.allowServer(s.activeUrl)
+        return client(s, s.activeUrl, token)
     }
 
     /**
@@ -155,6 +159,8 @@ class SessionManager(
             id = existing?.id ?: UUID.randomUUID().toString(),
             url = connected.baseUrl,
             lanUrl = lanUrl,
+            // A new sign-in starts on the main address; signing in again keeps the address the user picked.
+            useLan = existing?.useLan == true && lanUrl != null && existing.lanUrl == lanUrl,
             username = user.username,
             displayName = user.displayName,
             userId = user.id,
@@ -174,6 +180,22 @@ class SessionManager(
         val server = _servers.value.firstOrNull { it.id == id } ?: return
         context.appDataStore.edit { it[activeKey] = id }
         activate(server)
+    }
+
+    /**
+     * Makes [useLan] the address used for server [id] (home-network address when true, main address
+     * when false) and keeps it until the user picks again. Ignored for a server without a home address.
+     */
+    suspend fun useAddress(id: String, useLan: Boolean) {
+        mutex.withLock {
+            val current = _servers.value.firstOrNull { it.id == id } ?: return
+            if (useLan && current.lanUrl == null) return
+            if (current.useLan == useLan) return
+            val updated = current.copy(useLan = useLan)
+            val activeId = _active.value?.server?.id
+            persist(_servers.value.map { if (it.id == id) updated else it }, activeId)
+            if (activeId == id) activate(updated)
+        }
     }
 
     /** Forgets a server and its token on this phone. The token itself stays valid on the server. */
@@ -214,47 +236,14 @@ class SessionManager(
             _active.value = null
             return
         }
-        // Reconnects always use the saved addresses and schemes; never switch an https server to http.
-        CleartextPolicy.allowServer(server.url)
-        server.lanUrl?.let(CleartextPolicy::allowServer)
-
-        // Start on the main address straight away, then move to the home address if it answers.
-        _active.value = ActiveSession(server, client(server, server.url, token), viaLan = false)
-        if (server.lanUrl != null) scope.launch { rerouteNow(server, token) }
+        // Reconnects always use the saved address and scheme; never switch an https server to http.
+        val address = server.activeUrl
+        CleartextPolicy.allowServer(address)
+        _active.value = ActiveSession(server, client(server, address, token), viaLan = server.usesLan)
     }
 
     private fun client(server: Server, address: String, token: String) =
         PaperlessClient(address, token, server.apiVersion, httpFor(server, address))
-
-    private suspend fun rerouteNow(server: Server, token: String) {
-        val lan = server.lanUrl ?: return
-        val reachable = connector.isReachable(lan, server.pins[originOf(lan)])
-        val current = _active.value ?: return
-        if (current.server.id != server.id) return
-        if (reachable != current.viaLan) {
-            val address = if (reachable) lan else server.url
-            _active.value = ActiveSession(current.server, client(current.server, address, token), viaLan = reachable)
-        }
-    }
-
-    /** On every network change (Wi-Fi on/off, VPN), re-check whether the home address is reachable. */
-    private fun watchNetwork() {
-        val cm = context.getSystemService(ConnectivityManager::class.java) ?: return
-        cm.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = reroute()
-            override fun onLost(network: Network) = reroute()
-        })
-    }
-
-    private fun reroute() {
-        rerouteJob?.cancel()
-        rerouteJob = scope.launch {
-            delay(1500) // let the new network settle (DHCP, VPN) before testing
-            val session = _active.value ?: return@launch
-            val token = KeystoreCrypto.decrypt(session.server.tokenEnc) ?: return@launch
-            rerouteNow(session.server, token)
-        }
-    }
 
     private suspend fun persist(list: List<Server>, activeId: String?) {
         _servers.value = list
