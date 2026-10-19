@@ -13,3 +13,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object SettingsRoute
 @Serializable data object ServersRoute
 @Serializable data object AddServerRoute
+
+@Serializable data object QueueRoute

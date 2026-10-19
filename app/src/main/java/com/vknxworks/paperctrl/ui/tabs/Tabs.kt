@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.runtime.Composable
@@ -26,9 +25,6 @@ fun InboxTab() = PlaceholderTab(R.string.tab_inbox, Icons.Outlined.Inbox, R.stri
 
 @Composable
 fun DocumentsTab() = PlaceholderTab(R.string.tab_documents, Icons.Outlined.Description, R.string.documents_empty_title, R.string.documents_empty_body)
-
-@Composable
-fun ScanTab() = PlaceholderTab(R.string.tab_scan, Icons.Outlined.DocumentScanner, R.string.scan_empty_title, R.string.scan_empty_body)
 
 @Composable
 fun OrganiseTab() = PlaceholderTab(R.string.tab_organise, Icons.Outlined.Sell, R.string.organise_empty_title, R.string.organise_empty_body)

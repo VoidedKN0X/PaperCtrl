@@ -2,12 +2,15 @@ package com.vknxworks.paperctrl
 
 import android.content.Context
 import com.vknxworks.paperctrl.data.auth.SessionManager
+import com.vknxworks.paperctrl.data.metadata.MetadataRepository
+import com.vknxworks.paperctrl.data.queue.UploadQueue
 import com.vknxworks.paperctrl.data.net.CleartextPolicy
 import com.vknxworks.paperctrl.data.net.RedirectGuard
 import com.vknxworks.paperctrl.data.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -30,6 +33,11 @@ class AppContainer(val context: Context) {
 
     val settings = SettingsRepository(context, appScope)
     val sessions = SessionManager(context, http, appScope)
+    val metadata = MetadataRepository()
+    val queue = UploadQueue(context)
+
+    /** A screen to open, set from a notification tap; the main screen consumes it. */
+    val pendingOpen = MutableStateFlow<String?>(null)
 }
 
 val Context.container: AppContainer

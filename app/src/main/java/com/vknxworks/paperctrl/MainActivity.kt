@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.data.settings.ThemeChoice
+import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.nav.AppRoot
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
 
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val c = container
+        handleOpen(intent)
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
             val dark = when (settings.theme) {
@@ -38,5 +41,15 @@ class MainActivity : ComponentActivity() {
                 AppRoot()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleOpen(intent)
+    }
+
+    /** A notification asked for a particular screen (the upload queue). */
+    private fun handleOpen(intent: Intent?) {
+        intent?.getStringExtra(Notifications.EXTRA_OPEN)?.let { container.pendingOpen.value = it }
     }
 }

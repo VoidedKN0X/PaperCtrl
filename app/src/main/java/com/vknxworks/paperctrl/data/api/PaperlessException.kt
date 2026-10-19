@@ -18,6 +18,7 @@ enum class ErrorKind(@StringRes val message: Int) {
     FORBIDDEN(R.string.error_forbidden),
     NOT_FOUND(R.string.error_not_found),
     THROTTLED(R.string.error_throttled),
+    TOO_LARGE(R.string.error_too_large),
     SERVER(R.string.error_server),
     UNEXPECTED(R.string.error_unexpected),
     CLEARTEXT_BLOCKED(R.string.error_cleartext_blocked),

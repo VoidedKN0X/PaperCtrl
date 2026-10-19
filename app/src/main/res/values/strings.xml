@@ -14,7 +14,10 @@
     <string name="documents_empty_title">Your documents</string>
     <string name="documents_empty_body">Browse and search everything in your Paperless-ngx library here.</string>
     <string name="scan_empty_title">Scan to Paperless</string>
-    <string name="scan_empty_body">The camera scanner is coming in the next update: capture pages, crop them and upload in a few taps.</string>
+    <string name="scan_empty_body">The camera scanner arrives in the next update. Until then, upload PDFs, photos and other documents from this phone.</string>
+    <string name="scan_pick_files">Upload files</string>
+    <string name="scan_share_hint">You can also share files to PaperCtrl from any other app.</string>
+    <string name="scan_queue_idle">Nothing waiting</string>
     <string name="organise_empty_title">Organise</string>
     <string name="organise_empty_body">Tags, correspondents, document types, storage paths and custom fields will be managed here.</string>
     <string name="coming_soon">Coming soon</string>
@@ -26,6 +29,13 @@
     <string name="open_link_failed">No app found to open this link</string>
     <string name="cancel">Cancel</string>
     <string name="not_encrypted">Not encrypted (HTTP)</string>
+    <string name="retry">Retry</string>
+    <string name="ok">OK</string>
+    <string name="done">Done</string>
+    <string name="save">Save</string>
+    <string name="close">Close</string>
+    <string name="clear">Clear</string>
+    <string name="search">Search</string>
 
     <!-- You page -->
     <string name="you_paperless_version">Paperless-ngx %1$s</string>
@@ -121,5 +131,96 @@
     <string name="error_server">The server ran into a problem. Check its logs.</string>
     <string name="error_unexpected">Something unexpected went wrong.</string>
     <string name="error_cleartext_blocked">Blocked an unencrypted (HTTP) connection the server redirected to.</string>
+    <string name="error_too_large">The file is too large for the server. If Paperless runs behind a reverse proxy, raise its upload limit (client_max_body_size in Nginx).</string>
     <string name="error_https_failed">Couldn\'t connect securely (HTTPS).</string>
+    <!-- Upload details -->
+    <string name="meta_title">Title</string>
+    <string name="meta_title_hint">From the file name</string>
+    <string name="meta_footer">Anything left on Automatic is filled in by Paperless\' own matching after it reads the document.</string>
+    <string name="meta_auto">Automatic</string>
+    <string name="meta_auto_long">Automatic (let Paperless decide)</string>
+    <string name="meta_load_failed">Couldn\'t load your tags and correspondents</string>
+    <string name="meta_created">Date</string>
+    <string name="meta_created_auto">Automatic (read from the document)</string>
+    <string name="meta_correspondent">Correspondent</string>
+    <string name="meta_type">Document type</string>
+    <string name="meta_tags">Tags</string>
+    <string name="meta_storage_path">Storage path</string>
+    <string name="meta_asn">Archive serial number (ASN)</string>
+    <string name="meta_asn_next">Next free</string>
+    <string name="picker_empty">Nothing found</string>
+
+    <!-- Upload queue -->
+    <string name="queue_title">Upload queue</string>
+    <string name="queue_clear_done">Clear finished</string>
+    <string name="queue_empty_title">Nothing in the queue</string>
+    <string name="queue_empty_body">Documents you scan or share to PaperCtrl wait here until Paperless has them, even without a connection.</string>
+    <string name="queue_status_waiting">Waiting to upload</string>
+    <string name="queue_status_uploading">Uploading, %1$d%%</string>
+    <string name="queue_status_consuming">Paperless is processing it</string>
+    <string name="queue_status_done">Added to Paperless</string>
+    <string name="queue_status_failed">Failed</string>
+    <string name="queue_waiting_server">Waiting for the server to be reachable</string>
+    <string name="queue_still_processing">Paperless is still processing it; checking again shortly</string>
+    <string name="queue_consume_failed">Paperless couldn\'t add this document.</string>
+    <string name="queue_file_missing">The file is no longer on this phone. Remove this item and share or scan it again.</string>
+    <string name="queue_server_removed">The server this was meant for was removed from PaperCtrl.</string>
+    <string name="queue_open">Open</string>
+    <string name="queue_edit">Edit details</string>
+    <string name="queue_try_now">Try now</string>
+    <string name="queue_remove">Remove</string>
+    <string name="queue_dismiss">Dismiss</string>
+    <string name="queue_remove_title">Remove from the queue?</string>
+    <string name="queue_remove_body">The file is deleted from this phone and won\'t be uploaded.</string>
+    <string name="queue_remove_body_sent">Paperless already has the file and may still add it. PaperCtrl stops following it and deletes its copy on this phone.</string>
+
+    <!-- Share to PaperCtrl -->
+    <string name="share_title">Upload to Paperless</string>
+    <string name="share_merge">Combine images into one PDF</string>
+    <string name="share_merge_footer">Handy for the pages of one letter. Turn it off to upload each image as its own document.</string>
+    <string name="share_merged_name">Images</string>
+    <string name="share_server">Server</string>
+    <string name="share_details">Details</string>
+    <string name="share_details_off">Optional: title, date, correspondent, tags…</string>
+    <string name="share_details_on">Leave anything you don\'t know on Automatic</string>
+    <string name="share_upload_quick">Quick upload</string>
+    <string name="share_upload_details">Upload with details</string>
+    <string name="share_prepare_failed">Couldn\'t prepare the files for upload.</string>
+    <string name="share_no_server_title">No server yet</string>
+    <string name="share_no_server_body">Open PaperCtrl and connect to your Paperless-ngx server first, then share again.</string>
+    <string name="share_open_app">Open PaperCtrl</string>
+    <string name="share_nothing_title">Nothing to upload</string>
+    <string name="share_nothing_body">PaperCtrl couldn\'t read what was shared. Try sharing the file itself rather than a link to it.</string>
+
+    <!-- Notifications -->
+    <string name="channel_uploads">Uploads in progress</string>
+    <string name="channel_uploads_desc">Shows progress while documents upload and Paperless processes them.</string>
+    <string name="channel_results">Upload results</string>
+    <string name="channel_results_desc">Tells you when a document was added to Paperless, or why it wasn\'t.</string>
+    <string name="notif_upload_title">Uploading to Paperless</string>
+    <string name="notif_uploading">Sending %1$s</string>
+    <string name="notif_consuming">Paperless is processing %1$s</string>
+    <string name="notif_added_title">Document added</string>
+    <string name="notif_failed_title">Upload failed</string>
+
+    <plurals name="share_files">
+        <item quantity="one">%d file</item>
+        <item quantity="other">%d files</item>
+    </plurals>
+    <plurals name="share_merge_body">
+        <item quantity="one">%d image becomes one PDF</item>
+        <item quantity="other">%d images become one PDF, in this order</item>
+    </plurals>
+    <plurals name="share_queued">
+        <item quantity="one">Added to the upload queue</item>
+        <item quantity="other">%d documents added to the upload queue</item>
+    </plurals>
+    <plurals name="scan_queue_active">
+        <item quantity="one">%d document on its way</item>
+        <item quantity="other">%d documents on their way</item>
+    </plurals>
+    <plurals name="scan_queue_failed">
+        <item quantity="one">%d upload failed</item>
+        <item quantity="other">%d uploads failed</item>
+    </plurals>
 </resources>
