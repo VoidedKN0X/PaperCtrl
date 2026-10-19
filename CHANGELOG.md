@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1
+
+### Fixed
+- **Connecting to Paperless-ngx 3 failed** with "There's no Paperless-ngx API at this address", even with the right address. Paperless 3 sends visitors of `/api/` on to its API documentation page, and PaperCtrl mistook that page for something other than Paperless. The connection check now asks an API endpoint that always answers directly, so servers behind a reverse proxy such as Nginx Proxy Manager connect normally.
+
+### Changed
+- Clearer connection errors: if the address forwards to a sign-in page of your reverse proxy (Authelia, Authentik…) instead of to Paperless, PaperCtrl says so and names where it was sent. When something other than Paperless answers, the message now shows what answered (status, content type, and Cloudflare if it's in between).
+- A redirect from your proxy to HTTPS on the same address is followed automatically, and the HTTPS address is saved.
+
 ## 0.1.0
 
 ### New
