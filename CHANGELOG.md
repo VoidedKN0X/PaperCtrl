@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- **README brought up to date with 0.2.0.** The feature list now also covers adding photos from the gallery, setting details and reading ASN labels before uploading, the offline document list, saved views and the trash in Organise, two-factor sign-in and the optional home-network address, and spells out the privacy features (password never saved, encrypted token, app lock, screenshot blocking, blank recent-apps preview). A new **Getting started** section walks through connecting to your server, the usage stats section now says scanner uploads are counted too, and a new paragraph lists everything PaperCtrl connects to besides your server. No change to the app itself.
+
 ## 0.2.0
 
 The full app: everything PaperCtrl was planned to do is in this version.

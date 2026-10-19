@@ -12,21 +12,23 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 ## Features
 
-- **Scanner** with edge detection, auto-capture, multi-page documents, cropping and filters, built entirely on open-source libraries
+- **Scanner** with edge detection, auto-capture, multi-page documents, cropping and four filters, or **Add from gallery** for photos you already took. Built entirely on open-source libraries
+- **Details before uploading**: title, correspondent, document type, storage path, tags and archive serial number (ASN), with ASN labels read by the camera
 - **Upload queue** that works offline and uploads when your server is reachable
 - **Share to PaperCtrl** from any app, for PDFs, images and other files Paperless accepts
 - **Inbox** to sort new documents with swipes and Paperless' own suggestions
-- **Documents** with full-text search, filters, saved views and bulk editing
+- **Documents** with full-text search, filters, saved views and bulk editing; the first page of your list and inbox stays visible offline
 - **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
-- **Organise** tags, correspondents, document types, storage paths and custom fields
+- **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through your own ntfy server (no Google services)
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
-- **Several servers**, self-signed certificates you confirm by fingerprint, an optional app lock and screenshot blocking
+- **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address used when it answers
+- **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional app lock with fingerprint, face or screen lock, optional screenshot blocking, and a blank preview in recent apps
 
 ## Requirements
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
-- A Paperless-ngx server
+- A recent Paperless-ngx server (PaperCtrl tells you if yours is too old)
 
 ## Install
 
@@ -42,6 +44,14 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/PaperCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
 
 If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/PaperCtrl` in Obtainium by hand.
+
+## Getting started
+
+1. Open PaperCtrl and enter your **Server address**, the one you'd open in a browser. If Paperless runs under a sub-path, include it (`example.com/paperless`). Optionally tap **Add a home-network address** (for example `192.168.1.20:8000`): PaperCtrl uses it whenever Paperless answers there, and the main address everywhere else.
+2. Sign in with your **Username** and **Password**, or switch to **API token** if you use single sign-on (in the Paperless web app: your profile picture → My Profile). With two-factor authentication, tap **I use two-factor authentication** and enter the code.
+3. Tap **Connect**. If your server uses a self-signed certificate, check the SHA-256 fingerprint and tap **Trust this certificate**.
+
+Settings, more servers and accounts are under **You** (the profile picture at the top right of every tab).
 
 ## Push notifications with ntfy
 
@@ -64,11 +74,13 @@ If your ntfy server is only on your home network, Paperless blocks webhooks to l
 
 PaperCtrl can share anonymous usage stats, **only if you say yes**. It asks once after you connect to your server, and you can change it any time in **You → Settings → Usage stats**.
 
-- **Shared:** which screens you open (the kind of screen, never what's on it), and for each upload whether it came from sharing or from **Upload files**, a rough page count (1, 2–5 or 6+) and the kind of file (PDF, image, text…). Also the app version, Android version, phone model, language, phone or tablet, and your theme setting.
+- **Shared:** which screens you open (the kind of screen, never what's on it), and for each upload whether it came from the scanner, from sharing or from **Upload files**, a rough page count (1, 2–5 or 6+) and the kind of file (PDF, image, text…). Also the app version, Android version, phone model, language, phone or tablet, and your theme setting.
 - **Never shared:** your server address, username, password or token, anything about your documents (titles, contents, tags, correspondents, file names, IDs), search text, or any ID that stays the same between sessions.
 - **Where:** VKNXWorks' own self-hosted [Aptabase](https://aptabase.com) server. Nothing goes to Google or analytics companies. Like any website, the server sees your IP address; Aptabase uses it only to work out the country and doesn't store it.
 
 Builds from source don't include the stats key, so they can't send anything and the setting is hidden. The code is in [`Telemetry.kt`](app/src/main/java/com/vknxworks/paperctrl/data/telemetry/Telemetry.kt).
+
+Apart from these opt-in stats, PaperCtrl only talks to your own Paperless-ngx server. Push notifications come through your own ntfy server (or another UnifiedPush app), and **Send a test** posts to PaperCtrl's push address there. Scanning, edge detection and ASN reading all happen on the phone.
 
 ## Build from source
 
