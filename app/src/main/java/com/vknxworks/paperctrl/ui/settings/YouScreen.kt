@@ -122,10 +122,10 @@ fun YouScreen() {
                 GroupRow(stringResource(R.string.settings), icon = Icons.Filled.Settings, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
             }
 
-            Group {
+            Group(stringResource(R.string.group_about)) {
                 GroupRow(
                     stringResource(R.string.support_title),
-                    stringResource(R.string.support_body),
+                    stringResource(R.string.support_subtitle),
                     icon = Icons.Filled.Favorite,
                     iconTint = MaterialTheme.colorScheme.error,
                     showChevron = true,

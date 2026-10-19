@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+### Changed
+- **Support PaperCtrl** under **About** on the **You** page (tap your profile picture) opens VKNXWorks' GitHub Sponsors page. The last group on the **You** page is now headed **About**, and the support row reads "PaperCtrl is free and open source. Sponsor development on GitHub", the same as in the other Ctrl apps.
+
 ## 0.3.0
 
 PaperCtrl no longer switches between your main and home-network address on its own: you choose which one it uses. It is also fully Google-free now.
