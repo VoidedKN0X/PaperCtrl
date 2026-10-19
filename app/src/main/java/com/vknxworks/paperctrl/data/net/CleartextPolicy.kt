@@ -28,7 +28,9 @@ object CleartextPolicy {
         val url = chain.request().url
         if (!url.isHttps) {
             val original = chain.call().request().url
-            if (original.isHttps || !isAllowed(original)) {
+            // Both the address the call started at and this hop (a redirect may lead elsewhere) must be
+            // servers the user chose for plain HTTP, and an HTTPS call never continues over HTTP.
+            if (original.isHttps || !isAllowed(original) || !isAllowed(url)) {
                 throw com.vknxworks.paperctrl.data.api.PaperlessException(
                     com.vknxworks.paperctrl.data.api.ErrorKind.CLEARTEXT_BLOCKED,
                     url.host,

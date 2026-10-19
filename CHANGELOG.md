@@ -1,11 +1,23 @@
 # Changelog
 
-## Unreleased
+## 0.1.3
 
-Not in a release yet; this goes out with the next version.
+### Security
+- **Removing a server now removes everything queued for it.** Before, documents still waiting to upload to a server you removed stayed on the phone (as "failed") with their file names and details. Now, removing a server deletes its waiting uploads, their files and their notifications straight away, and anything left over from a server removed with an earlier version is deleted the next time PaperCtrl starts.
+- **Share to PaperCtrl only accepts files from other apps.** A share that points at PaperCtrl's own files (through a `file://` link or one of PaperCtrl's own components) is ignored, so no app can get PaperCtrl to upload your other queued documents or its settings to your server.
+- **Size limits for shared files.** Files larger than 1 GB, more than 100 files in one share, or a file that would nearly fill your phone's storage are left out instead of being copied, and PaperCtrl tells you how many were left out.
+- **Unfinished shares are deleted sooner.** If PaperCtrl was closed or stopped while you were looking at the share screen, the copies of the shared files are now deleted the next time the app starts, instead of after a day.
+- **No file names on the lock screen.** Upload notifications ("Sending…", "Document added", "Upload failed") are marked private: when your phone hides sensitive notification content on the lock screen, they show only their title, never a file name, document title or Paperless' message.
+- **Hidden from the recent-apps preview everywhere.** Before, only the sign-in screen was hidden, and leaving it showed the app again. Now the whole app and the share screen show a blank preview in recent apps, so document titles and file names in the queue don't show there.
+- **Your home-network address is checked before it gets your token.** PaperCtrl only switches to the home-network address when Paperless itself answers there, not any device that happens to use that address on another network (a café's router, a hotel printer), so your token isn't sent to it.
+- **Warning for an unencrypted home-network address.** Typing an `http://` home-network address now shows the same "Not encrypted (HTTP)" warning as the main address, and **You → Servers and accounts** marks a server whose home address isn't encrypted.
+- **Plain HTTP can't be redirected to another server.** A server you allowed over HTTP can no longer pass a request on to a different address over HTTP; each hop must be an address you chose.
+- **Usage stats stop at once when switched off.** Turning usage stats off now also throws away anything that was still waiting to be sent, so nothing from before can go out if you switch them on again later.
+- **No document images saved to storage.** Images PaperCtrl loads (such as document thumbnails in coming updates) are kept in memory only, never written to the phone's storage.
 
 ### Changed
-
+- When you remove a server, the confirmation now says that anything still waiting in its upload queue is deleted too.
+- The "Nothing to upload" message now mentions that files over 1 GB can't be shared to PaperCtrl.
 - **All Ctrl apps in the README.** The README's Ctrl series table now lists all 14 apps. New in the table: [ArrCtrl](https://github.com/VoidedKN0X/ArrCtrl) (Radarr, Sonarr, Prowlarr, Bazarr, qBittorrent, autobrr and Cleanuparr in one app), [PrintCtrl](https://github.com/VoidedKN0X/PrintCtrl) (Bambu Lab printers through Bambuddy, and Spoolman spools), [ProxCtrl](https://github.com/VoidedKN0X/ProxCtrl) (manage your Proxmox VE server) and [TrueCtrl](https://github.com/VoidedKN0X/TrueCtrl) (monitor and manage your TrueNAS server). Every app in the table is also in the [CtrlF-Droid repo](https://voidedkn0x.github.io/CtrlF-Droid/) for automatic updates. No change to the app itself.
 
 ## 0.1.2

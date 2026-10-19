@@ -54,13 +54,25 @@ class ShareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // File names and details of private documents show here: keep them out of the recent-apps preview.
+        setRecentsScreenshotEnabled(false)
         val c = container
         askForNotifications()
         val dir = c.queue.newStagingDir().also { staging = it }
         lifecycleScope.launch {
             val uris = sharedUris(intent)
             val copied = if (uris.isNotEmpty()) {
-                Staging.copyIn(this@ShareActivity, uris, dir)
+                Staging.copyIn(this@ShareActivity, uris, dir).also { staged ->
+                    // Some (not all) were refused: not readable, another app's link to PaperCtrl's own files, or too large.
+                    val skipped = uris.size - staged.size
+                    if (skipped > 0 && staged.isNotEmpty()) {
+                        Toast.makeText(
+                            this@ShareActivity,
+                            resources.getQuantityString(R.plurals.share_skipped, skipped, skipped),
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                }
             } else {
                 intent.getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }
                     ?.let { listOf(Staging.fromText(dir, it, intent.getStringExtra(Intent.EXTRA_SUBJECT))) }

@@ -18,11 +18,15 @@ class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
     }
 
     /**
-     * Thumbnails go through the app's own HTTP client, so the same rules apply as everywhere else:
-     * the server's token, its pinned certificate, and plain HTTP only to a server the user chose.
+     * Images go through the app's base HTTP client, so plain HTTP only reaches a server the user chose
+     * and redirects can't carry credentials elsewhere. That client has no token and no pinned
+     * certificate: document thumbnails must be loaded with the server's own client.
+     * No disk cache: thumbnails and previews of private documents are never written to the phone's
+     * storage, where they'd outlive removing the server.
      */
     override fun newImageLoader(context: PlatformContext): ImageLoader =
         ImageLoader.Builder(context)
             .components { add(OkHttpNetworkFetcherFactory(callFactory = { container.http })) }
+            .diskCache { null }
             .build()
 }

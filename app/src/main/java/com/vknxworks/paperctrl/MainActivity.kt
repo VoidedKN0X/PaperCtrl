@@ -21,6 +21,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Document titles, file names and the sign-in screen never show in the recent-apps preview.
+        setRecentsScreenshotEnabled(false)
         val c = container
         if (savedInstanceState == null) c.telemetry.appOpened()
         handleOpen(intent)

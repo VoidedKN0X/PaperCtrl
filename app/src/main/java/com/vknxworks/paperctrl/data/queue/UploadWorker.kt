@@ -44,6 +44,12 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
         val start = c.queue.get(id) ?: return Result.success()
         if (!start.isActive) return Result.success()
         c.sessions.awaitReady()
+        // The server was removed from the phone: nothing may be sent anywhere, and its file goes too.
+        // (Not when no server is saved at all: a settings read that failed must never empty the queue.)
+        if (c.sessions.servers.value.isNotEmpty() && c.sessions.server(start.serverId) == null) {
+            c.queue.removeServer(start.serverId)
+            return Result.success()
+        }
         val client = c.sessions.clientFor(start.serverId)
             ?: return fail(start, applicationContext.getString(R.string.queue_server_removed))
 
