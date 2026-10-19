@@ -140,4 +140,17 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
     implementation(libs.haze)
+
+    // Scanner: camera, edge detection / perspective correction, ASN barcodes
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.opencv)
+    implementation(libs.zxing.core)
+
+    // Home screen widget, app lock
+    implementation(libs.glance.appwidget)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.fragment)
 }

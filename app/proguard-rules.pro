@@ -11,3 +11,7 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+# OpenCV's Java API is called from native code.
+-keep class org.opencv.** { *; }
+-dontwarn org.opencv.**

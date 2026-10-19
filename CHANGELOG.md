@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Groundwork for the document scanner, home screen widget and app lock (camera, image processing, barcode and biometric libraries added; no visible change yet).
+
 ## 0.1.3
 
 ### Security
