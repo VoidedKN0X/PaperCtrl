@@ -5,6 +5,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import com.vknxworks.paperctrl.notify.Notifications
 
 class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
     lateinit var container: AppContainer
@@ -13,6 +14,7 @@ class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        Notifications.ensureChannels(this)
     }
 
     /**

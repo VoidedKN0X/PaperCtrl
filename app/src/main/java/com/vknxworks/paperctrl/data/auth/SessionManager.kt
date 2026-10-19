@@ -98,6 +98,26 @@ class SessionManager(
         _ready.value = true
     }
 
+    /** Waits until saved servers have been loaded (background work can start before the UI). */
+    suspend fun awaitReady() {
+        ready.first { it }
+    }
+
+    fun server(id: String): Server? = _servers.value.firstOrNull { it.id == id }
+
+    /**
+     * A client for [serverId]: the active session's (which may be on the home-network address), or
+     * one on the main address for another saved server. Null when the server was removed or its
+     * token can't be decrypted any more.
+     */
+    fun clientFor(serverId: String): PaperlessClient? {
+        _active.value?.let { if (it.server.id == serverId) return it.client }
+        val s = server(serverId) ?: return null
+        val token = KeystoreCrypto.decrypt(s.tokenEnc) ?: return null
+        CleartextPolicy.allowServer(s.url)
+        return client(s, s.url, token)
+    }
+
     /** OkHttp client that trusts the system's CAs plus the one certificate pinned for [origin] (if any). */
     fun httpFor(server: Server, address: String): OkHttpClient {
         val pin = server.pins[originOf(address)]

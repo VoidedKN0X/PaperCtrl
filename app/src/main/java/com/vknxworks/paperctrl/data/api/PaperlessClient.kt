@@ -83,6 +83,7 @@ internal fun errorFor(code: Int, body: String): PaperlessException {
         403 -> ErrorKind.FORBIDDEN
         404 -> ErrorKind.NOT_FOUND
         406 -> ErrorKind.TOO_OLD
+        413 -> ErrorKind.TOO_LARGE
         429 -> ErrorKind.THROTTLED
         in 500..599 -> ErrorKind.SERVER
         else -> ErrorKind.UNEXPECTED

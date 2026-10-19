@@ -3,6 +3,14 @@
 ## Unreleased
 
 ### New
+- **Share to PaperCtrl:** share PDFs, photos, text and other files Paperless accepts (office documents need Tika on the server) from any app, one or many at once. PaperCtrl copies them straight away, so the sharing app can be closed.
+- **Upload files from the Scan tab:** pick documents from your phone with the new **Upload files** button until the camera scanner arrives.
+- **Combine images into one PDF:** when you share several images, they're merged into a single PDF in the order you shared them (on by default; turn it off to upload each image separately). Pages get their real paper size and stay small: a full-page photo is a few hundred KB.
+- **Optional details before uploading:** title, date, correspondent, document type, tags, storage path and archive serial number (with a **Next free** button that asks the server for the next unused ASN). Pickers list what's on your server and are searchable. Leave the details folded away and tap **Quick upload** to let Paperless match everything itself.
+- **Upload queue that works offline:** every upload waits in a queue that survives closing the app and restarting the phone, and goes out by itself once your server is reachable. If you have several servers, you choose which one each share goes to.
+- **Queue screen** (Scan tab, or tap a notification) showing each document as waiting, uploading with progress, being processed by Paperless, added, or failed with Paperless' own reason (for example "It is a duplicate of document #12"). Retry, edit the details of anything not sent yet, open an added document in Paperless, or remove items.
+- **Notifications:** a progress notification while documents upload and Paperless processes them, then "Document added" with its title, or "Upload failed" with the reason. PaperCtrl asks for notification permission the first time you share something.
+- Files are deleted from the phone as soon as Paperless has added them; finished items leave the queue list after a week.
 - **Connect to your Paperless-ngx server.** On first start PaperCtrl asks for your server's address, then signs in with your username and password, or with an API token. Use a token if you sign in to Paperless with single sign-on (SSO); the screen explains where to find it in the Paperless web app.
 - **Two-factor authentication:** accounts with an authenticator app can sign in by entering the current code. PaperCtrl asks for it automatically when the server needs one.
 - **Your password is never saved.** It's used once to get an API token from the server, and only the token is kept, encrypted with a key that never leaves this phone.

@@ -33,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +60,8 @@ import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.ui.auth.ServerSetupScreen
 import com.vknxworks.paperctrl.ui.components.LoadingView
 import com.vknxworks.paperctrl.ui.settings.ServersScreen
+import com.vknxworks.paperctrl.ui.upload.QueueScreen
+import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.LocalHazeState
@@ -110,6 +113,14 @@ private fun MainScaffold() {
             launchSingleTop = true
             restoreState = true
         }
+    }
+
+    // A notification tap asked for a screen (the upload queue).
+    val c = LocalContext.current.container
+    val pendingOpen by c.pendingOpen.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingOpen) {
+        if (pendingOpen == Notifications.OPEN_QUEUE) navController.navigate(QueueRoute) { launchSingleTop = true }
+        if (pendingOpen != null) c.pendingOpen.value = null
     }
 
     CompositionLocalProvider(LocalNavigator provides navigator) {
@@ -195,6 +206,7 @@ private fun AppNavHost(navController: NavHostController) {
         composable<YouRoute> { YouScreen() }
         composable<SettingsRoute> { SettingsScreen() }
         composable<ServersRoute> { ServersScreen() }
+        composable<QueueRoute> { QueueScreen() }
         composable<AddServerRoute> {
             val navigator = LocalNavigator.current
             ServerSetupScreen(onDone = { navController.popBackStack(InboxRoute, false) }, onCancel = navigator::back)
