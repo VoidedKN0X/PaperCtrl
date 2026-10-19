@@ -25,6 +25,10 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional app lock with fingerprint, face or screen lock, optional screenshot blocking, and a blank preview in recent apps
 
+## Screenshots
+
+Coming soon.
+
 ## Requirements
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)

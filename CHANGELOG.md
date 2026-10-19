@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **README**: a Screenshots section (screenshots are coming soon), and a link preview image (`.github/assets/social-preview.png`) with PaperCtrl's icon, name and summary, for when the repo is shared on Reddit, Discord or elsewhere
+
 ## 0.3.2
 
 ### Changed
