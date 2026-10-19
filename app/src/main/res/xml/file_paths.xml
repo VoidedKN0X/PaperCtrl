@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the copy made for sharing is ever handed to other apps. -->
+<paths>
+    <cache-path name="shared" path="shared/" />
+</paths>

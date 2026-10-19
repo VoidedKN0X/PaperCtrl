@@ -68,10 +68,18 @@ import com.vknxworks.paperctrl.ui.components.LocalHazeState
 import com.vknxworks.paperctrl.ui.settings.SettingsScreen
 import com.vknxworks.paperctrl.ui.settings.UsageStatsPrompt
 import com.vknxworks.paperctrl.ui.settings.YouScreen
-import com.vknxworks.paperctrl.ui.tabs.DocumentsTab
-import com.vknxworks.paperctrl.ui.tabs.InboxTab
-import com.vknxworks.paperctrl.ui.tabs.OrganiseTab
+import com.vknxworks.paperctrl.ui.docs.DocumentsTab
+import com.vknxworks.paperctrl.ui.inbox.InboxTab
+import com.vknxworks.paperctrl.ui.organise.OrganiseTab
+import com.vknxworks.paperctrl.ui.organise.ObjectListScreen
+import com.vknxworks.paperctrl.ui.organise.TrashScreen
 import com.vknxworks.paperctrl.ui.tabs.ScanTab
+import com.vknxworks.paperctrl.ui.document.DocumentScreen
+import com.vknxworks.paperctrl.scan.ScannerScreen
+import com.vknxworks.paperctrl.scan.ScanReviewScreen
+import com.vknxworks.paperctrl.scan.PageEditScreen
+import com.vknxworks.paperctrl.ui.settings.NtfyScreen
+import androidx.navigation.toRoute
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 
@@ -126,11 +134,22 @@ private fun MainScaffold() {
     }
     UsageStatsPrompt()
 
-    // A notification tap asked for a screen (the upload queue).
+    // A notification, shortcut, widget or tile asked for a screen.
     val pendingOpen by c.pendingOpen.collectAsStateWithLifecycle()
     LaunchedEffect(pendingOpen) {
-        if (pendingOpen == Notifications.OPEN_QUEUE) navController.navigate(QueueRoute) { launchSingleTop = true }
-        if (pendingOpen != null) c.pendingOpen.value = null
+        val open = pendingOpen ?: return@LaunchedEffect
+        c.pendingOpen.value = null
+        when {
+            open == Notifications.OPEN_QUEUE -> navController.navigate(QueueRoute) { launchSingleTop = true }
+            open == Notifications.OPEN_SCAN -> {
+                selectTab(2)
+                navController.navigate(ScannerRoute()) { launchSingleTop = true }
+            }
+            open == Notifications.OPEN_INBOX -> selectTab(0)
+            open == Notifications.OPEN_SEARCH -> selectTab(1)
+            open.startsWith(Notifications.OPEN_DOCUMENT) ->
+                open.removePrefix(Notifications.OPEN_DOCUMENT).toIntOrNull()?.let { navController.navigate(DocumentRoute(it)) }
+        }
     }
 
     CompositionLocalProvider(LocalNavigator provides navigator) {
@@ -221,6 +240,13 @@ private fun AppNavHost(navController: NavHostController) {
         composable<SettingsRoute> { SettingsScreen() }
         composable<ServersRoute> { ServersScreen() }
         composable<QueueRoute> { QueueScreen() }
+        composable<ScannerRoute> { ScannerScreen(it.toRoute<ScannerRoute>().retakeId) }
+        composable<ScanReviewRoute> { ScanReviewScreen() }
+        composable<PageEditRoute> { PageEditScreen(it.toRoute<PageEditRoute>().pageId) }
+        composable<DocumentRoute> { DocumentScreen(it.toRoute<DocumentRoute>().id) }
+        composable<ObjectListRoute> { ObjectListScreen(it.toRoute<ObjectListRoute>().kind) }
+        composable<TrashRoute> { TrashScreen() }
+        composable<NtfyRoute> { NtfyScreen() }
         composable<AddServerRoute> {
             val navigator = LocalNavigator.current
             ServerSetupScreen(onDone = { navController.popBackStack(InboxRoute, false) }, onCancel = navigator::back)

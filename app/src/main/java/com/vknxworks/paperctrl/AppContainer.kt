@@ -8,6 +8,10 @@ import com.vknxworks.paperctrl.data.net.CleartextPolicy
 import com.vknxworks.paperctrl.data.net.RedirectGuard
 import com.vknxworks.paperctrl.data.settings.SettingsRepository
 import com.vknxworks.paperctrl.data.telemetry.Telemetry
+import com.vknxworks.paperctrl.scan.ScanSession
+import com.vknxworks.paperctrl.data.files.DocumentFiles
+import com.vknxworks.paperctrl.data.files.ListCache
+import com.vknxworks.paperctrl.data.search.DocumentQuery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,8 +42,13 @@ class AppContainer(val context: Context) {
     val sessions = SessionManager(context, http, appScope)
     val metadata = MetadataRepository()
     val queue = UploadQueue(context)
+    val scan = ScanSession(context)
+    val files = DocumentFiles(context)
+    val listCache = ListCache(context)
 
     init {
+        // Viewed documents are only kept while the app runs.
+        appScope.launch(Dispatchers.IO) { files.clear() }
         // Uploads left behind for a server that's no longer saved (removed before PaperCtrl 0.1.3 deleted
         // them along with it): drop them and their files. Skipped when no server is saved at all, so a
         // settings read that failed can never wipe the queue.
@@ -60,10 +69,15 @@ class AppContainer(val context: Context) {
         sessions.remove(id)
         queue.removeServer(id)
         metadata.invalidate(id)
+        listCache.clear(id)
+        files.clear()
     }
 
     /** A screen to open, set from a notification tap; the main screen consumes it. */
     val pendingOpen = MutableStateFlow<String?>(null)
+
+    /** A search to show in the Documents tab (from Organise, "More like this", a shortcut). */
+    val pendingQuery = MutableStateFlow<DocumentQuery?>(null)
 }
 
 val Context.container: AppContainer

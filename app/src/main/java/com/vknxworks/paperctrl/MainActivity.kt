@@ -3,7 +3,16 @@ package com.vknxworks.paperctrl
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
+import android.view.WindowManager
+import androidx.compose.runtime.LaunchedEffect
+import com.vknxworks.paperctrl.notify.InboxDigestWorker
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import com.vknxworks.paperctrl.notify.Push
+import com.vknxworks.paperctrl.notify.Shortcuts
+import com.vknxworks.paperctrl.ui.lock.AppLock
+import com.vknxworks.paperctrl.ui.lock.LockScreen
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,7 +25,7 @@ import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.nav.AppRoot
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +35,12 @@ class MainActivity : ComponentActivity() {
         val c = container
         if (savedInstanceState == null) c.telemetry.appOpened()
         handleOpen(intent)
+        if (savedInstanceState == null) {
+            Shortcuts.publish(this)
+            Push.load(this)
+            // Read the stored setting: the in-memory one may not be loaded this early.
+            c.appScope.launch { InboxDigestWorker.schedule(applicationContext, c.settings.stored.first().inboxDigest) }
+        }
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
             val dark = when (settings.theme) {
@@ -40,8 +55,14 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
+            // Optional: keep the app's content out of screenshots and screen recordings.
+            LaunchedEffect(settings.secureScreens) {
+                if (settings.secureScreens) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+            val locked by AppLock.locked.collectAsStateWithLifecycle()
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {
-                AppRoot()
+                if (settings.appLock && locked && AppLock.canAuthenticate(this)) LockScreen(this) else AppRoot()
             }
         }
     }

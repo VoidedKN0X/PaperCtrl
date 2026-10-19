@@ -93,6 +93,10 @@ class ShareActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
+            androidx.compose.runtime.LaunchedEffect(settings.secureScreens) {
+                if (settings.secureScreens) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+            }
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {
                 ShareScreen(
                     files = files,

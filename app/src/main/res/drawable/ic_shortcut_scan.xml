@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcut icon: amber disc with a dark glyph. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:fillColor="#FFF0C27A" android:pathData="M24,0A24,24 0 1 1 24,48A24,24 0 1 1 24,0Z" />
+    <group android:translateX="12" android:translateY="12">
+        <path android:fillColor="#FF121418" android:pathData="M7,3H4A1,1 0 0 0 3,4V7H5V5H7Z M17,3V5H19V7H21V4A1,1 0 0 0 20,3Z M5,17H3V20A1,1 0 0 0 4,21H7V19H5Z M19,19H17V21H20A1,1 0 0 0 21,20V17H19Z M3,11H21V13H3Z" />
+    </group>
+</vector>
