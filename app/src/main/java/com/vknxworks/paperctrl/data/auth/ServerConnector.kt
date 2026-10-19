@@ -100,13 +100,13 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
         val trust = PinnedTrust(pins[originOf(base)])
         val http = clientFor(trust)
 
-        probe(base, http, trust, pins, allowHttpFallback = !hasExplicitScheme(address))
+        val api = probe(base, http, trust, pins, allowHttpFallback = !hasExplicitScheme(address))
         val token = when (credentials) {
             is Credentials.Token -> credentials.token.trim().removePrefix("Token ").trim()
-            is Credentials.Password -> fetchToken(base, http, credentials)
+            is Credentials.Password -> fetchToken(api, http, credentials)
         }
         if (token.isEmpty()) throw PaperlessException(ErrorKind.BAD_TOKEN)
-        return whoAmI(base, token, http)
+        return whoAmI(api, token, http)
     }
 
     /**
@@ -118,13 +118,13 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
         CleartextPolicy.allowServer(base)
         val trust = PinnedTrust(pins[originOf(base)])
         val http = clientFor(trust)
-        probe(base, http, trust, pins, allowHttpFallback = false)
-        val other = whoAmI(base, token, http)
+        val api = probe(base, http, trust, pins, allowHttpFallback = false)
+        val other = whoAmI(api, token, http)
         // Same user on a server of the same version: close enough to be sure it's the same Paperless.
         if (other.settings.user.id != expected.settings.user.id || other.serverVersion != expected.serverVersion) {
             throw PaperlessException(ErrorKind.UNEXPECTED, "This address leads to a different Paperless server.")
         }
-        return base
+        return api
     }
 
     /** True when [base] answers quickly (any HTTP response, with a trusted certificate). */
@@ -136,37 +136,72 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
         }.getOrDefault(false)
     }
 
+    /**
+     * Checks that a Paperless-ngx API answers at [base] and returns the base to use (a same-server
+     * redirect, e.g. a proxy forcing HTTPS, moves it). Probes /api/ui_settings/, which answers
+     * anonymous requests with a JSON 401 on every version; /api/ itself redirects to the HTML API
+     * docs on Paperless 3. Redirects are followed by hand so a proxy's sign-in portal (Authelia,
+     * Authentik…) or a Cloudflare challenge gets its own explanation.
+     */
     private suspend fun probe(
         base: String,
         http: OkHttpClient,
         trust: PinnedTrust,
         pins: Map<String, String>,
         allowHttpFallback: Boolean,
-    ) = withContext(Dispatchers.IO) {
-        val url = apiUrl(base, "")
-        try {
-            http.newCall(Request.Builder().url(url).header("Accept", "application/json").get().build()).execute().use { resp ->
-                // Paperless answers /api/ with JSON: the API root (200) or "not signed in" (401/403).
-                val type = resp.header("Content-Type").orEmpty()
-                val looksLikeApi = resp.code in listOf(200, 401, 403) && type.contains("json", ignoreCase = true)
-                if (!looksLikeApi) throw PaperlessException(ErrorKind.NOT_PAPERLESS, httpCode = resp.code)
-            }
-        } catch (e: PaperlessException) {
-            throw e
-        } catch (e: IOException) {
-            if (isTlsProblem(e)) {
-                val cert = trust.rejected
-                if (cert != null) {
-                    val info = CertInfo.of(cert)
-                    throw NeedsTrust(base, info, changed = pins.containsKey(originOf(base)))
+    ): String = withContext(Dispatchers.IO) {
+        val noRedirects = http.newBuilder().followRedirects(false).followSslRedirects(false).build()
+        var current = base
+        repeat(4) {
+            val url = apiUrl(current, PROBE_PATH)
+            val resp = try {
+                noRedirects.newCall(Request.Builder().url(url).header("Accept", "application/json").get().build()).execute()
+            } catch (e: IOException) {
+                if (e is PaperlessException) throw e
+                if (isTlsProblem(e)) {
+                    val cert = trust.rejected
+                    if (cert != null) throw NeedsTrust(current, CertInfo.of(cert), changed = pins.containsKey(originOf(current)))
+                    throw PaperlessException(ErrorKind.TLS, e.message, cause = e)
                 }
-                throw PaperlessException(ErrorKind.TLS, e.message, cause = e)
+                if (allowHttpFallback && current == base && base.startsWith("https://")) {
+                    throw HttpFallbackNeeded("http://" + base.removePrefix("https://"))
+                }
+                throw PaperlessException(ErrorKind.UNREACHABLE, e.message, cause = e)
             }
-            if (allowHttpFallback && base.startsWith("https://")) {
-                throw HttpFallbackNeeded("http://" + base.removePrefix("https://"))
+            resp.use { r ->
+                val type = r.header("Content-Type").orEmpty()
+                if (r.code in listOf(200, 401, 403) && type.contains("json", ignoreCase = true)) return@withContext current
+                if (r.code in 300..399) {
+                    val target = r.header("Location")?.let { url.resolve(it) }
+                    val targetPath = target?.encodedPath.orEmpty()
+                    // Same server, API path kept (HTTPS upgrade, trailing slash, sub-path): follow it.
+                    if (target != null && target.host.equals(url.host, ignoreCase = true) && targetPath.endsWith("/api/$PROBE_PATH")) {
+                        if (!target.isHttps && url.isHttps) throw PaperlessException(ErrorKind.CLEARTEXT_BLOCKED, target.host)
+                        current = target.newBuilder()
+                            .encodedPath(targetPath.removeSuffix("api/$PROBE_PATH"))
+                            .query(null)
+                            .build()
+                            .toString()
+                        CleartextPolicy.allowServer(current)
+                        return@use
+                    }
+                    throw PaperlessException(ErrorKind.PROXY_LOGIN, target?.host ?: url.host, r.code)
+                }
+                throw PaperlessException(ErrorKind.NOT_PAPERLESS, describe(r), r.code)
             }
-            throw PaperlessException(ErrorKind.UNREACHABLE, e.message, cause = e)
         }
+        throw PaperlessException(ErrorKind.NOT_PAPERLESS, "Too many redirects")
+    }
+
+    /** What answered instead of Paperless, for the error message: status, content type and server software. */
+    private fun describe(r: okhttp3.Response): String {
+        val parts = mutableListOf("HTTP ${r.code}")
+        r.header("Content-Type")?.substringBefore(';')?.trim()?.takeIf { it.isNotEmpty() }?.let { parts += it }
+        when {
+            r.header("cf-ray") != null || r.header("Server").orEmpty().contains("cloudflare", ignoreCase = true) -> parts += "Cloudflare"
+            else -> r.header("Server")?.take(40)?.let { parts += it }
+        }
+        return parts.joinToString(", ")
     }
 
     private suspend fun fetchToken(base: String, http: OkHttpClient, c: Credentials.Password): String = withContext(Dispatchers.IO) {
@@ -233,6 +268,10 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
             serverVersion = serverVersion,
             settings = settings,
         )
+    }
+
+    private companion object {
+        const val PROBE_PATH = "ui_settings/"
     }
 
     private fun apiUrl(base: String, path: String): HttpUrl =

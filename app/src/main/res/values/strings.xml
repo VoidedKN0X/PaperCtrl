@@ -122,7 +122,8 @@
     <string name="error_bad_token">The server didn\'t accept the token. It may have been deleted or replaced; sign in again.</string>
     <string name="error_mfa_required">This account uses two-factor authentication. Enter the code from your authenticator app.</string>
     <string name="error_mfa_invalid">That authentication code wasn\'t right. Codes change every 30 seconds; try the current one.</string>
-    <string name="error_not_paperless">There\'s no Paperless-ngx API at this address. If Paperless runs under a sub-path, include it (for example example.com/paperless).</string>
+    <string name="error_not_paperless">Something answered at this address, but not Paperless-ngx\'s API. Check the address; if Paperless runs under a sub-path, include it (for example example.com/paperless).</string>
+    <string name="error_proxy_login">The address forwards to a sign-in page on %1$s instead of to Paperless. If your reverse proxy protects Paperless with a login (Authelia, Authentik…), let the /api/ path through without it, or use the home-network address.</string>
     <string name="error_too_old">This Paperless-ngx version is too old for PaperCtrl. Update the server to a current version.</string>
     <string name="error_too_old_version">This server runs Paperless-ngx %1$s, which is too old for PaperCtrl. Update it to a current version.</string>
     <string name="error_forbidden">Your account isn\'t allowed to do this on the server.</string>

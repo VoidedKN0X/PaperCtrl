@@ -15,10 +15,11 @@ fun Throwable.friendlyMessage(context: Context): String = when (this) {
     is PaperlessException -> {
         val base = when (kind) {
             ErrorKind.TOO_OLD -> context.getString(R.string.error_too_old_version, detail ?: "?")
+            ErrorKind.PROXY_LOGIN -> context.getString(R.string.error_proxy_login, detail ?: "?")
             else -> context.getString(kind.message)
         }
         val showDetail = detail != null && kind in setOf(
-            ErrorKind.BAD_CREDENTIALS, ErrorKind.FORBIDDEN, ErrorKind.SERVER, ErrorKind.UNEXPECTED, ErrorKind.TLS,
+            ErrorKind.BAD_CREDENTIALS, ErrorKind.FORBIDDEN, ErrorKind.SERVER, ErrorKind.UNEXPECTED, ErrorKind.TLS, ErrorKind.NOT_PAPERLESS,
         )
         if (showDetail) "$base\n\n$detail" else base
     }

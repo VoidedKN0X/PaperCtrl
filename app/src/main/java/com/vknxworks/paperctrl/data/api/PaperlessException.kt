@@ -14,6 +14,7 @@ enum class ErrorKind(@StringRes val message: Int) {
     MFA_REQUIRED(R.string.error_mfa_required),
     MFA_INVALID(R.string.error_mfa_invalid),
     NOT_PAPERLESS(R.string.error_not_paperless),
+    PROXY_LOGIN(R.string.error_proxy_login),
     TOO_OLD(R.string.error_too_old),
     FORBIDDEN(R.string.error_forbidden),
     NOT_FOUND(R.string.error_not_found),
