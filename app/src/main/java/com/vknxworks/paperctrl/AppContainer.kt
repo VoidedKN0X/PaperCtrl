@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -37,6 +38,29 @@ class AppContainer(val context: Context) {
     val sessions = SessionManager(context, http, appScope)
     val metadata = MetadataRepository()
     val queue = UploadQueue(context)
+
+    init {
+        // Uploads left behind for a server that's no longer saved (removed before PaperCtrl 0.1.3 deleted
+        // them along with it): drop them and their files. Skipped when no server is saved at all, so a
+        // settings read that failed can never wipe the queue.
+        appScope.launch {
+            sessions.awaitReady()
+            val known = sessions.servers.value.map { it.id }.toSet()
+            if (known.isNotEmpty()) {
+                queue.items.value.map { it.serverId }.distinct().filterNot { it in known }.forEach { queue.removeServer(it) }
+            }
+        }
+    }
+
+    /**
+     * Forgets a server and everything PaperCtrl kept for it on this phone: its token, its queued
+     * uploads with their files and notifications, and the cached tags and correspondents.
+     */
+    suspend fun removeServer(id: String) {
+        sessions.remove(id)
+        queue.removeServer(id)
+        metadata.invalidate(id)
+    }
 
     /** A screen to open, set from a notification tap; the main screen consumes it. */
     val pendingOpen = MutableStateFlow<String?>(null)

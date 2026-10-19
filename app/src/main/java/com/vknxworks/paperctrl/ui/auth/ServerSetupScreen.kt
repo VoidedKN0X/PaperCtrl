@@ -1,8 +1,5 @@
 package com.vknxworks.paperctrl.ui.auth
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +39,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -90,12 +86,8 @@ private enum class Method { PASSWORD, TOKEN }
 fun ServerSetupScreen(onDone: () -> Unit, onCancel: (() -> Unit)?) {
     val context = LocalContext.current
     val c = context.container
-    // Passwords and tokens can be shown in clear text here: keep this screen out of the recent-apps preview.
-    DisposableEffect(Unit) {
-        val activity = context.findActivity()
-        activity?.setRecentsScreenshotEnabled(false)
-        onDispose { activity?.setRecentsScreenshotEnabled(true) }
-    }
+    // Passwords and tokens can be shown in clear text here. The whole app is kept out of the recent-apps
+    // preview (MainActivity), so this screen needs nothing extra.
     val scope = rememberCoroutineScope()
 
     var address by rememberSaveable { mutableStateOf("") }
@@ -270,6 +262,9 @@ fun ServerSetupScreen(onDone: () -> Unit, onCancel: (() -> Unit)?) {
                     keyboard = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next, autoCorrectEnabled = false),
                     enabled = !busy,
                 )
+                if (lanAddress.trim().startsWith("http://", ignoreCase = true)) {
+                    Notice(Icons.Outlined.LockOpen, stringResource(R.string.setup_lan_http_notice), warn = true)
+                }
                 Notice(Icons.Outlined.Home, stringResource(R.string.setup_lan_notice))
             } else {
                 TextButton(onClick = { showLan = true }, enabled = !busy) { Text(stringResource(R.string.setup_lan_add)) }
@@ -411,12 +406,6 @@ private fun Notice(icon: ImageVector, text: String, warn: Boolean = false) {
         Spacer(Modifier.width(12.dp))
         Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-}
-
-private tailrec fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
 }
 
 @Composable

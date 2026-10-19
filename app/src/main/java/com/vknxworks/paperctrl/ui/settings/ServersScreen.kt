@@ -86,7 +86,7 @@ fun ServersScreen() {
             onDismiss = { removing = null },
         ) {
             removing = null
-            c.appScope.launch { c.sessions.remove(s.id) }
+            c.appScope.launch { c.removeServer(s.id) }
         }
     }
 }
@@ -97,5 +97,6 @@ private fun serverSubtitle(s: Server): String {
     s.lanUrl?.let { parts += stringResource(R.string.servers_home_address, it.removeSuffix("/")) }
     s.serverVersion?.let { parts += stringResource(R.string.servers_version, it) }
     if (!s.isEncrypted()) parts += stringResource(R.string.not_encrypted)
+    s.lanUrl?.let { if (!s.isEncrypted(it)) parts += stringResource(R.string.servers_home_not_encrypted) }
     return parts.joinToString("  ·  ")
 }

@@ -15,7 +15,11 @@ import com.vknxworks.paperctrl.MainActivity
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.data.queue.QueueItem
 
-/** Upload progress and results. Notification text never includes document contents. */
+/**
+ * Upload progress and results. Notification text never includes document contents; file names and
+ * titles are private notification content, replaced by a bare title on a lock screen that hides
+ * sensitive content.
+ */
 object Notifications {
     const val CH_UPLOADS = "uploads"
     const val CH_RESULTS = "upload_results"
@@ -63,6 +67,8 @@ object Notifications {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.notif_upload_title))
             .setContentText(text)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(publicVersion(context, CH_UPLOADS, context.getString(R.string.notif_upload_title)))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSilent(true)
@@ -80,6 +86,8 @@ object Notifications {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(context.getString(R.string.notif_added_title))
                 .setContentText(title ?: item.fileName)
+                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+                .setPublicVersion(publicVersion(context, CH_RESULTS, context.getString(R.string.notif_added_title)))
                 .setAutoCancel(true)
                 .setContentIntent(openQueue(context))
                 .build(),
@@ -95,12 +103,33 @@ object Notifications {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(context.getString(R.string.notif_failed_title))
                 .setContentText(text)
+                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+                .setPublicVersion(publicVersion(context, CH_RESULTS, context.getString(R.string.notif_failed_title)))
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 .setAutoCancel(true)
                 .setContentIntent(openQueue(context))
                 .build(),
         )
     }
+
+    /** Removes an item's progress and result notifications (its server was removed). */
+    fun cancel(context: Context, item: QueueItem) {
+        val nm = NotificationManagerCompat.from(context)
+        runCatching {
+            nm.cancel(progressId(item))
+            nm.cancel(resultId(item))
+        }
+    }
+
+    /**
+     * What the lock screen shows when the user hides sensitive notification content: the title alone,
+     * never a file name, document title or Paperless' message (which can name the document).
+     */
+    private fun publicVersion(context: Context, channel: String, title: String): Notification =
+        NotificationCompat.Builder(context, channel)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .build()
 
     private fun post(context: Context, id: Int, notification: Notification) {
         ensureChannels(context)

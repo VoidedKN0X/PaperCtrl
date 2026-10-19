@@ -127,12 +127,19 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
         return api
     }
 
-    /** True when [base] answers quickly (any HTTP response, with a trusted certificate). */
+    /**
+     * True when a Paperless API answers quickly at [base] (with a trusted certificate). The token is
+     * only sent to the home-network address after this, so a different device that happens to use
+     * that address on another network (a café's router, a hotel printer) must not count: it has to
+     * give the same JSON answer to an anonymous request that Paperless gives, without redirecting.
+     */
     suspend fun isReachable(base: String, pin: String?): Boolean = withContext(Dispatchers.IO) {
-        val http = clientFor(PinnedTrust(pin), quick = true)
-        val url = base.toHttpUrlOrNull()?.resolve("api/") ?: return@withContext false
+        val http = clientFor(PinnedTrust(pin), quick = true).newBuilder().followRedirects(false).followSslRedirects(false).build()
+        val url = base.toHttpUrlOrNull()?.resolve("api/$PROBE_PATH") ?: return@withContext false
         runCatching {
-            http.newCall(Request.Builder().url(url).header("Accept", "application/json").get().build()).execute().use { true }
+            http.newCall(Request.Builder().url(url).header("Accept", "application/json").get().build()).execute().use { r ->
+                r.code in listOf(200, 401, 403) && r.header("Content-Type").orEmpty().contains("json", ignoreCase = true)
+            }
         }.getOrDefault(false)
     }
 

@@ -78,6 +78,7 @@
     <string name="setup_lan_add">Add a home-network address</string>
     <string name="setup_lan_address">Home-network address (optional)</string>
     <string name="setup_lan_address_hint">192.168.1.20:8000</string>
+    <string name="setup_lan_http_notice">Not encrypted (HTTP). At home, your token and documents go to this address in the clear. PaperCtrl only switches to it when Paperless answers there.</string>
     <string name="setup_lan_notice">PaperCtrl uses this address whenever it answers, which is faster at home, and the main address everywhere else. It switches by itself when your network changes.</string>
     <string name="setup_method_password">Password</string>
     <string name="setup_method_token">API token</string>
@@ -119,8 +120,9 @@
     <string name="servers_add">Add a server or account</string>
     <string name="servers_remove">Remove</string>
     <string name="servers_remove_title">Remove %1$s from this phone?</string>
-    <string name="servers_remove_body">PaperCtrl forgets the server and its token. The token stays valid on the server; you can delete it there from your profile.</string>
+    <string name="servers_remove_body">PaperCtrl forgets the server and its token, and deletes anything still waiting in the upload queue for it. The token stays valid on the server; you can delete it there from your profile.</string>
     <string name="servers_home_address">home: %1$s</string>
+    <string name="servers_home_not_encrypted">home address not encrypted (HTTP)</string>
     <string name="servers_version">Paperless-ngx %1$s</string>
 
     <!-- Errors -->
@@ -200,7 +202,7 @@
     <string name="share_no_server_body">Open PaperCtrl and connect to your Paperless-ngx server first, then share again.</string>
     <string name="share_open_app">Open PaperCtrl</string>
     <string name="share_nothing_title">Nothing to upload</string>
-    <string name="share_nothing_body">PaperCtrl couldn\'t read what was shared. Try sharing the file itself rather than a link to it.</string>
+    <string name="share_nothing_body">PaperCtrl couldn\'t read what was shared, or it\'s larger than 1 GB. Try sharing the file itself rather than a link to it.</string>
 
     <!-- Notifications -->
     <string name="channel_uploads">Uploads in progress</string>
@@ -224,6 +226,10 @@
     <plurals name="share_queued">
         <item quantity="one">Added to the upload queue</item>
         <item quantity="other">%d documents added to the upload queue</item>
+    </plurals>
+    <plurals name="share_skipped">
+        <item quantity="one">%d file was left out: it couldn\'t be read, is larger than 1 GB, or your phone is almost full.</item>
+        <item quantity="other">%d files were left out: they couldn\'t be read, are larger than 1 GB, or your phone is almost full.</item>
     </plurals>
     <plurals name="scan_queue_active">
         <item quantity="one">%d document on its way</item>

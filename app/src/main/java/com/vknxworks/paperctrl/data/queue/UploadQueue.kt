@@ -12,6 +12,7 @@ import androidx.work.workDataOf
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.data.api.ApiJson
 import com.vknxworks.paperctrl.data.api.UploadMeta
+import com.vknxworks.paperctrl.notify.Notifications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -155,6 +156,24 @@ class UploadQueue(private val context: Context) {
         mutate { list -> list.filterNot { it.id == id } }
     }
 
+    /**
+     * Drops everything queued for a server that was removed from the phone: its uploads stop, and
+     * their files, details and notifications are deleted.
+     */
+    suspend fun removeServer(serverId: String) {
+        val gone = _items.value.filter { it.serverId == serverId }
+        if (gone.isEmpty()) return
+        val ids = gone.map { it.id }.toSet()
+        mutate { list -> list.filterNot { it.id in ids } }
+        withContext(Dispatchers.IO) { gone.forEach { File(dir, it.id).deleteRecursively() } }
+        // Last, because an upload worker calls this for its own item and is cancelled with its work.
+        val work = WorkManager.getInstance(context)
+        gone.forEach {
+            work.cancelUniqueWork(workName(it.id))
+            Notifications.cancel(context, it)
+        }
+    }
+
     suspend fun clearFinished() {
         val done = _items.value.filter { it.status == QueueStatus.DONE }
         withContext(Dispatchers.IO) { done.forEach { File(dir, it.id).deleteRecursively() } }
@@ -203,10 +222,14 @@ class UploadQueue(private val context: Context) {
         }
     }
 
-    /** Leftover staging folders (a share that was cancelled) and finished items older than a week. */
+    /**
+     * Leftover staging folders and finished items older than a week. This runs once when the app's
+     * process starts, before any share screen can make a staging folder, so every folder still there
+     * belongs to a share that never finished (the app was closed or killed) and is deleted right away.
+     */
     private fun cleanUp() {
         val now = System.currentTimeMillis()
-        stagingDir.listFiles()?.forEach { if (now - it.lastModified() > DAY_MS) it.deleteRecursively() }
+        stagingDir.listFiles()?.forEach { it.deleteRecursively() }
         val keep = _items.value.filterNot { it.status == QueueStatus.DONE && now - it.updatedAt > 7 * DAY_MS }
         if (keep.size != _items.value.size) {
             _items.value = keep

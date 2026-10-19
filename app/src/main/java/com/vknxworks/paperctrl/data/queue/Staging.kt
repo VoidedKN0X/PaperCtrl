@@ -2,12 +2,15 @@ package com.vknxworks.paperctrl.data.queue
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -25,23 +28,79 @@ data class StagedFile(
 
 object Staging {
 
+    /** Largest file PaperCtrl copies in from a share; anything bigger is skipped. */
+    const val MAX_FILE_BYTES = 1024L * 1024 * 1024
+
+    /** Most files taken from one share. */
+    const val MAX_FILES = 100
+
+    /** Copying stops when the phone would be left with less free space than this. */
+    private const val MIN_FREE_BYTES = 256L * 1024 * 1024
+    private const val SPACE_CHECK_BYTES = 8L * 1024 * 1024
+
     /**
      * Copies shared or picked files into [dir]. Shared links are only readable for a short time, so
-     * everything is copied straight away. Only content:// URIs are accepted: a file:// URI could point
-     * at this app's own private files.
+     * everything is copied straight away. Only content:// URIs from another app are accepted: a
+     * file:// URI or one of this app's own providers could point at its private files (other queued
+     * documents, the saved token), which another app could otherwise get uploaded on its behalf.
+     * Files over [MAX_FILE_BYTES], or that would nearly fill the phone, are skipped.
      */
     suspend fun copyIn(context: Context, uris: List<Uri>, dir: File): List<StagedFile> = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
-        uris.distinct().filter { it.scheme == ContentResolver.SCHEME_CONTENT }.mapNotNull { uri ->
+        uris.distinct().filter { isForeignContentUri(context, it) }.take(MAX_FILES).mapNotNull { uri ->
+            val target = File(dir, UUID.randomUUID().toString())
             runCatching {
                 val mime = resolver.getType(uri)?.lowercase() ?: guessMime(displayName(resolver, uri))
                 val name = safeName(displayName(resolver, uri) ?: "document", mime)
-                val target = File(dir, UUID.randomUUID().toString())
-                resolver.openInputStream(uri)?.use { input -> target.outputStream().use { input.copyTo(it) } }
-                    ?: return@runCatching null
+                val copied = resolver.openInputStream(uri)?.use { input -> target.outputStream().use { copyBounded(input, it, dir) } }
+                if (copied != true) {
+                    target.delete()
+                    return@runCatching null
+                }
                 StagedFile(target, name, mime)
-            }.getOrNull()
+            }.getOrElse {
+                target.delete()
+                null
+            }
         }
+    }
+
+    /**
+     * Copies at most [MAX_FILE_BYTES], checking free space as it goes. False (with a partial file
+     * the caller deletes) when the file is too large or the phone is running out of space.
+     */
+    private fun copyBounded(input: InputStream, output: OutputStream, dir: File): Boolean {
+        val buffer = ByteArray(64 * 1024)
+        var total = 0L
+        var sinceCheck = SPACE_CHECK_BYTES // check before the first write
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) return true
+            total += read
+            if (total > MAX_FILE_BYTES) return false
+            sinceCheck += read
+            if (sinceCheck >= SPACE_CHECK_BYTES) {
+                if (dir.usableSpace < MIN_FREE_BYTES) return false
+                sinceCheck = 0
+            }
+            output.write(buffer, 0, read)
+        }
+    }
+
+    /**
+     * Whether a URI another app handed over is safe to read: only content:// from another app's
+     * provider, never file:// and never a provider that belongs to PaperCtrl itself.
+     */
+    fun isForeignContentUri(context: Context, uri: Uri): Boolean {
+        if (!uri.scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true)) return false
+        // "content://0@<authority>" still reaches <authority> (the number is a user id), so look past it.
+        val authority = uri.authority?.substringAfterLast('@')?.takeIf { it.isNotBlank() } ?: return false
+        if (authority.startsWith(context.packageName)) return false
+        // Whatever its name, a provider that belongs to this app is never "another app's".
+        val owner = runCatching {
+            context.packageManager.resolveContentProvider(authority, PackageManager.ComponentInfoFlags.of(0))?.packageName
+        }.getOrNull()
+        return owner != context.packageName
     }
 
     /** Text shared without a file (a note, a copied message) becomes a .txt document. */
