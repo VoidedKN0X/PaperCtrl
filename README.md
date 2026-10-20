@@ -2,7 +2,7 @@
 
 **Scan paper into Paperless-ngx and browse your documents.**
 
-[![Latest release](https://img.shields.io/github/v/release/VoidedKN0X/PaperCtrl?label=download)](https://github.com/VoidedKN0X/PaperCtrl/releases/latest) ![Android 13+](https://img.shields.io/badge/Android-13%2B-3DDC84?logo=android&logoColor=white) [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE) [![Sponsor](https://img.shields.io/badge/sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VoidedKN0X)
+[![Latest release](https://img.shields.io/github/v/release/VoidedKN0X/PaperCtrl?label=download)](https://github.com/VoidedKN0X/PaperCtrl/releases/latest) ![Android 13+](https://img.shields.io/badge/Android-13%2B-3DDC84?logo=android&logoColor=white) [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE) ![Telemetry-free](https://img.shields.io/badge/telemetry-none-brightgreen) [![Sponsor](https://img.shields.io/badge/sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VoidedKN0X)
 
 PaperCtrl is an Android app for self-hosted [Paperless-ngx](https://docs.paperless-ngx.com/) servers: a document scanner that gets paper into Paperless in a few taps, and a fast document browser made for your phone.
 
@@ -77,17 +77,9 @@ PaperCtrl tells you about its own uploads by itself. To also hear about document
 
 If your ntfy server is only on your home network, Paperless blocks webhooks to local addresses by default: set `PAPERLESS_WEBHOOKS_ALLOW_INTERNAL_REQUESTS=true` on the server, or use ntfy's public HTTPS address. Tapping a notification opens the document.
 
-## Usage stats
+## Privacy
 
-PaperCtrl can share anonymous usage stats, **only if you say yes**. It asks once after you connect to your server, and you can change it any time in **You → Settings → Usage stats**.
-
-- **Shared:** which screens you open (the kind of screen, never what's on it), and for each upload whether it came from the scanner, from sharing or from **Upload files**, a rough page count (1, 2–5 or 6+) and the kind of file (PDF, image, text…). Also the app version, Android version, phone model, language, phone or tablet, and your theme setting.
-- **Never shared:** your server address, username, password or token, anything about your documents (titles, contents, tags, correspondents, file names, IDs), search text, or any ID that stays the same between sessions.
-- **Where:** VKNXWorks' own self-hosted [Aptabase](https://aptabase.com) server. Nothing goes to Google or analytics companies. Like any website, the server sees your IP address; Aptabase uses it only to work out the country and doesn't store it.
-
-Builds from source don't include the stats key, so they can't send anything and the setting is hidden. The code is in [`Telemetry.kt`](app/src/main/java/com/vknxworks/paperctrl/data/telemetry/Telemetry.kt).
-
-Apart from these opt-in stats, PaperCtrl only talks to your own Paperless-ngx server. Push notifications come through your own ntfy server (or another UnifiedPush app), and **Send a test** posts to PaperCtrl's push address there. Scanning, edge detection and ASN reading all happen on the phone.
+**Telemetry-free.** PaperCtrl has no analytics, crash reporting, usage stats or tracking of any kind. It only talks to your own Paperless-ngx server. Push notifications come through your own ntfy server (or another UnifiedPush app), and **Send a test** posts to PaperCtrl's push address there. Scanning, edge detection and ASN reading all happen on the phone.
 
 ## Build from source
 

@@ -66,7 +66,6 @@ import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.LocalHazeState
 import com.vknxworks.paperctrl.ui.settings.SettingsScreen
-import com.vknxworks.paperctrl.ui.settings.UsageStatsPrompt
 import com.vknxworks.paperctrl.ui.settings.YouScreen
 import com.vknxworks.paperctrl.ui.docs.DocumentsTab
 import com.vknxworks.paperctrl.ui.inbox.InboxTab
@@ -126,13 +125,6 @@ private fun MainScaffold() {
 
     val c = LocalContext.current.container
 
-    // Usage stats (only if the user opted in): the kind of screen, never what it shows.
-    val entryId = backStack?.id
-    val screen = dest?.route?.let(::screenName)
-    LaunchedEffect(entryId) {
-        if (screen != null) c.telemetry.track("screen_viewed", mapOf("screen" to screen))
-    }
-    UsageStatsPrompt()
 
     // A notification, shortcut, widget or tile asked for a screen.
     val pendingOpen by c.pendingOpen.collectAsStateWithLifecycle()
@@ -224,9 +216,6 @@ private fun PhoneLayout(
     }
 }
 
-/** "com.vknxworks.paperctrl.ui.nav.QueueRoute" -> "Queue". Only the route's class name, never its arguments. */
-private fun screenName(route: String): String =
-    route.substringBefore('/').substringBefore('?').substringAfterLast('.').removeSuffix("Route")
 
 @Composable
 private fun AppNavHost(navController: NavHostController) {

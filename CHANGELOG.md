@@ -1,10 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.3.3
+
+### Privacy
+
+- **No more usage stats: PaperCtrl is now telemetry-free.** The optional anonymous usage stats are gone completely, along with the Usage stats setting and the one-time question. The app no longer contacts VKNXWorks' stats server at all, and the settings it used are deleted from your phone when you update. PaperCtrl now only talks to your own Paperless-ngx server, and to your ntfy server if you use push notifications.
 
 ### Changed
 
 - **README**: a Screenshots section (screenshots are coming soon), and a link preview image (`.github/assets/social-preview.png`) with PaperCtrl's icon, name and summary, for when the repo is shared on Reddit, Discord or elsewhere
+- **README**: a Privacy section and a Telemetry-free badge replace the Usage stats section, and the link preview image has a Telemetry-free tag
 
 ## 0.3.2
 

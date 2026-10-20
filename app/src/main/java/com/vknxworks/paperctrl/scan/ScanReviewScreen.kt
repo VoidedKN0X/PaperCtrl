@@ -69,7 +69,6 @@ import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.UploadMeta
 import com.vknxworks.paperctrl.data.queue.Staging
-import com.vknxworks.paperctrl.data.telemetry.Telemetry
 import com.vknxworks.paperctrl.ui.components.ConfirmDialog
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
@@ -336,10 +335,6 @@ private fun UploadSheet(pageCount: Int, onDismiss: () -> Unit) {
                                     c.scan.writePdf(pdf, settings.pdfQuality.quality)
                                     c.queue.enqueue(id, pdf, "Scan ${Staging.timestamp()}.pdf", "application/pdf", if (details) meta else UploadMeta())
                                     c.queue.discardStaging(dir)
-                                    c.telemetry.track(
-                                        "document_uploaded",
-                                        mapOf("source" to "scan", "pages" to Telemetry.pageBucket(pageCount), "kind" to "scan"),
-                                    )
                                 }.isSuccess
                                 if (ok) {
                                     c.scan.clear()
