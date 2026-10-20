@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.widget.Toast
@@ -136,16 +137,16 @@ fun DocumentScreen(id: Int) {
                             })
                             DropdownMenuItem(text = { Text(stringResource(R.string.doc_share_file)) }, leadingIcon = { Icon(Icons.Outlined.Share, null) }, onClick = {
                                 menu = false
-                                withFile { f -> context.startActivity(Intent.createChooser(c.files.shareIntent(f), null)) }
+                                withFile { f -> AppLock.expectReturn(); context.startActivity(Intent.createChooser(c.files.shareIntent(f), null)) }
                             })
                             DropdownMenuItem(text = { Text(stringResource(R.string.viewer_open_with)) }, leadingIcon = { Icon(Icons.Outlined.OpenInNew, null) }, onClick = {
                                 menu = false
-                                withFile { f -> runCatching { context.startActivity(c.files.openWithIntent(f)) }.onFailure { toast(context.getString(R.string.open_link_failed)) } }
+                                withFile { f -> AppLock.expectReturn(); runCatching { context.startActivity(c.files.openWithIntent(f)) }.onFailure { toast(context.getString(R.string.open_link_failed)) } }
                             })
                             DropdownMenuItem(text = { Text(stringResource(R.string.doc_open_browser)) }, leadingIcon = { Icon(Icons.Outlined.OpenInBrowser, null) }, onClick = {
                                 menu = false
                                 val url = model.client?.webUrl(id) ?: return@DropdownMenuItem
-                                try { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) } catch (_: ActivityNotFoundException) { toast(context.getString(R.string.open_link_failed)) }
+                                AppLock.expectReturn(); try { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) } catch (_: ActivityNotFoundException) { toast(context.getString(R.string.open_link_failed)) }
                             })
                             DropdownMenuItem(text = { Text(stringResource(R.string.doc_more_like)) }, leadingIcon = { Icon(Icons.Outlined.TravelExplore, null) }, onClick = {
                                 menu = false
@@ -216,7 +217,7 @@ fun DocumentScreen(id: Int) {
                             }
                             val f = model.file
                             when {
-                                f != null -> DocumentViewer(f, onOpenWith = { runCatching { context.startActivity(c.files.openWithIntent(f)) } }, modifier = Modifier.weight(1f))
+                                f != null -> DocumentViewer(f, onOpenWith = { AppLock.expectReturn(); runCatching { context.startActivity(c.files.openWithIntent(f)) } }, modifier = Modifier.weight(1f))
                                 model.fileError != null -> MessageView(Icons.Outlined.Description, stringResource(R.string.load_failed), model.fileError, actionLabel = stringResource(R.string.retry), onAction = { model.loadFile() })
                                 else -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                                     CircularProgressIndicator()

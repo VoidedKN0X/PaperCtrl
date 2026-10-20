@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.scan
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -139,6 +140,7 @@ fun ScannerScreen(retakeId: String?) {
                 actionLabel = stringResource(if (asked) R.string.scanner_open_settings else R.string.scanner_allow_camera),
                 onAction = {
                     if (asked) {
+                        AppLock.expectReturn()
                         context.startActivity(
                             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
                         )
@@ -322,6 +324,7 @@ fun ScannerScreen(retakeId: String?) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 28.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     RoundIcon(Icons.Outlined.PhotoLibrary, stringResource(R.string.scanner_import), big = true) {
+                        AppLock.expectReturn()
                         gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 }

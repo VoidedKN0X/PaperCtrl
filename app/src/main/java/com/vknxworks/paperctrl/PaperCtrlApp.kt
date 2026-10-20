@@ -8,6 +8,9 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import okhttp3.Call
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 
 class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
     lateinit var container: AppContainer
@@ -17,7 +20,18 @@ class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         container = AppContainer(this)
         Notifications.ensureChannels(this)
-        AppLock.install()
+        AppLock.onLocked = { container.onLocked() }
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                val s = container.settings.settings.value
+                AppLock.onForeground(s.appLock || container.vault.enabled, s.lockTimeout.millis)
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                val s = container.settings.settings.value
+                AppLock.onBackground(s.appLock || container.vault.enabled, s.lockTimeout.millis)
+            }
+        })
     }
 
     /**

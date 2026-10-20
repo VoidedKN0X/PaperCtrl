@@ -32,6 +32,16 @@ enum class PdfQualityChoice(@StringRes val label: Int, val quality: PdfQuality) 
     HIGH(R.string.quality_high, PdfQuality(maxSidePx = 3508, jpegQuality = 88, dpi = 300)),
 }
 
+/** When the app lock asks again after you leave the app. */
+enum class LockTimeout(@StringRes val label: Int, val millis: Long) {
+    IMMEDIATELY(R.string.lock_again_immediately, 0L),
+    MINUTE_1(R.string.lock_again_1m, 60_000L),
+    MINUTES_5(R.string.lock_again_5m, 5 * 60_000L),
+    MINUTES_15(R.string.lock_again_15m, 15 * 60_000L),
+    HOUR_1(R.string.lock_again_1h, 60 * 60_000L),
+    RESTART(R.string.lock_again_restart, -1L),
+}
+
 data class AppSettings(
     val theme: ThemeChoice = ThemeChoice.SYSTEM,
     val dynamicColor: Boolean = false,
@@ -46,6 +56,7 @@ data class AppSettings(
     /** Notifications from Paperless through UnifiedPush (ntfy). */
     val pushEnabled: Boolean = false,
     val appLock: Boolean = false,
+    val lockTimeout: LockTimeout = LockTimeout.IMMEDIATELY,
     /** Hide the app's content from screenshots and screen recording. */
     val secureScreens: Boolean = false,
 )
@@ -65,6 +76,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val inboxDigest = booleanPreferencesKey("inbox_digest")
         val pushEnabled = booleanPreferencesKey("push_enabled")
         val appLock = booleanPreferencesKey("app_lock")
+        val lockTimeout = stringPreferencesKey("lock_timeout")
         val secureScreens = booleanPreferencesKey("secure_screens")
     }
 
@@ -92,6 +104,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         inboxDigest = this[K.inboxDigest] ?: false,
         pushEnabled = this[K.pushEnabled] ?: false,
         appLock = this[K.appLock] ?: false,
+        lockTimeout = enumOr(this[K.lockTimeout], LockTimeout.IMMEDIATELY),
         secureScreens = this[K.secureScreens] ?: false,
     )
 
@@ -110,6 +123,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.inboxDigest] = s.inboxDigest
             p[K.pushEnabled] = s.pushEnabled
             p[K.appLock] = s.appLock
+            p[K.lockTimeout] = s.lockTimeout.name
             p[K.secureScreens] = s.secureScreens
         }
     }

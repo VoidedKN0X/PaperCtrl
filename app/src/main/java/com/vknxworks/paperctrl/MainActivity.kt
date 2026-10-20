@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.vknxworks.paperctrl.notify.Push
 import com.vknxworks.paperctrl.notify.Shortcuts
-import com.vknxworks.paperctrl.ui.lock.AppLock
-import com.vknxworks.paperctrl.ui.lock.LockScreen
+import com.vknxworks.paperctrl.ui.lock.AppLockGate
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -59,9 +58,8 @@ class MainActivity : FragmentActivity() {
                 if (settings.secureScreens) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                 else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
-            val locked by AppLock.locked.collectAsStateWithLifecycle()
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {
-                if (settings.appLock && locked && AppLock.canAuthenticate(this)) LockScreen(this) else AppRoot()
+                AppLockGate { AppRoot() }
             }
         }
     }

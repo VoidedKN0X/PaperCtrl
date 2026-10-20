@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.tabs
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -110,7 +111,7 @@ fun ScanTab() {
                     )
                 }
                 OutlinedButton(
-                    onClick = { pick.launch(ShareActivity.SUPPORTED_TYPES) },
+                    onClick = { AppLock.expectReturn(); pick.launch(ShareActivity.SUPPORTED_TYPES) },
                     shape = CircleShape,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 ) {

@@ -26,6 +26,16 @@ import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.NtfyRoute
 import com.vknxworks.paperctrl.ui.lock.AppLock
+import com.vknxworks.paperctrl.ui.lock.PinRequest
+import com.vknxworks.paperctrl.ui.lock.findActivity
+import com.vknxworks.paperctrl.data.lock.LockVault
+import com.vknxworks.paperctrl.data.settings.LockTimeout
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Password
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.runtime.remember
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupChoice
 import com.vknxworks.paperctrl.ui.components.GroupSwitch
@@ -40,6 +50,7 @@ fun SettingsScreen() {
     val scope = rememberCoroutineScope()
     val s by c.settings.settings.collectAsStateWithLifecycle()
     fun update(t: (AppSettings) -> AppSettings) { scope.launch { c.settings.update(t) } }
+    val bioAvailable = remember { AppLock.biometricAvailable(context) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -73,13 +84,61 @@ fun SettingsScreen() {
                 )
             }
 
-            Group(stringResource(R.string.settings_privacy), footer = stringResource(R.string.settings_privacy_footer)) {
-                GroupSwitch(stringResource(R.string.settings_app_lock), stringResource(R.string.settings_app_lock_body), s.appLock) { v ->
-                    if (!v || AppLock.canAuthenticate(context)) {
-                        update { it.copy(appLock = v) }
-                    } else {
-                        android.widget.Toast.makeText(context, context.getString(R.string.lock_unavailable), android.widget.Toast.LENGTH_LONG).show()
+            val lockOn = c.vault.enabled
+            Group(
+                stringResource(R.string.settings_privacy),
+                footer = stringResource(R.string.settings_privacy_footer) +
+                    (if (lockOn) "\n\n" + stringResource(R.string.settings_lock_background_note) else ""),
+            ) {
+                GroupSwitch(stringResource(R.string.settings_app_lock), stringResource(R.string.settings_app_lock_body), lockOn, icon = Icons.Outlined.Lock) { v ->
+                    AppLock.request = if (v) PinRequest.ENABLE else PinRequest.DISABLE
+                }
+                if (lockOn) {
+                    GroupRow(
+                        stringResource(R.string.settings_change_pin),
+                        stringResource(R.string.settings_change_pin_body, LockVault.PIN_MIN),
+                        icon = Icons.Outlined.Password,
+                        showChevron = true,
+                        onClick = { AppLock.request = PinRequest.CHANGE },
+                    )
+                    GroupSwitch(
+                        stringResource(R.string.settings_fingerprint),
+                        stringResource(if (bioAvailable || c.vault.biometricEnabled) R.string.settings_fingerprint_body else R.string.settings_fingerprint_unavailable),
+                        c.vault.biometricEnabled,
+                        icon = Icons.Outlined.Fingerprint,
+                    ) { on ->
+                        if (!on) {
+                            c.vault.disableBiometric()
+                            return@GroupSwitch
+                        }
+                        val failed = context.getString(R.string.settings_fingerprint_failed)
+                        val activity = context.findActivity()
+                        val cipher = if (bioAvailable) c.vault.biometricEnrolCipher() else null
+                        if (activity == null || cipher == null) {
+                            android.widget.Toast.makeText(
+                                context,
+                                if (bioAvailable) failed else context.getString(R.string.settings_fingerprint_unavailable),
+                                android.widget.Toast.LENGTH_SHORT,
+                            ).show()
+                            return@GroupSwitch
+                        }
+                        AppLock.biometricPrompt(
+                            activity,
+                            context.getString(R.string.lock_fingerprint_enrol_title),
+                            context.getString(R.string.lock_fingerprint_enrol_subtitle),
+                            cipher,
+                        ) { unlocked ->
+                            if (!c.vault.finishBiometricEnrol(unlocked)) {
+                                android.widget.Toast.makeText(context, failed, android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
+                    GroupChoice(
+                        stringResource(R.string.settings_lock_again),
+                        LockTimeout.entries.map { it to stringResource(it.label) },
+                        s.lockTimeout,
+                        icon = Icons.Outlined.Timer,
+                    ) { v -> update { it.copy(lockTimeout = v) } }
                 }
                 GroupSwitch(stringResource(R.string.settings_secure), stringResource(R.string.settings_secure_body), s.secureScreens) { v -> update { it.copy(secureScreens = v) } }
             }
