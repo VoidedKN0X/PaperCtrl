@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Store listing for IzzyOnDroid**: the app's name, short and full description, icon and feature graphic are now in the repo (`fastlane/metadata/android/en-US`), so app stores like IzzyOnDroid can show them. Screenshots are coming soon
+
 ## 0.4.0
 
 ### Changed
