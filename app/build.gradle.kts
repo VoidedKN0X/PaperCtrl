@@ -22,8 +22,8 @@ android {
         minSdk = 33
         targetSdk = 36
         // Bump both to publish a new release (see CHANGELOG.md).
-        versionCode = 10
-        versionName = "0.3.3"
+        versionCode = 11
+        versionName = "0.4.0"
 
         // Modern 64-bit ARM phones only: keeps native scanner libraries out of the APK for other CPUs.
         ndk { abiFilters += listOf("arm64-v8a") }
@@ -70,7 +70,7 @@ android {
         buildConfig = true
     }
 
-    // F-Droid: no Google dependency metadata blob in the APK.
+    // F-Droid: no dependency metadata blob in the APK.
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -132,7 +132,7 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
     implementation(libs.opencv)
-    implementation(libs.zxing.core)
+    implementation(libs.zxing.cpp)
 
     // Home screen widget, app lock
     implementation(libs.glance.appwidget)

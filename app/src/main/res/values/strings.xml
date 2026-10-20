@@ -511,16 +511,18 @@
 
     <!-- ntfy / UnifiedPush -->
     <string name="ntfy_title">Push from Paperless (ntfy)</string>
-    <string name="ntfy_intro">Paperless can tell your phone when documents arrive by email or through the consume folder, through your own ntfy server, without Google services. PaperCtrl gets a private address from the ntfy app; a Paperless workflow sends to it.</string>
-    <string name="ntfy_no_distributor">Install the ntfy app</string>
-    <string name="ntfy_no_distributor_body">Install ntfy (from F-Droid) or another UnifiedPush app, point it at your ntfy server, then come back here.</string>
+    <string name="ntfy_intro">Paperless can tell your phone when documents arrive by email or through the consume folder, through your own ntfy server. PaperCtrl gets a private address from the ntfy app; a Paperless workflow sends to it.</string>
+    <string name="ntfy_no_distributor">Install ntfy</string>
+    <string name="ntfy_no_distributor_body">ntfy isn\'t installed. Push from Paperless comes through the ntfy app only: install it from F-Droid, point it at your ntfy server, then come back here. PaperCtrl\'s own notifications about uploads and the inbox reminder keep working without it.</string>
     <string name="ntfy_enable">Notifications from Paperless</string>
-    <string name="ntfy_enable_body">Through UnifiedPush and your ntfy server</string>
-    <string name="ntfy_distributor">Push app</string>
+    <string name="ntfy_enable_body">Through the ntfy app and your ntfy server</string>
     <string name="ntfy_endpoint">PaperCtrl\'s push address</string>
-    <string name="ntfy_waiting">Waiting for the push app…</string>
+    <string name="ntfy_waiting">Waiting for ntfy…</string>
     <string name="ntfy_waiting_body">Open the ntfy app once if nothing appears here.</string>
-    <string name="ntfy_failed">The push app couldn\'t register PaperCtrl (%1$s). Check the ntfy app\'s server settings.</string>
+    <string name="ntfy_failed">ntfy couldn\'t register PaperCtrl (%1$s). Check the ntfy app\'s server settings.</string>
+    <string name="ntfy_retry">Try again</string>
+    <string name="ntfy_temp_unavailable">ntfy temporarily unavailable</string>
+    <string name="ntfy_temp_unavailable_body">ntfy can\'t reach your ntfy server right now. The address stays the same, and notifications arrive again once it\'s back.</string>
     <string name="ntfy_test">Send a test</string>
     <string name="ntfy_test_body">Sends a test message to the address above</string>
     <string name="ntfy_test_message">Test from PaperCtrl</string>

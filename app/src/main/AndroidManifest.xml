@@ -13,11 +13,9 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
-    <!-- UnifiedPush: find installed distributors such as ntfy. -->
+    <!-- Push comes through the ntfy app only: the one other app PaperCtrl needs to see. -->
     <queries>
-        <intent>
-            <action android:name="org.unifiedpush.android.distributor.REGISTER" />
-        </intent>
+        <package android:name="io.heckel.ntfy" />
     </queries>
 
     <application
@@ -112,7 +110,8 @@
             </intent-filter>
         </service>
 
-        <!-- UnifiedPush (ntfy) endpoint updates and messages; checked against PaperCtrl's own token. -->
+        <!-- ntfy endpoint updates and messages; checked against PaperCtrl's own token and, from
+             Android 14, the sending app. -->
         <receiver
             android:name=".notify.PushReceiver"
             android:exported="true"
@@ -122,10 +121,11 @@
                 <action android:name="org.unifiedpush.android.connector.UNREGISTERED" />
                 <action android:name="org.unifiedpush.android.connector.NEW_ENDPOINT" />
                 <action android:name="org.unifiedpush.android.connector.REGISTRATION_FAILED" />
+                <action android:name="org.unifiedpush.android.connector.TEMP_UNAVAILABLE" />
             </intent-filter>
         </receiver>
 
-        <!-- Google-free: don't ask Google Play services for a downloadable emoji font on start.
+        <!-- No downloadable emoji font: androidx.emoji2 doesn't look for one on start.
              Emoji use the phone's own font. -->
         <provider
             android:name="androidx.startup.InitializationProvider"

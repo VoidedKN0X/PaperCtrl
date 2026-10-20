@@ -16,7 +16,7 @@ work = "2.10.2"
 haze = "1.6.10"
 camerax = "1.4.2"
 opencv = "4.12.0"
-zxing = "3.5.3"
+zxingCpp = "2.3.0"
 glance = "1.1.1"
 biometric = "1.1.0"
 fragment = "1.8.6"
@@ -49,7 +49,7 @@ camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cam
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
-zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+zxing-cpp = { module = "io.github.zxing-cpp:android", version.ref = "zxingCpp" }
 glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
