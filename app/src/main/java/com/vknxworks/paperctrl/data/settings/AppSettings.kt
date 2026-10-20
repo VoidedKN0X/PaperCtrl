@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 enum class ThemeChoice(@StringRes val label: Int) {
     SYSTEM(R.string.theme_system),
@@ -34,10 +35,6 @@ enum class PdfQualityChoice(@StringRes val label: Int, val quality: PdfQuality) 
 data class AppSettings(
     val theme: ThemeChoice = ThemeChoice.SYSTEM,
     val dynamicColor: Boolean = false,
-    /** Opt-in anonymous usage stats (off until the user says yes). */
-    val usageStats: Boolean = false,
-    /** Whether the one-time usage stats question has been answered. */
-    val usageStatsAsked: Boolean = false,
     /** Last filter picked in the scanner, used for new pages. */
     val scanFilter: ScanFilter = ScanFilter.ENHANCED,
     val autoCapture: Boolean = true,
@@ -57,8 +54,8 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
     private object K {
         val theme = stringPreferencesKey("theme")
         val dynamic = booleanPreferencesKey("dynamic_color")
-        val usageStats = booleanPreferencesKey("usage_stats")
-        val usageStatsAsked = booleanPreferencesKey("usage_stats_asked")
+        /** Left over from the optional stats removed in 0.3.3; deleted at start and on every save. */
+        val legacy = listOf(booleanPreferencesKey("usage_stats"), booleanPreferencesKey("usage_stats_asked"))
         val scanFilter = stringPreferencesKey("scan_filter")
         val autoCapture = booleanPreferencesKey("auto_capture")
         val pdfQuality = stringPreferencesKey("pdf_quality")
@@ -75,14 +72,17 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         .map { it.toSettings() }
         .stateIn(scope, SharingStarted.Eagerly, AppSettings())
 
+    init {
+        // Delete what the removed optional stats stored, so nothing of them stays on the phone.
+        scope.launch { context.appDataStore.edit { p -> K.legacy.forEach { p.remove(it) } } }
+    }
+
     /** The stored settings as they're read and changed, without [settings]' placeholder defaults at start-up. */
     val stored: Flow<AppSettings> = context.appDataStore.data.map { it.toSettings() }
 
     private fun Preferences.toSettings() = AppSettings(
         theme = enumOr(this[K.theme], ThemeChoice.SYSTEM),
         dynamicColor = this[K.dynamic] ?: false,
-        usageStats = this[K.usageStats] ?: false,
-        usageStatsAsked = this[K.usageStatsAsked] ?: false,
         scanFilter = enumOr(this[K.scanFilter], ScanFilter.ENHANCED),
         autoCapture = this[K.autoCapture] ?: true,
         pdfQuality = enumOr(this[K.pdfQuality], PdfQualityChoice.STANDARD),
@@ -100,8 +100,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             val s = transform(p.toSettings())
             p[K.theme] = s.theme.name
             p[K.dynamic] = s.dynamicColor
-            p[K.usageStats] = s.usageStats
-            p[K.usageStatsAsked] = s.usageStatsAsked
+            K.legacy.forEach { p.remove(it) }
             p[K.scanFilter] = s.scanFilter.name
             p[K.autoCapture] = s.autoCapture
             p[K.pdfQuality] = s.pdfQuality.name

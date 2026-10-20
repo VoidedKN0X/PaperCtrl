@@ -33,7 +33,6 @@ class MainActivity : FragmentActivity() {
         // Document titles, file names and the sign-in screen never show in the recent-apps preview.
         setRecentsScreenshotEnabled(false)
         val c = container
-        if (savedInstanceState == null) c.telemetry.appOpened()
         handleOpen(intent)
         if (savedInstanceState == null) {
             Shortcuts.publish(this)
