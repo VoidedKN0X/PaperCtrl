@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+### Security
+
+- **Trips out of the app no longer skip the lock if you stay away.** Picking files, sharing, opening a document in another app and links to the browser still don't count as leaving the app, but if you don't come back within 5 minutes (or your "Lock again" time, if that's longer), PaperCtrl locks anyway. Before, such a trip never locked, however long you were gone.
+
 ## 0.4.1
 
 The app lock now works the same way as in every other Ctrl app, with the strongest protection of the options compared.
