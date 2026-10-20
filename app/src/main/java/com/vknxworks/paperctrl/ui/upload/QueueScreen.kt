@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.upload
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.text.format.DateUtils
@@ -108,6 +109,7 @@ fun QueueScreen() {
                     onOpen = {
                         val docId = item.documentId ?: return@QueueCard
                         val url = (server?.url ?: return@QueueCard) + "documents/$docId/details"
+                        AppLock.expectReturn()
                         try {
                             context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
                         } catch (_: ActivityNotFoundException) {

@@ -23,7 +23,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through **[ntfy](https://f-droid.org/packages/io.heckel.ntfy/)** and your own ntfy server
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
-- **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional app lock with fingerprint, face or screen lock, optional screenshot blocking, and a blank preview in recent apps
+- **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional app lock with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), optional screenshot blocking, and a blank preview in recent apps
 
 ## Screenshots
 

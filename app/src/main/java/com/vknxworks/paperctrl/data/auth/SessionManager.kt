@@ -7,6 +7,7 @@ import com.vknxworks.paperctrl.data.api.ApiJson
 import com.vknxworks.paperctrl.data.api.MAX_API_VERSION
 import com.vknxworks.paperctrl.data.api.PaperlessClient
 import com.vknxworks.paperctrl.data.appDataStore
+import com.vknxworks.paperctrl.data.lock.LockVault
 import com.vknxworks.paperctrl.data.net.CleartextPolicy
 import com.vknxworks.paperctrl.data.net.PinnedTrust
 import kotlinx.coroutines.CoroutineScope
@@ -67,6 +68,7 @@ data class ActiveSession(val server: Server, val client: PaperlessClient, val vi
 class SessionManager(
     private val context: Context,
     private val baseHttp: OkHttpClient,
+    private val vault: LockVault,
     private val scope: CoroutineScope,
 ) {
     val connector = ServerConnector(baseHttp)
@@ -91,15 +93,65 @@ class SessionManager(
         scope.launch { load() }
     }
 
+    /** The server last chosen as active, kept so the session can be opened again after unlocking. */
+    @Volatile private var activeId: String? = null
+
     private suspend fun load() {
-        val prefs = context.appDataStore.data.first()
-        val list = prefs[serversKey]?.let {
-            runCatching { ApiJson.decodeFromString(ListSerializer(Server.serializer()), it) }.getOrNull()
-        }.orEmpty()
-        _servers.value = list
-        val server = list.firstOrNull { it.id == prefs[activeKey] } ?: list.firstOrNull()
-        if (server != null) activate(server)
-        _ready.value = true
+        mutex.withLock {
+            val prefs = context.appDataStore.data.first()
+            val list = prefs[serversKey]?.let {
+                runCatching { ApiJson.decodeFromString(ListSerializer(Server.serializer()), it) }.getOrNull()
+            }.orEmpty()
+            _servers.value = list
+            val server = list.firstOrNull { it.id == prefs[activeKey] } ?: list.firstOrNull()
+            activeId = server?.id
+            // With the app lock on, the token can only be decrypted after unlocking; onUnlocked() opens it then.
+            if (server != null && !(vault.enabled && !vault.isOpen)) activate(server)
+            _ready.value = true
+        }
+    }
+
+    /** The token of [server], or null while it's sealed by the app lock and the app is locked. */
+    private fun tokenOf(server: Server): String? {
+        val plain = KeystoreCrypto.decrypt(server.tokenEnc) ?: return null
+        return if (LockVault.isSealed(plain)) vault.open(plain) else plain
+    }
+
+    /** Encrypts a token for saving: with the Keystore, and also with the app lock's key when it's on. */
+    private fun storeToken(token: String): String {
+        val inner = if (vault.enabled) vault.seal(token) ?: error("PaperCtrl is locked") else token
+        return KeystoreCrypto.encrypt(inner)
+    }
+
+    /** True while the app lock keeps the tokens encrypted (locked, key wiped). */
+    val sealedShut: Boolean get() = vault.enabled && !vault.isOpen
+
+    /** The app locked: drop the open session (and its token) until the next unlock. */
+    fun onLocked() {
+        if (!vault.enabled) return
+        _active.value = null
+    }
+
+    /** The app unlocked: decrypt the token and open the session again, before the screens show. */
+    fun onUnlocked() {
+        if (_active.value != null) return
+        val list = _servers.value
+        val server = list.firstOrNull { it.id == activeId } ?: list.firstOrNull() ?: return
+        activate(server)
+    }
+
+    /** The app lock was turned on: encrypt every saved token with its key too. */
+    suspend fun sealTokens() = mutex.withLock {
+        val list = _servers.value.map { s -> tokenOf(s)?.let { s.copy(tokenEnc = storeToken(it)) } ?: s }
+        persist(list, activeId)
+        _active.value?.let { a -> list.firstOrNull { it.id == a.server.id }?.let { _active.value = a.copy(server = it) } }
+    }
+
+    /** The app lock is being turned off (while unlocked): back to Keystore-only encryption. */
+    suspend fun unsealTokens() = mutex.withLock {
+        val list = _servers.value.map { s -> tokenOf(s)?.let { s.copy(tokenEnc = KeystoreCrypto.encrypt(it)) } ?: s }
+        persist(list, activeId)
+        _active.value?.let { a -> list.firstOrNull { it.id == a.server.id }?.let { _active.value = a.copy(server = it) } }
     }
 
     /** Waits until saved servers have been loaded (background work can start before the UI). */
@@ -117,7 +169,7 @@ class SessionManager(
     fun clientFor(serverId: String): PaperlessClient? {
         _active.value?.let { if (it.server.id == serverId) return it.client }
         val s = server(serverId) ?: return null
-        val token = KeystoreCrypto.decrypt(s.tokenEnc) ?: return null
+        val token = tokenOf(s) ?: return null
         CleartextPolicy.allowServer(s.activeUrl)
         return client(s, s.activeUrl, token)
     }
@@ -165,7 +217,7 @@ class SessionManager(
             displayName = user.displayName,
             userId = user.id,
             isSuperuser = user.isSuperuser,
-            tokenEnc = KeystoreCrypto.encrypt(connected.token),
+            tokenEnc = storeToken(connected.token),
             pins = pins.filterKeys { it in relevantOrigins },
             apiVersion = connected.apiVersion,
             serverVersion = connected.serverVersion,
@@ -229,8 +281,9 @@ class SessionManager(
         }
     }
 
-    private suspend fun activate(server: Server) {
-        val token = KeystoreCrypto.decrypt(server.tokenEnc)
+    private fun activate(server: Server) {
+        activeId = server.id
+        val token = tokenOf(server)
         if (token == null) {
             // The Keystore key is gone (e.g. restored to a new phone): the user has to sign in again.
             _active.value = null
@@ -247,6 +300,7 @@ class SessionManager(
 
     private suspend fun persist(list: List<Server>, activeId: String?) {
         _servers.value = list
+        this.activeId = activeId
         context.appDataStore.edit { prefs ->
             prefs[serversKey] = ApiJson.encodeToString(ListSerializer(Server.serializer()), list)
             if (activeId != null) prefs[activeKey] = activeId else prefs.remove(activeKey)

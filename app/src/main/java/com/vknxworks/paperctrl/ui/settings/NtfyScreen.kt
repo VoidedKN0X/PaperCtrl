@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.settings
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -98,7 +99,7 @@ fun NtfyScreen() {
                     GroupRow(
                         stringResource(R.string.ntfy_no_distributor),
                         icon = Icons.Outlined.Download,
-                        onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Push.NTFY_DOWNLOAD))) },
+                        onClick = { AppLock.expectReturn(); context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Push.NTFY_DOWNLOAD))) },
                     )
                 }
                 return@Column

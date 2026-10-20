@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -94,9 +95,12 @@ fun ShareLinksSheet(model: DocumentModel, onDismiss: () -> Unit) {
     val client = model.client
     val doc = model.doc ?: return
 
-    fun share(url: String) = context.startActivity(
-        Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url).putExtra(Intent.EXTRA_SUBJECT, doc.title), null),
-    )
+    fun share(url: String) {
+        AppLock.expectReturn()
+        context.startActivity(
+            Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url).putExtra(Intent.EXTRA_SUBJECT, doc.title), null),
+        )
+    }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {

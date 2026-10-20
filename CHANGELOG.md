@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.4.1
+
+The app lock now works the same way as in every other Ctrl app, with the strongest protection of the options compared.
+
+### Changed
+
+- **App lock now has its own PIN**, separate from your phone's screen lock. It needs at least 6 digits, and very obvious ones (like 111111 or 123456) are refused. Someone who knows or has seen your phone's PIN can't open PaperCtrl with it
+- **Updating with the app lock already on**: the first time you open PaperCtrl, unlock once more with your fingerprint, face or screen lock as before, then choose your app PIN. This step can't be skipped. (If your phone has no screen lock any more, PaperCtrl goes straight to choosing the PIN)
+- **Fingerprint unlock is optional** (**Settings > Privacy > Unlock with fingerprint**). It only accepts strong biometrics such as the fingerprint sensor, not face unlock that only uses the camera, which a photo can sometimes fool. The PIN is still needed after the phone restarts and at least every 72 hours, the same as Android does for your screen lock
+- **Choose when the lock asks again** (**Settings > Privacy > Lock again**): as soon as you leave the app (the new default, instead of after 1 minute), after 1, 5 or 15 minutes, after 1 hour, or only when the app restarts
+- **Picking files or pictures, sharing, opening a document in another app or the browser, and the camera settings no longer count as leaving the app**, so coming back from them doesn't ask for the PIN again. Going to the home screen or another app yourself still does
+- **Change app PIN** is in Settings and asks for your current PIN first. Turning the app lock off also asks for the PIN
+- **Sharing files to PaperCtrl now asks for the PIN too** when the app is locked, before anything can be queued
+- **With the app lock on, uploads you started still finish in the background**: the key that decrypts the login is only kept until they're done. If PaperCtrl is closed before that, they wait ("Waiting for you to unlock PaperCtrl") and continue as soon as you unlock
+- **With the app lock on, the daily inbox reminder and the widget's inbox count only update while PaperCtrl is unlocked**, because the login stays encrypted while it's locked. Settings says so under the app lock
+
+### Security
+
+- **Your server logins are encrypted with your PIN while PaperCtrl is locked.** The key that decrypts them only exists in memory while the app is unlocked (or while your uploads finish), and is wiped when it locks. A locked app, or a copy of its files, can't use your API tokens
+- **The PIN can't be guessed off the phone.** It's never stored: it's stretched with 600,000 rounds of PBKDF2 and mixed with a secret held in the phone's secure hardware (StrongBox where available), so copying PaperCtrl's files to a computer isn't enough to try PINs there
+- **Wrong PINs lock the screen**: after 5 tries you wait 30 seconds, doubling with every further 5 wrong tries up to 15 minutes. Restarting the app or the phone, or changing the clock, doesn't reset the wait
+- **Fingerprint unlock can't be faked**: the fingerprint has to unlock a key in the phone's secure hardware, so a tampered "success" on a rooted phone doesn't open the app. Adding a new fingerprint turns fingerprint unlock off until you turn it on again with your PIN
+- **The lock can no longer be skipped** on a phone whose screen lock was removed: before, the old lock let you in when the phone had no fingerprint, face or screen lock set up
+- **Forgot your PIN?** The lock screen offers to remove every server from the phone, with its queued uploads and cached data. Because the PIN encrypts your logins, there's no way around it. Everything on your Paperless server stays
+
 ## 0.4.0
 
 ### Changed

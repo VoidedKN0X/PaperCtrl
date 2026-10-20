@@ -15,7 +15,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.vknxworks.paperctrl.data.lock.LockVault
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -37,7 +42,10 @@ class AppContainer(val context: Context) {
         .build()
 
     val settings = SettingsRepository(context, appScope)
-    val sessions = SessionManager(context, http, appScope)
+
+    /** The app lock's PIN, fingerprint key and the key that encrypts server tokens while locked. */
+    val vault = LockVault(context, "paperctrl")
+    val sessions = SessionManager(context, http, vault, appScope)
     val metadata = MetadataRepository()
     val queue = UploadQueue(context)
     val scan = ScanSession(context)
@@ -69,6 +77,57 @@ class AppContainer(val context: Context) {
         metadata.invalidate(id)
         listCache.clear(id)
         files.clear()
+    }
+
+    /** Turns the app lock on: the PIN encrypts the server tokens from now on. */
+    suspend fun enableLock(pin: String) {
+        // Unlocked first, so the lock screen doesn't flash up while the PIN is being saved.
+        AppLock.markUnlocked()
+        withContext(Dispatchers.Default) { vault.setUp(pin) }
+        settings.update { it.copy(appLock = true) }
+        sessions.sealTokens()
+    }
+
+    /** Turns the app lock off (after the PIN was confirmed): tokens go back to Keystore-only encryption. */
+    suspend fun disableLock() {
+        sessions.unsealTokens()
+        settings.update { it.copy(appLock = false) }
+        vault.disable()
+    }
+
+    /** "Forgot PIN?": the tokens can't be decrypted any more, so remove every server and start over. */
+    suspend fun forgetEverything() {
+        sessions.servers.value.map { it.id }.forEach { removeServer(it) }
+        AppLock.markUnlocked()
+        settings.update { it.copy(appLock = false) }
+        vault.disable()
+    }
+
+    private var closeKeyJob: Job? = null
+
+    /**
+     * Locked: close the session that holds the token. The key that decrypts tokens is wiped right away,
+     * or, while uploads you started are still running, as soon as they've finished.
+     */
+    fun onLocked() {
+        sessions.onLocked()
+        closeKeyJob?.cancel()
+        if (queue.items.value.none { it.isActive }) {
+            vault.close()
+            return
+        }
+        closeKeyJob = appScope.launch {
+            queue.items.first { list -> list.none { it.isActive } }
+            if (!AppLock.unlocked) vault.close()
+        }
+    }
+
+    /** Unlocked: open the session again, and send uploads that were waiting for the unlock. */
+    fun onUnlocked() {
+        closeKeyJob?.cancel()
+        sessions.onUnlocked()
+        AppLock.markUnlocked()
+        queue.resumeAfterUnlock()
     }
 
     /** A screen to open, set from a notification tap; the main screen consumes it. */

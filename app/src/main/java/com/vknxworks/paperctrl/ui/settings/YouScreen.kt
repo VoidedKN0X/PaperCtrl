@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.settings
 
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -167,6 +168,7 @@ fun YouScreen() {
 }
 
 private fun Context.openUrl(url: String) {
+    AppLock.expectReturn()
     try {
         startActivity(Intent(Intent.ACTION_VIEW, url.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     } catch (_: ActivityNotFoundException) {

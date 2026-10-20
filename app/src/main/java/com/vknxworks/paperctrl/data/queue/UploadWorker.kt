@@ -50,6 +50,12 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
             c.queue.removeServer(start.serverId)
             return Result.success()
         }
+        if (c.sessions.sealedShut) {
+            // The app lock keeps the token encrypted until PaperCtrl is unlocked again: wait, don't fail.
+            c.queue.update(start.id) { it.copy(message = applicationContext.getString(R.string.queue_waiting_unlock)) }
+            c.queue.waitForUnlock(start.id)
+            return Result.retry()
+        }
         val client = c.sessions.clientFor(start.serverId)
             ?: return fail(start, applicationContext.getString(R.string.queue_server_removed))
 

@@ -32,6 +32,7 @@ import com.vknxworks.paperctrl.data.queue.StagedFile
 import com.vknxworks.paperctrl.data.queue.Staging
 import com.vknxworks.paperctrl.data.settings.ThemeChoice
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
+import com.vknxworks.paperctrl.ui.lock.AppLockGate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -97,7 +98,8 @@ class ShareActivity : ComponentActivity() {
                 else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
             }
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {
-                ShareScreen(
+                // Shared files only reach the queue once the app lock is unlocked.
+                AppLockGate { ShareScreen(
                     files = files,
                     busy = busy,
                     onCancel = ::finish,
@@ -106,7 +108,7 @@ class ShareActivity : ComponentActivity() {
                         finish()
                     },
                     onUpload = ::upload,
-                )
+                ) }
             }
         }
     }

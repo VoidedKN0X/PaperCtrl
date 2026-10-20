@@ -189,6 +189,17 @@ class UploadQueue(private val context: Context) {
         if (folder.parentFile == stagingDir) folder.deleteRecursively()
     }
 
+    /** Uploads that found PaperCtrl locked (their token encrypted) and wait for the next unlock. */
+    private val waitingForUnlock = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+
+    fun waitForUnlock(id: String) { waitingForUnlock += id }
+
+    /** Sends the uploads that were waiting for an unlock right away, instead of after WorkManager's back-off. */
+    fun resumeAfterUnlock() {
+        val ids = synchronized(waitingForUnlock) { waitingForUnlock.toList().also { waitingForUnlock.clear() } }
+        ids.filter { get(it)?.isActive == true }.forEach { schedule(it, ExistingWorkPolicy.REPLACE) }
+    }
+
     private fun schedule(id: String, policy: ExistingWorkPolicy) {
         val request = OneTimeWorkRequestBuilder<UploadWorker>()
             .setInputData(workDataOf(UploadWorker.KEY_ID to id))
