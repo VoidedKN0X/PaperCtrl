@@ -1,0 +1,1 @@
+Scan paper into Paperless-ngx and browse your documents
