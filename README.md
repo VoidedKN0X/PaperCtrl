@@ -20,7 +20,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Documents** with full-text search, filters, saved views and bulk editing; the first page of your list and inbox stays visible offline
 - **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
 - **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash
-- **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through your own ntfy server (no Google services)
+- **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through **[ntfy](https://f-droid.org/packages/io.heckel.ntfy/)** and your own ntfy server
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional app lock with fingerprint, face or screen lock, optional screenshot blocking, and a blank preview in recent apps
@@ -33,7 +33,8 @@ Coming soon.
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
 - A recent Paperless-ngx server (PaperCtrl tells you if yours is too old)
-- No Google Play services needed: PaperCtrl is Google-free (no Firebase, Play services or Google servers; emoji use your phone's own font), so it works on de-Googled phones
+- **Google-free and de-Googled:** no Google Play services, Firebase or other Google services, and the app never contacts Google. It works the same on de-Googled phones (GrapheneOS, CalyxOS, /e/OS, LineageOS without Google apps).
+- Optional: the [ntfy](https://f-droid.org/packages/io.heckel.ntfy/) app, for push from Paperless
 
 ## Install
 
@@ -62,10 +63,10 @@ Settings, more servers and accounts are under **You** (the profile picture at th
 
 ## Push notifications with ntfy
 
-PaperCtrl tells you about its own uploads by itself. To also hear about documents Paperless gets another way (email, the consume folder, the web app), let Paperless push them to your phone through your own [ntfy](https://ntfy.sh/) server:
+PaperCtrl tells you about its own uploads by itself. To also hear about documents Paperless gets another way (email, the consume folder, the web app), let Paperless push them to your phone through your own [ntfy](https://ntfy.sh/) server. Push comes through the **ntfy** app only; other push apps can't be used. PaperCtrl's own notifications (finished and failed uploads, the daily inbox reminder) keep working with or without it.
 
-1. Install the ntfy app (from F-Droid) on your phone and point it at your ntfy server.
-2. In PaperCtrl, open **Settings → Notifications → Push from Paperless (ntfy)** and turn it on. PaperCtrl shows its push address.
+1. Install [ntfy from F-Droid](https://f-droid.org/packages/io.heckel.ntfy/) on your phone and point it at your ntfy server. If ntfy isn't installed, PaperCtrl's push screen shows an **Install ntfy** button.
+2. In PaperCtrl, open **Settings → Notifications → Push from Paperless (ntfy)** and turn it on. PaperCtrl gets its push address from ntfy and shows it.
 3. In Paperless, go to **Workflows** and add one:
    - **Trigger:** Document Added (add Document Updated too if you like).
    - **Action:** Webhook. **URL:** PaperCtrl's push address. Turn on **Send as JSON**, leave **Use parameters** off.
@@ -79,7 +80,7 @@ If your ntfy server is only on your home network, Paperless blocks webhooks to l
 
 ## Privacy
 
-**Telemetry-free.** PaperCtrl has no analytics, crash reporting, usage stats or tracking of any kind. It only talks to your own Paperless-ngx server. Push notifications come through your own ntfy server (or another UnifiedPush app), and **Send a test** posts to PaperCtrl's push address there. Scanning, edge detection and ASN reading all happen on the phone.
+**Telemetry-free.** PaperCtrl has no analytics, crash reporting, usage stats or tracking of any kind. It only talks to your own Paperless-ngx server. Push notifications come through your own ntfy server and the ntfy app, and **Send a test** posts to PaperCtrl's push address there. Scanning, edge detection and ASN reading all happen on the phone.
 
 ## Build from source
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0
+
+### Changed
+
+- **Push from Paperless through ntfy only.** Push notifications now always come through the [ntfy](https://f-droid.org/packages/io.heckel.ntfy/) app; other push apps can no longer be picked, and the "Push app" choice is gone. When you turn on **Push from Paperless (ntfy)**, PaperCtrl gets its push address from ntfy by itself. If you used another push app, PaperCtrl cancels its registration there when you update and switches to ntfy if it's installed. Your push address then changes, so copy the new one from the push screen into the webhook URL of your Paperless workflow. Until ntfy is installed, push is off; PaperCtrl's own notifications (finished and failed uploads, the daily inbox reminder) keep working as before
+- **"Install ntfy" button**: when ntfy isn't on your phone, the push screen says so and offers an Install ntfy button that opens ntfy on F-Droid. The screen checks again when you come back to it, and PaperCtrl then gets its push address from ntfy straight away
+- **"ntfy temporarily unavailable"** is shown when ntfy reports that your ntfy server can't be reached for now. Your push address stays the same and notifications arrive again once the server is back
+- If ntfy can't register PaperCtrl, a **Try again** row appears under the reason
+- **ASN label reading** now uses zxing-cpp, an independent open-source barcode reader, instead of the previous reader library. It reads the same barcodes and QR codes as before, still entirely on your phone, and recognises labels held sideways or upside down
+
+### Security
+
+- PaperCtrl only takes push messages from the ntfy app: on Android 14 and newer, a push that Android reports as sent by any other app is ignored, on top of the secret token every push must carry
+
+### Privacy
+
+- **Google-free and de-Googled**: nothing from Google is left in PaperCtrl. The barcode reader library published by Google is replaced (see above), and the last mentions of Google are removed from the app's texts and setup notes, such as "without Google services" on the push screen. PaperCtrl still has no Google Play services, Firebase or other Google services, never contacts Google, and works the same on de-Googled phones (GrapheneOS, CalyxOS, /e/OS, LineageOS without Google apps)
+- **README**: a "Google-free and de-Googled" statement, and the push setup steps now describe ntfy as the only push app
+
 ## 0.3.3
 
 ### Privacy

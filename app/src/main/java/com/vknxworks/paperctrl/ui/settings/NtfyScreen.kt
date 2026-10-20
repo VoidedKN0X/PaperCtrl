@@ -1,5 +1,7 @@
 package com.vknxworks.paperctrl.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,6 +13,8 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Icon
@@ -30,12 +34,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.notify.Push
 import com.vknxworks.paperctrl.ui.components.Group
-import com.vknxworks.paperctrl.ui.components.GroupChoice
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.GroupSwitch
 import com.vknxworks.paperctrl.ui.components.ScreenTopBar
@@ -50,8 +54,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
- * Notifications from Paperless itself (documents added by email or the consume folder) through
- * UnifiedPush and the user's own ntfy server, with the workflow setup spelled out.
+ * Notifications from Paperless itself (documents added by email or the consume folder) through the
+ * ntfy app and the user's own ntfy server, with the workflow setup spelled out.
  */
 @Composable
 fun NtfyScreen() {
@@ -60,20 +64,21 @@ fun NtfyScreen() {
     val scope = rememberCoroutineScope()
     val settings by c.settings.settings.collectAsStateWithLifecycle()
     val push by Push.state.collectAsStateWithLifecycle()
-    var distributors by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
-    LaunchedEffect(Unit) {
-        Push.load(context)
-        distributors = Push.distributors(context)
+    // Checked again every time the screen comes back, e.g. after installing ntfy.
+    var ntfyInstalled by remember { mutableStateOf(Push.ntfyInstalled(context)) }
+    LifecycleResumeEffect(Unit) {
+        ntfyInstalled = Push.ntfyInstalled(context)
+        onPauseOrDispose { }
+    }
+    LaunchedEffect(Unit) { Push.load(context) }
+    // Push is on but not registered (ntfy was just installed, or PaperCtrl used another push app before).
+    LaunchedEffect(settings.pushEnabled, ntfyInstalled) {
+        if (settings.pushEnabled && ntfyInstalled && Push.state.value.distributor == null) Push.register(context)
     }
 
-    fun enable(on: Boolean, pkg: String? = null) {
+    fun enable(on: Boolean) {
         c.appScope.launch { c.settings.update { it.copy(pushEnabled = on) } }
-        if (on) {
-            val target = pkg ?: push.distributor ?: distributors.firstOrNull()?.first
-            if (target != null) Push.register(context, target)
-        } else {
-            Push.unregister(context)
-        }
+        if (on) Push.register(context) else Push.unregister(context)
     }
 
     Scaffold(
@@ -88,29 +93,34 @@ fun NtfyScreen() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = Gutter + 4.dp, vertical = 8.dp),
             )
-            if (distributors.isEmpty()) {
+            if (!ntfyInstalled) {
                 Group(footer = stringResource(R.string.ntfy_no_distributor_body)) {
-                    GroupRow(stringResource(R.string.ntfy_no_distributor), icon = Icons.Outlined.NotificationsActive)
+                    GroupRow(
+                        stringResource(R.string.ntfy_no_distributor),
+                        icon = Icons.Outlined.Download,
+                        onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Push.NTFY_DOWNLOAD))) },
+                    )
                 }
                 return@Column
             }
             Group {
                 GroupSwitch(stringResource(R.string.ntfy_enable), stringResource(R.string.ntfy_enable_body), settings.pushEnabled, icon = Icons.Outlined.NotificationsActive) { enable(it) }
-                if (distributors.size > 1) {
-                    GroupChoice(stringResource(R.string.ntfy_distributor), distributors, push.distributor ?: distributors.first().first) { pkg ->
-                        if (settings.pushEnabled) {
-                            Push.unregister(context)
-                            enable(true, pkg)
-                        }
-                    }
-                }
             }
             if (settings.pushEnabled) {
                 val endpoint = push.endpoint
                 Group(stringResource(R.string.ntfy_endpoint), footer = push.failed?.let { stringResource(R.string.ntfy_failed, it) }) {
-                    if (endpoint == null) {
+                    if (endpoint == null && push.failed != null) {
+                        GroupRow(stringResource(R.string.ntfy_retry), onClick = { Push.register(context) })
+                    } else if (endpoint == null) {
                         GroupRow(stringResource(R.string.ntfy_waiting), stringResource(R.string.ntfy_waiting_body))
                     } else {
+                        if (push.tempUnavailable) {
+                            GroupRow(
+                                stringResource(R.string.ntfy_temp_unavailable),
+                                stringResource(R.string.ntfy_temp_unavailable_body),
+                                icon = Icons.Outlined.CloudOff,
+                            )
+                        }
                         GroupRow(endpoint, null, trailing = {
                             IconButton(onClick = { copyToClipboard(context, endpoint) }) { Icon(Icons.Outlined.ContentCopy, stringResource(R.string.copy)) }
                         })
