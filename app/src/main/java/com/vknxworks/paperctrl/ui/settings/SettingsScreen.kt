@@ -32,6 +32,9 @@ import com.vknxworks.paperctrl.data.lock.LockVault
 import com.vknxworks.paperctrl.data.settings.LockTimeout
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material.icons.outlined.Timer
@@ -58,15 +61,19 @@ fun SettingsScreen() {
         topBar = { ScreenTopBar(stringResource(R.string.settings)) },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
-            Group(stringResource(R.string.settings_scanning), footer = stringResource(R.string.settings_quality_footer)) {
+            Group(stringResource(R.string.settings_appearance)) {
                 GroupChoice(
-                    stringResource(R.string.settings_quality),
-                    PdfQualityChoice.entries.map { it to stringResource(it.label) },
-                    s.pdfQuality,
-                ) { v -> update { it.copy(pdfQuality = v) } }
-                GroupSwitch(stringResource(R.string.settings_auto_capture), stringResource(R.string.settings_auto_capture_body), s.autoCapture) { v ->
-                    update { it.copy(autoCapture = v) }
-                }
+                    stringResource(R.string.settings_theme),
+                    ThemeChoice.entries.map { it to stringResource(it.label) },
+                    s.theme,
+                    icon = Icons.Outlined.DarkMode,
+                ) { v -> update { it.copy(theme = v) } }
+                GroupSwitch(
+                    stringResource(R.string.settings_dynamic),
+                    stringResource(R.string.settings_dynamic_body),
+                    s.dynamicColor,
+                    icon = Icons.Outlined.Palette,
+                ) { v -> update { it.copy(dynamicColor = v) } }
             }
 
             Group(stringResource(R.string.settings_notifications)) {
@@ -140,20 +147,23 @@ fun SettingsScreen() {
                         icon = Icons.Outlined.Timer,
                     ) { v -> update { it.copy(lockTimeout = v) } }
                 }
-                GroupSwitch(stringResource(R.string.settings_secure), stringResource(R.string.settings_secure_body), s.secureScreens) { v -> update { it.copy(secureScreens = v) } }
+                GroupSwitch(
+                    stringResource(R.string.settings_secure),
+                    stringResource(R.string.settings_secure_body),
+                    s.secureScreens,
+                    icon = Icons.Outlined.VisibilityOff,
+                ) { v -> update { it.copy(secureScreens = v) } }
             }
 
-            Group(stringResource(R.string.settings_appearance)) {
+            Group(stringResource(R.string.settings_scanning), footer = stringResource(R.string.settings_quality_footer)) {
                 GroupChoice(
-                    stringResource(R.string.settings_theme),
-                    ThemeChoice.entries.map { it to stringResource(it.label) },
-                    s.theme,
-                ) { v -> update { it.copy(theme = v) } }
-                GroupSwitch(
-                    stringResource(R.string.settings_dynamic),
-                    stringResource(R.string.settings_dynamic_body),
-                    s.dynamicColor,
-                ) { v -> update { it.copy(dynamicColor = v) } }
+                    stringResource(R.string.settings_quality),
+                    PdfQualityChoice.entries.map { it to stringResource(it.label) },
+                    s.pdfQuality,
+                ) { v -> update { it.copy(pdfQuality = v) } }
+                GroupSwitch(stringResource(R.string.settings_auto_capture), stringResource(R.string.settings_auto_capture_body), s.autoCapture) { v ->
+                    update { it.copy(autoCapture = v) }
+                }
             }
         }
     }

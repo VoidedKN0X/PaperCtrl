@@ -75,6 +75,7 @@ import com.vknxworks.paperctrl.ui.components.friendlyMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.text.DateFormat
+import com.vknxworks.paperctrl.ui.components.SecureScreen
 
 private enum class Method { PASSWORD, TOKEN }
 
@@ -86,8 +87,9 @@ private enum class Method { PASSWORD, TOKEN }
 fun ServerSetupScreen(onDone: () -> Unit, onCancel: (() -> Unit)?) {
     val context = LocalContext.current
     val c = context.container
-    // Passwords and tokens can be shown in clear text here. The whole app is kept out of the recent-apps
-    // preview (MainActivity), so this screen needs nothing extra.
+    // Passwords, API tokens and two-factor codes are typed (and can be shown) here: never in screenshots,
+    // screen recordings or the recent-apps preview.
+    SecureScreen()
     val scope = rememberCoroutineScope()
 
     var address by rememberSaveable { mutableStateOf("") }
