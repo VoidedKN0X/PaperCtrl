@@ -80,7 +80,7 @@ If your ntfy server is only on your home network, Paperless blocks webhooks to l
 
 ## App lock
 
-Turn it on under **Settings > Privacy and security > App lock**. It's off until you turn it on.
+Turn it on under your profile picture › **Settings > Privacy and security > App lock**. It's off until you turn it on.
 
 - **Its own app PIN** of at least 6 digits, separate from your phone's screen lock. Very obvious PINs such as 111111 or 123456 are refused.
 - **Unlock with fingerprint** (optional) only accepts strong biometrics, such as the fingerprint sensor, checked by the phone's secure hardware. Face unlock that only uses the camera isn't accepted. The PIN is still needed after the phone restarts and at least every 72 hours, and adding a new fingerprint to the phone turns fingerprint unlock off until you turn it on again.
