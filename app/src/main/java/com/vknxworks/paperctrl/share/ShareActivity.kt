@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import com.vknxworks.paperctrl.ui.lock.lockCovering
 
 /**
  * "Share to PaperCtrl": receives one or more files (or plain text) from any app, copies them into
@@ -93,8 +94,9 @@ class ShareActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
-            androidx.compose.runtime.LaunchedEffect(settings.secureScreens) {
-                if (settings.secureScreens) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+            val secure = settings.secureScreens || lockCovering(settings.appLock, c.vault)
+            androidx.compose.runtime.LaunchedEffect(secure) {
+                if (secure) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
                 else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
             }
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {

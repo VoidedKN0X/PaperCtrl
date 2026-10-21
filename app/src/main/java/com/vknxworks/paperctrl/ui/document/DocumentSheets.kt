@@ -78,9 +78,11 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import java.time.LocalDate
 import java.time.ZoneOffset
+import com.vknxworks.paperctrl.ui.components.copySensitive
 
 fun copyToClipboard(context: Context, text: String) {
-    context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("PaperCtrl", text))
+    // Marked sensitive: share links and document text stay out of the clipboard preview and keyboards' history.
+    copySensitive(context, context.getString(R.string.app_name), text)
     Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
 }
 

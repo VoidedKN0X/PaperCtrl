@@ -252,6 +252,10 @@ tailrec fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
+/** Whether a lock or PIN screen covers the app right now (kept out of screenshots and recordings). */
+fun lockCovering(lockSetting: Boolean, vault: LockVault): Boolean =
+    (lockSetting && !vault.enabled) || (vault.enabled && !AppLock.unlocked) || AppLock.request != null
+
 /** Shows [content] only while the app is unlocked (or the lock is off). */
 @Composable
 fun AppLockGate(content: @Composable () -> Unit) {

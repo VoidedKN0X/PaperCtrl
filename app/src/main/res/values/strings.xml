@@ -497,11 +497,11 @@
     <string name="settings_digest_body">Around 9:00, if documents are waiting in the inbox</string>
     <string name="settings_ntfy_body">Off: get notified about documents added by email or the consume folder</string>
     <string name="settings_on">On</string>
-    <string name="settings_privacy">Privacy</string>
-    <string name="settings_privacy_footer">PaperCtrl is always hidden from the recent-apps preview.</string>
+    <string name="settings_privacy">Privacy and security</string>
+    <string name="settings_privacy_footer">PaperCtrl is always hidden from the recent-apps preview. Signing in and the lock screen are always kept out of screenshots and screen recordings.</string>
     <string name="settings_app_lock">App lock</string>
     <string name="settings_app_lock_body">Ask for an app PIN (and optionally your fingerprint) when opening PaperCtrl. While locked, your server logins stay encrypted with the PIN.</string>
-    <string name="settings_lock_background_note">With the app lock on, uploads you started still finish in the background. The daily inbox reminder and the widget\'s inbox count only update while PaperCtrl is unlocked, because the login stays encrypted while it\'s locked.</string>
+    <string name="settings_lock_background_note">With the app lock on, an upload that\'s already sending still finishes when PaperCtrl locks. Uploads that haven\'t started yet, the daily inbox reminder and the widget\'s inbox count wait until you unlock PaperCtrl, because the login stays encrypted while it\'s locked. Push from Paperless through ntfy keeps working.</string>
     <string name="settings_change_pin">Change app PIN</string>
     <string name="settings_change_pin_body">At least %1$d digits, separate from your phone\'s PIN</string>
     <string name="settings_fingerprint">Unlock with fingerprint</string>
@@ -515,8 +515,8 @@
     <string name="lock_again_15m">After 15 minutes away</string>
     <string name="lock_again_1h">After 1 hour away</string>
     <string name="lock_again_restart">Only when the app restarts</string>
-    <string name="settings_secure">Block screenshots</string>
-    <string name="settings_secure_body">Keeps documents out of screenshots and screen recordings</string>
+    <string name="settings_secure">Hide in screenshots and recent apps</string>
+    <string name="settings_secure_body">Screenshots, screen recordings and the recent apps view show a blank screen</string>
     <string name="lock_title">PaperCtrl is locked</string>
     <string name="lock_subtitle">Confirm it\'s you to choose an app PIN</string>
     <string name="lock_legacy_body">Unlock with your fingerprint, face or screen lock one last time, then choose an app PIN.</string>

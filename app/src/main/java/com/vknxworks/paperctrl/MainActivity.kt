@@ -3,7 +3,7 @@ package com.vknxworks.paperctrl
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.ComponentActivity
 import android.view.WindowManager
 import androidx.compose.runtime.LaunchedEffect
 import com.vknxworks.paperctrl.notify.InboxDigestWorker
@@ -23,8 +23,10 @@ import com.vknxworks.paperctrl.data.settings.ThemeChoice
 import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.nav.AppRoot
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
+import com.vknxworks.paperctrl.ui.components.ScreenPrivacy
+import com.vknxworks.paperctrl.ui.lock.lockCovering
 
-class MainActivity : FragmentActivity() {
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,9 +55,10 @@ class MainActivity : FragmentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
-            // Optional: keep the app's content out of screenshots and screen recordings.
-            LaunchedEffect(settings.secureScreens) {
-                if (settings.secureScreens) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            // "Hide in screenshots and recent apps", and always for signing in and the lock and PIN screens.
+            val secure = settings.secureScreens || lockCovering(settings.appLock, c.vault) || ScreenPrivacy.forced > 0
+            LaunchedEffect(secure) {
+                if (secure) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                 else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {

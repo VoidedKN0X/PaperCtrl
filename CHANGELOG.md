@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.3
+
+Settings now follow the same layout as the other Ctrl apps, and signing in and the lock screen are better protected.
+
+### Changed
+
+- **Settings are in the same order as in every Ctrl app:** Appearance first, then Notifications, then **Privacy and security** (renamed from Privacy: app lock, change app PIN, fingerprint unlock, lock again and hide in screenshots), then Scanning. Theme, wallpaper colours and the screenshot setting have icons like the other rows.
+- **"Block screenshots" is now called "Hide in screenshots and recent apps"**, the same name as in the other Ctrl apps. It works as before: screenshots and screen recordings show a blank screen.
+- **Clearer note about background work with the app lock on:** an upload that's already sending still finishes, while uploads that haven't started yet, the daily inbox reminder and the widget's inbox count wait until you unlock. Push from Paperless through ntfy keeps working.
+- **Slightly smaller app:** two libraries that were no longer used are gone.
+
+### Security
+
+- **Signing in is always kept out of screenshots and screen recordings**, even with "Hide in screenshots and recent apps" off, because your password, API token or two-factor code is typed (and can be shown) there.
+- **The lock screen and every PIN screen are kept out of screenshots and screen recordings**, in the app and when sharing to PaperCtrl, so a recording can't show the PIN being typed.
+- **Copied share links and your push address are marked as sensitive:** Android's clipboard preview and keyboards with a clipboard history don't show or keep them.
+
 ## 0.4.2
 
 ### Security

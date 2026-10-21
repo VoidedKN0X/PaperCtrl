@@ -18,8 +18,6 @@ camerax = "1.4.2"
 opencv = "4.12.0"
 zxingCpp = "2.3.0"
 glance = "1.1.1"
-biometric = "1.1.0"
-fragment = "1.8.6"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -51,8 +49,6 @@ camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 zxing-cpp = { module = "io.github.zxing-cpp:android", version.ref = "zxingCpp" }
 glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
-androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
-androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
