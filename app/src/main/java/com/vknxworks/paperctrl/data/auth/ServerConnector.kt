@@ -120,7 +120,7 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
         val other = whoAmI(api, token, http)
         // Same user on a server of the same version: close enough to be sure it's the same Paperless.
         if (other.settings.user.id != expected.settings.user.id || other.serverVersion != expected.serverVersion) {
-            throw PaperlessException(ErrorKind.UNEXPECTED, "This address leads to a different Paperless server.")
+            throw PaperlessException(ErrorKind.DIFFERENT_SERVER)
         }
         return api
     }
@@ -179,7 +179,7 @@ class ServerConnector(private val baseHttp: OkHttpClient) {
                 throw PaperlessException(ErrorKind.NOT_PAPERLESS, describe(r), r.code)
             }
         }
-        throw PaperlessException(ErrorKind.NOT_PAPERLESS, "Too many redirects")
+        throw PaperlessException(ErrorKind.TOO_MANY_REDIRECTS)
     }
 
     /** What answered instead of Paperless, for the error message: status, content type and server software. */

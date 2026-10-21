@@ -111,7 +111,12 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
                     Notifications.added(applicationContext, done, title)
                     return Result.success()
                 }
-                TaskState.FAILURE -> return fail(start, status?.message ?: applicationContext.getString(R.string.queue_consume_failed))
+                TaskState.FAILURE -> return fail(
+                    start,
+                    status?.message
+                        ?: status?.duplicateOf?.let { applicationContext.getString(R.string.queue_duplicate_of, it) }
+                        ?: applicationContext.getString(R.string.queue_consume_failed),
+                )
                 else -> Unit
             }
             delay(wait)
@@ -125,7 +130,7 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
     private suspend fun handleError(item: QueueItem, e: Exception): Result {
         val permanent = e is PaperlessException && e.kind in setOf(
             ErrorKind.BAD_TOKEN, ErrorKind.FORBIDDEN, ErrorKind.TOO_LARGE, ErrorKind.UNEXPECTED, ErrorKind.NOT_FOUND, ErrorKind.NOT_PAPERLESS,
-            ErrorKind.CLEARTEXT_BLOCKED, ErrorKind.TOO_OLD,
+            ErrorKind.CLEARTEXT_BLOCKED, ErrorKind.TOO_OLD, ErrorKind.NO_UPLOAD_TASK, ErrorKind.DIFFERENT_SERVER, ErrorKind.TOO_MANY_REDIRECTS,
         )
         if (permanent) return fail(item, e.friendlyMessage(applicationContext))
         // Offline, server down, certificate trouble, throttled, 5xx: wait and try again.

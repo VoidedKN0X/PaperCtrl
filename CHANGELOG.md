@@ -1,9 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.4.5
 
 ### Changed
 
+- **All text is now in one place, ready for translations**: the last four messages that were still written into the code now come from the app's text file too. They read the same as before: "This address leads to a different Paperless server.", "The server didn't return a task for the upload." and, for a failed upload, "It is a duplicate of document #…".
+- **Clearer message when an address keeps redirecting**: instead of "Something answered at this address, but not Paperless-ngx's API" followed by "Too many redirects", PaperCtrl now says the address keeps redirecting, so Paperless-ngx couldn't be reached, and to check the address.
 - **README**: the App lock and privacy setting paths now start at your profile picture (tap your profile picture › Settings › Privacy and security)
 
 ## 0.4.4

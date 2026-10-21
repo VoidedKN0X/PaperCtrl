@@ -644,4 +644,8 @@
         <item quantity="one">%d in the inbox</item>
         <item quantity="other">%d in the inbox</item>
     </plurals>
+    <string name="error_different_server">This address leads to a different Paperless server.</string>
+    <string name="error_too_many_redirects">This address keeps redirecting, so Paperless-ngx couldn\'t be reached. Check the address.</string>
+    <string name="error_no_upload_task">The server didn\'t return a task for the upload.</string>
+    <string name="queue_duplicate_of">It is a duplicate of document #%1$s.</string>
 </resources>
