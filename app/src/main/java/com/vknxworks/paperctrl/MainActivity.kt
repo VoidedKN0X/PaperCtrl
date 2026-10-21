@@ -24,6 +24,7 @@ import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.nav.AppRoot
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
 import com.vknxworks.paperctrl.ui.components.ScreenPrivacy
+import com.vknxworks.paperctrl.ui.components.WindowPrivacy
 import com.vknxworks.paperctrl.ui.lock.lockCovering
 
 class MainActivity : ComponentActivity() {
@@ -31,8 +32,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Document titles, file names and the sign-in screen never show in the recent-apps preview.
-        setRecentsScreenshotEnabled(false)
         val c = container
         handleOpen(intent)
         if (savedInstanceState == null) {
@@ -56,11 +55,10 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
             // "Hide in screenshots and recent apps", and always for signing in and the lock and PIN screens.
-            val secure = settings.secureScreens || lockCovering(settings.appLock, c.vault) || ScreenPrivacy.forced > 0
-            LaunchedEffect(secure) {
-                if (secure) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
+            // "Hide in recent apps" (off by default); with the app lock on, Recents always shows a blank
+            // card, since a preview there would show documents without the PIN.
+            val secure = settings.hideScreenshots || lockCovering(settings.appLock, c.vault) || ScreenPrivacy.forced > 0
+            WindowPrivacy(this, secure, hideRecents = settings.hideRecents || settings.appLock || c.vault.enabled)
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {
                 AppLockGate { AppRoot() }
             }

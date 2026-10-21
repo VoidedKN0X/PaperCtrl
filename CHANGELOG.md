@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.4
+
+### Changed
+
+- **Hide in screenshots** and **Hide in recent apps** are now two separate switches in **Settings > Privacy and security**, both off by default. **Hide in screenshots** makes screenshots and screen recordings show a blank screen (the recent-apps view too). **Hide in recent apps** only shows a blank card in the recent-apps view, so screenshots still work. They replace the single "Hide in screenshots and recent apps" (formerly "Block screenshots") switch: if you had turned that on, both new switches are on after the update, so nothing changes for you.
+- **The recent-apps preview is no longer always blank.** Before, PaperCtrl always showed a blank card in recent apps; now it only does with **Hide in recent apps** on, or while the app lock is on (a preview would otherwise show your documents without the PIN). Turn on **Hide in recent apps** to keep the old behaviour. Sharing to PaperCtrl follows the same switches.
+- Signing in and the lock and PIN screens are still always kept out of screenshots and recordings, whatever the switches say.
+
 ## 0.4.3
 
 Settings now follow the same layout as the other Ctrl apps, and signing in and the lock screen are better protected.

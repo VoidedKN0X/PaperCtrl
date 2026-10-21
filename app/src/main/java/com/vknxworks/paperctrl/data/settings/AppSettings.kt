@@ -57,8 +57,10 @@ data class AppSettings(
     val pushEnabled: Boolean = false,
     val appLock: Boolean = false,
     val lockTimeout: LockTimeout = LockTimeout.IMMEDIATELY,
-    /** Hide the app's content from screenshots and screen recording. */
-    val secureScreens: Boolean = false,
+    /** "Hide in screenshots": FLAG_SECURE on every window (also blanks the recent-apps preview). */
+    val hideScreenshots: Boolean = false,
+    /** "Hide in recent apps": the recent-apps view shows a blank card. Screenshots still work. */
+    val hideRecents: Boolean = false,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -77,7 +79,10 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val pushEnabled = booleanPreferencesKey("push_enabled")
         val appLock = booleanPreferencesKey("app_lock")
         val lockTimeout = stringPreferencesKey("lock_timeout")
-        val secureScreens = booleanPreferencesKey("secure_screens")
+        val hideScreenshots = booleanPreferencesKey("hide_screenshots")
+        val hideRecents = booleanPreferencesKey("hide_recents")
+        /** The old single "Block screenshots" switch: turned on, it turns both switches on. */
+        val legacySecureScreens = booleanPreferencesKey("secure_screens")
     }
 
     val settings: StateFlow<AppSettings> = context.appDataStore.data
@@ -105,7 +110,8 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         pushEnabled = this[K.pushEnabled] ?: false,
         appLock = this[K.appLock] ?: false,
         lockTimeout = enumOr(this[K.lockTimeout], LockTimeout.IMMEDIATELY),
-        secureScreens = this[K.secureScreens] ?: false,
+        hideScreenshots = this[K.hideScreenshots] ?: this[K.legacySecureScreens] ?: false,
+        hideRecents = this[K.hideRecents] ?: this[K.legacySecureScreens] ?: false,
     )
 
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -124,7 +130,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.pushEnabled] = s.pushEnabled
             p[K.appLock] = s.appLock
             p[K.lockTimeout] = s.lockTimeout.name
-            p[K.secureScreens] = s.secureScreens
+            p[K.hideScreenshots] = s.hideScreenshots
+            p[K.hideRecents] = s.hideRecents
+            p.remove(K.legacySecureScreens)
         }
     }
 

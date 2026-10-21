@@ -33,6 +33,7 @@ import com.vknxworks.paperctrl.data.settings.LockTimeout
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Lock
@@ -148,11 +149,17 @@ fun SettingsScreen() {
                     ) { v -> update { it.copy(lockTimeout = v) } }
                 }
                 GroupSwitch(
-                    stringResource(R.string.settings_secure),
-                    stringResource(R.string.settings_secure_body),
-                    s.secureScreens,
+                    stringResource(R.string.hide_screenshots),
+                    stringResource(R.string.hide_screenshots_subtitle),
+                    s.hideScreenshots,
                     icon = Icons.Outlined.VisibilityOff,
-                ) { v -> update { it.copy(secureScreens = v) } }
+                ) { v -> update { it.copy(hideScreenshots = v) } }
+                GroupSwitch(
+                    stringResource(R.string.hide_recents),
+                    stringResource(R.string.hide_recents_subtitle),
+                    s.hideRecents,
+                    icon = Icons.Outlined.Layers,
+                ) { v -> update { it.copy(hideRecents = v) } }
             }
 
             Group(stringResource(R.string.settings_scanning), footer = stringResource(R.string.settings_quality_footer)) {
