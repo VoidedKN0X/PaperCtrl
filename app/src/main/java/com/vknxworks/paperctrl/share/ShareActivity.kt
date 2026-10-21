@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import com.vknxworks.paperctrl.ui.lock.lockCovering
+import com.vknxworks.paperctrl.ui.components.WindowPrivacy
 
 /**
  * "Share to PaperCtrl": receives one or more files (or plain text) from any app, copies them into
@@ -55,8 +56,6 @@ class ShareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // File names and details of private documents show here: keep them out of the recent-apps preview.
-        setRecentsScreenshotEnabled(false)
         val c = container
         askForNotifications()
         val dir = c.queue.newStagingDir().also { staging = it }
@@ -94,11 +93,8 @@ class ShareActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
-            val secure = settings.secureScreens || lockCovering(settings.appLock, c.vault)
-            androidx.compose.runtime.LaunchedEffect(secure) {
-                if (secure) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-                else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-            }
+            val secure = settings.hideScreenshots || lockCovering(settings.appLock, c.vault)
+            WindowPrivacy(this, secure, hideRecents = settings.hideRecents || settings.appLock || c.vault.enabled)
             PaperCtrlTheme(settings.theme, settings.dynamicColor) {
                 // Shared files only reach the queue once the app lock is unlocked.
                 AppLockGate { ShareScreen(

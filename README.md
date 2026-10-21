@@ -23,7 +23,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through **[ntfy](https://f-droid.org/packages/io.heckel.ntfy/)** and your own ntfy server
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
-- **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional [app lock](#app-lock) with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), **Hide in screenshots and recent apps**, and a blank preview in recent apps
+- **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional [app lock](#app-lock) with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), and **Hide in screenshots** and **Hide in recent apps** switches
 
 ## Screenshots
 
@@ -92,7 +92,12 @@ Turn it on under **Settings > Privacy and security > App lock**. It's off until 
 - **Share to PaperCtrl** asks for the PIN before anything you share reaches the upload queue.
 - **Background work while locked:** an upload that's already sending still finishes. Uploads that haven't started yet, the daily inbox reminder and the widget's inbox count wait until you unlock, because the login stays encrypted. Push from Paperless through ntfy keeps working, since it doesn't need your login.
 
-**Hide in screenshots and recent apps** (in the same section, also without the app lock) keeps PaperCtrl out of screenshots and screen recordings. The recent-apps preview is always blank, and signing in and the lock screen are always kept out of screenshots.
+Two more switches in the same section work with or without the app lock, and are both off until you turn them on:
+
+- **Hide in screenshots**: screenshots and screen recordings show a blank screen (and so does the recent-apps view).
+- **Hide in recent apps**: the recent-apps view shows a blank card instead of PaperCtrl. Screenshots still work.
+
+Signing in and the lock and PIN screens are always kept out of screenshots and recordings, whatever these switches say. With the app lock on, the recent-apps view always shows a blank card.
 
 ## Privacy
 
