@@ -111,6 +111,8 @@ class AppContainer(val context: Context) {
      */
     fun onLocked() {
         sessions.onLocked()
+        // Viewed and shared document files don't stay on the phone while PaperCtrl is locked.
+        if (vault.enabled) appScope.launch(Dispatchers.IO) { runCatching { files.clear() } }
         closeKeyJob?.cancel()
         if (queue.items.value.none { it.isActive }) {
             vault.close()
@@ -128,6 +130,8 @@ class AppContainer(val context: Context) {
         sessions.onUnlocked()
         AppLock.markUnlocked()
         queue.resumeAfterUnlock()
+        // Seal any token left unsealed (PaperCtrl stopped between setting up the lock and sealing them).
+        if (vault.enabled) appScope.launch { runCatching { sessions.sealTokens() } }
     }
 
     /** A screen to open, set from a notification tap; the main screen consumes it. */

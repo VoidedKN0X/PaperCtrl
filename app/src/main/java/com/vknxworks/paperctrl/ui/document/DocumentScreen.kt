@@ -215,7 +215,9 @@ fun DocumentScreen(id: Int) {
                                     SegmentedButton(selected = model.original, onClick = { model.showOriginal(true) }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text(stringResource(R.string.doc_original)) }
                                 }
                             }
-                            val f = model.file
+                            // Deleted when PaperCtrl locked (app lock on): download it again after unlocking.
+                            val f = model.file?.takeIf { it.file.exists() }
+                            LaunchedEffect(model.file, f) { if (model.file != null && f == null) model.reloadFile() }
                             when {
                                 f != null -> DocumentViewer(f, onOpenWith = { AppLock.expectReturn(); runCatching { context.startActivity(c.files.openWithIntent(f)) } }, modifier = Modifier.weight(1f))
                                 model.fileError != null -> MessageView(Icons.Outlined.Description, stringResource(R.string.load_failed), model.fileError, actionLabel = stringResource(R.string.retry), onAction = { model.loadFile() })

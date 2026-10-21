@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.6
+
+### Security
+
+- **Viewed documents are deleted when PaperCtrl locks**: with the app lock on, the documents you'd opened (and the copies made for sharing or **Open with**) stayed in PaperCtrl's private storage on the phone while it was locked, until the app restarted. They're now deleted the moment PaperCtrl locks, and a document that was open is downloaded again after you unlock.
+- **Your server tokens are always sealed with the app lock**: if PaperCtrl was stopped in the split second between setting up the app lock and encrypting your server tokens with the PIN, they could stay encrypted with the Android Keystore only. PaperCtrl now checks every time you unlock and seals anything that was missed.
+
 ## 0.4.5
 
 ### Changed

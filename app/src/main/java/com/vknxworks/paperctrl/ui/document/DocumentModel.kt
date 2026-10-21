@@ -112,6 +112,12 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
         loadFile()
     }
 
+    /** The file was deleted (PaperCtrl locked meanwhile): download it again. */
+    fun reloadFile() {
+        file = null
+        loadFile()
+    }
+
     fun loadFile() {
         val d = doc ?: return
         val cl = client ?: return
