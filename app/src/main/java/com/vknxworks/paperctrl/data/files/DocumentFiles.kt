@@ -24,7 +24,8 @@ data class LocalFile(val file: File, val name: String, val mimeType: String)
 
 /**
  * Downloads documents into app-private cache storage for viewing, and copies them out only when
- * the user saves or shares them. Cached files are deleted when the app starts and when a server is removed.
+ * the user saves or shares them. Cached files are deleted when the app starts, when a server is removed and,
+ * with the app lock on, every time PaperCtrl locks.
  */
 class DocumentFiles(private val context: Context) {
     private val root = File(context.cacheDir, "docs")
@@ -100,7 +101,7 @@ class DocumentFiles(private val context: Context) {
         .setDataAndType(shareUri(file), file.mimeType)
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-    /** Removes every cached document file (on start-up, and when a server is removed). */
+    /** Removes every cached document file (on start-up, when a server is removed, and when the app lock locks). */
     fun clear() {
         root.deleteRecursively()
         File(context.cacheDir, "shared").deleteRecursively()

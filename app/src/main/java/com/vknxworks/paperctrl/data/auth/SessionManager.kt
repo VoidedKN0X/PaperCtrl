@@ -140,9 +140,19 @@ class SessionManager(
         activate(server)
     }
 
-    /** The app lock was turned on: encrypt every saved token with its key too. */
-    suspend fun sealTokens() = mutex.withLock {
-        val list = _servers.value.map { s -> tokenOf(s)?.let { s.copy(tokenEnc = storeToken(it)) } ?: s }
+    /**
+     * The app lock was turned on, or the app was unlocked: encrypt every saved token that isn't sealed yet
+     * with the lock's key too. On unlock this finishes the job if PaperCtrl was stopped right after the lock
+     * was turned on, before the tokens were sealed. Only while unlocked; tokens already sealed stay as they are.
+     */
+    suspend fun sealTokens(): Unit = mutex.withLock {
+        if (!vault.enabled || !vault.isOpen) return@withLock
+        val current = _servers.value
+        val list = current.map { s ->
+            val inner = KeystoreCrypto.decrypt(s.tokenEnc)
+            if (inner == null || LockVault.isSealed(inner)) s else runCatching { s.copy(tokenEnc = storeToken(inner)) }.getOrDefault(s)
+        }
+        if (list == current) return@withLock
         persist(list, activeId)
         _active.value?.let { a -> list.firstOrNull { it.id == a.server.id }?.let { _active.value = a.copy(server = it) } }
     }
