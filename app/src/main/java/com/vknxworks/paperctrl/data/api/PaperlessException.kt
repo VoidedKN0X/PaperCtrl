@@ -23,6 +23,9 @@ enum class ErrorKind(@StringRes val message: Int) {
     SERVER(R.string.error_server),
     UNEXPECTED(R.string.error_unexpected),
     CLEARTEXT_BLOCKED(R.string.error_cleartext_blocked),
+    DIFFERENT_SERVER(R.string.error_different_server),
+    TOO_MANY_REDIRECTS(R.string.error_too_many_redirects),
+    NO_UPLOAD_TASK(R.string.error_no_upload_task),
 }
 
 /**

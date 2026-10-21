@@ -66,7 +66,8 @@ data class UploadMeta(
 enum class TaskState { PENDING, RUNNING, SUCCESS, FAILURE }
 
 /** A consumption task, read the same way from API 9 (upper-case states, "result") and 10 ("result_data"). */
-data class TaskStatus(val state: TaskState, val documentId: Int?, val message: String?)
+/** [message] is Paperless' own explanation; [duplicateOf] the document an upload duplicates, when that's the reason. */
+data class TaskStatus(val state: TaskState, val documentId: Int?, val message: String?, val duplicateOf: String? = null)
 
 // ---------- Calls ----------
 
@@ -122,7 +123,7 @@ suspend fun PaperlessClient.postDocument(
     }.build()
     val json = execute(request(url("documents/post_document/")).post(body).build())
     return (json as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
-        ?: throw PaperlessException(ErrorKind.UNEXPECTED, "The server didn't return a task for the upload.")
+        ?: throw PaperlessException(ErrorKind.NO_UPLOAD_TASK)
 }
 
 /** The consumption task with [taskId], or null if the server doesn't list it (yet). */
@@ -148,11 +149,10 @@ internal fun parseTask(t: JsonObject): TaskStatus {
     val docId = (t["related_document_ids"] as? JsonArray)?.firstOrNull()?.jsonPrimitive?.intOrNull
         ?: t.str("related_document")?.toIntOrNull()
         ?: (data?.get("document_id") as? JsonPrimitive)?.intOrNull
-    val message = data?.str("error_message")
-        ?: data?.str("reason")
-        ?: data?.get("duplicate_of")?.let { (it as? JsonPrimitive)?.contentOrNull }?.let { "It is a duplicate of document #$it." }
-        ?: t.str("result")
-    return TaskStatus(state, docId, message?.take(500))
+    val reason = data?.str("error_message") ?: data?.str("reason")
+    val duplicateOf = if (reason == null) data?.get("duplicate_of")?.let { (it as? JsonPrimitive)?.contentOrNull } else null
+    val message = reason ?: if (duplicateOf == null) t.str("result") else null
+    return TaskStatus(state, docId, message?.take(500), duplicateOf)
 }
 
 private fun JsonObject.str(key: String): String? = (this[key] as? JsonPrimitive)?.contentOrNull
