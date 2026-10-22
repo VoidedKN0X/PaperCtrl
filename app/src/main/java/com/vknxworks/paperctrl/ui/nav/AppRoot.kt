@@ -62,6 +62,8 @@ import com.vknxworks.paperctrl.ui.components.LoadingView
 import com.vknxworks.paperctrl.ui.settings.ServersScreen
 import com.vknxworks.paperctrl.ui.upload.QueueScreen
 import com.vknxworks.paperctrl.notify.Notifications
+import com.vknxworks.paperctrl.notify.NotifyPermission
+import com.vknxworks.paperctrl.notify.rememberNotifyPermission
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.LocalHazeState
@@ -124,7 +126,15 @@ private fun MainScaffold() {
     }
 
     val c = LocalContext.current.container
+    val context = LocalContext.current
 
+    // Upload progress and the "added" and "failed" notifications are on from the start, so ask for Android 13's
+    // notification permission once, by itself, as soon as the main screens show (signed in and unlocked).
+    // After that only Settings asks again (or sharing a file to PaperCtrl, while Android still offers it).
+    val askNotify = rememberNotifyPermission()
+    LaunchedEffect(Unit) {
+        if (NotifyPermission.permissionMissing(context) && !NotifyPermission.asked(context)) askNotify()
+    }
 
     // A notification, shortcut, widget or tile asked for a screen.
     val pendingOpen by c.pendingOpen.collectAsStateWithLifecycle()

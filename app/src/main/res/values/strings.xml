@@ -489,6 +489,9 @@
     <string name="settings_auto_capture">Capture automatically</string>
     <string name="settings_auto_capture_body">Takes the picture once the page holds still</string>
     <string name="settings_notifications">Notifications</string>
+    <string name="notifications_blocked">Notifications are blocked</string>
+    <string name="notifications_blocked_body">Android isn\'t letting PaperCtrl show notifications, so upload progress, results, the inbox reminder and ntfy pushes don\'t appear</string>
+    <string name="notifications_allow">Allow</string>
     <string name="settings_notify_added">Document added</string>
     <string name="settings_notify_added_body">When Paperless has finished adding your upload</string>
     <string name="settings_notify_failed">Upload failed</string>

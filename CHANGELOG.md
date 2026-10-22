@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.8
+
+### Fixed
+
+- **PaperCtrl now asks for permission to show notifications.** On Android 13 and later an app has to be allowed to show notifications, but PaperCtrl only asked when you shared a file to it. Scans uploaded from the app itself, the "Document added" and "Upload failed" notifications (both on from the start), the inbox reminder and ntfy pushes were all silently dropped on a fresh install, including the progress notification while an upload runs. PaperCtrl now asks once, by itself, as soon as you're signed in and the main screens show, and never nags again after that.
+- **The notification switches tell the truth.** While notifications are blocked, **Document added**, **Upload failed**, the **Daily inbox reminder** and **Notifications from Paperless** (ntfy) no longer show "on". A **Notifications are blocked** row at the top of **Settings > Notifications** (and on the **Push from Paperless (ntfy)** screen) says so, with an **Allow** button: it shows Android's permission dialog while Android still offers it, and otherwise opens PaperCtrl's notification settings. Coming back from there updates the switches straight away.
+- **Turning on a notification switch asks for the permission** when notifications are blocked, instead of switching on something that can't reach you.
+- Showing Android's notification dialog or settings no longer locks the app when you come back to it.
+
 ## 0.4.7
 
 ### Fixed

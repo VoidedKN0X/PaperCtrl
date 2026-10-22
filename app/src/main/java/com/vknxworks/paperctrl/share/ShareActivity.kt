@@ -32,7 +32,9 @@ import com.vknxworks.paperctrl.data.queue.StagedFile
 import com.vknxworks.paperctrl.data.queue.Staging
 import com.vknxworks.paperctrl.data.settings.ThemeChoice
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
+import com.vknxworks.paperctrl.ui.lock.AppLock
 import com.vknxworks.paperctrl.ui.lock.AppLockGate
+import com.vknxworks.paperctrl.notify.NotifyPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -150,6 +152,9 @@ class ShareActivity : ComponentActivity() {
 
     private fun askForNotifications() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // Counts as PaperCtrl's one automatic ask, so the main screens don't ask again right after.
+            NotifyPermission.markAsked(this)
+            AppLock.expectReturn()
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
