@@ -22,6 +22,11 @@ import com.vknxworks.paperctrl.data.settings.AppSettings
 import com.vknxworks.paperctrl.data.settings.ThemeChoice
 import com.vknxworks.paperctrl.data.settings.PdfQualityChoice
 import com.vknxworks.paperctrl.notify.InboxDigestWorker
+import com.vknxworks.paperctrl.notify.rememberNotificationsAllowed
+import com.vknxworks.paperctrl.notify.rememberNotifyPermission
+import androidx.compose.material.icons.outlined.NotificationsOff
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.NtfyRoute
@@ -55,6 +60,14 @@ fun SettingsScreen() {
     val s by c.settings.settings.collectAsStateWithLifecycle()
     fun update(t: (AppSettings) -> AppSettings) { scope.launch { c.settings.update(t) } }
     val bioAvailable = remember { AppLock.biometricAvailable(context) }
+    // Switches that notify only show "on" while PaperCtrl may actually show notifications.
+    val (canNotify, setCanNotify) = rememberNotificationsAllowed()
+    val askNotify = rememberNotifyPermission { setCanNotify(it) }
+    /** Turns a notification switch on or off; turning one on asks for notifications when they're blocked. */
+    fun notifySwitch(on: Boolean, change: (AppSettings) -> AppSettings) {
+        update(change)
+        if (on && !canNotify) askNotify()
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -78,15 +91,20 @@ fun SettingsScreen() {
             }
 
             Group(stringResource(R.string.settings_notifications)) {
-                GroupSwitch(stringResource(R.string.settings_notify_added), stringResource(R.string.settings_notify_added_body), s.notifyAdded) { v -> update { it.copy(notifyAdded = v) } }
-                GroupSwitch(stringResource(R.string.settings_notify_failed), stringResource(R.string.settings_notify_failed_body), s.notifyFailed) { v -> update { it.copy(notifyFailed = v) } }
-                GroupSwitch(stringResource(R.string.settings_digest), stringResource(R.string.settings_digest_body), s.inboxDigest) { v ->
-                    update { it.copy(inboxDigest = v) }
+                if (!canNotify) NotificationsBlockedRow(askNotify)
+                GroupSwitch(stringResource(R.string.settings_notify_added), stringResource(R.string.settings_notify_added_body), s.notifyAdded && canNotify) { v ->
+                    notifySwitch(v) { it.copy(notifyAdded = v) }
+                }
+                GroupSwitch(stringResource(R.string.settings_notify_failed), stringResource(R.string.settings_notify_failed_body), s.notifyFailed && canNotify) { v ->
+                    notifySwitch(v) { it.copy(notifyFailed = v) }
+                }
+                GroupSwitch(stringResource(R.string.settings_digest), stringResource(R.string.settings_digest_body), s.inboxDigest && canNotify) { v ->
+                    notifySwitch(v) { it.copy(inboxDigest = v) }
                     InboxDigestWorker.schedule(context, v)
                 }
                 GroupRow(
                     stringResource(R.string.ntfy_title),
-                    stringResource(if (s.pushEnabled) R.string.settings_on else R.string.settings_ntfy_body),
+                    stringResource(if (s.pushEnabled && canNotify) R.string.settings_on else R.string.settings_ntfy_body),
                     showChevron = true,
                     onClick = { nav.navigate(NtfyRoute) },
                 )
@@ -174,4 +192,21 @@ fun SettingsScreen() {
             }
         }
     }
+}
+
+/**
+ * Shown while Android blocks PaperCtrl's notifications: upload progress, results, the inbox reminder and
+ * ntfy pushes can't appear. Allow shows Android's dialog, or PaperCtrl's notification settings once the
+ * dialog doesn't show any more.
+ */
+@Composable
+internal fun NotificationsBlockedRow(onAllow: () -> Unit) {
+    GroupRow(
+        stringResource(R.string.notifications_blocked),
+        stringResource(R.string.notifications_blocked_body),
+        icon = Icons.Outlined.NotificationsOff,
+        iconTint = MaterialTheme.colorScheme.error,
+        onClick = onAllow,
+        trailing = { TextButton(onClick = onAllow) { Text(stringResource(R.string.notifications_allow)) } },
+    )
 }

@@ -40,6 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.notify.Push
+import com.vknxworks.paperctrl.notify.rememberNotificationsAllowed
+import com.vknxworks.paperctrl.notify.rememberNotifyPermission
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.GroupSwitch
@@ -77,9 +79,14 @@ fun NtfyScreen() {
         if (settings.pushEnabled && ntfyInstalled && Push.state.value.distributor == null) Push.register(context)
     }
 
+    // Pushes arrive as notifications, so the switch only shows "on" while they're allowed.
+    val (canNotify, setCanNotify) = rememberNotificationsAllowed()
+    val askNotify = rememberNotifyPermission { setCanNotify(it) }
+
     fun enable(on: Boolean) {
         c.appScope.launch { c.settings.update { it.copy(pushEnabled = on) } }
         if (on) Push.register(context) else Push.unregister(context)
+        if (on && !canNotify) askNotify()
     }
 
     Scaffold(
@@ -105,7 +112,8 @@ fun NtfyScreen() {
                 return@Column
             }
             Group {
-                GroupSwitch(stringResource(R.string.ntfy_enable), stringResource(R.string.ntfy_enable_body), settings.pushEnabled, icon = Icons.Outlined.NotificationsActive) { enable(it) }
+                if (!canNotify) NotificationsBlockedRow(askNotify)
+                GroupSwitch(stringResource(R.string.ntfy_enable), stringResource(R.string.ntfy_enable_body), settings.pushEnabled && canNotify, icon = Icons.Outlined.NotificationsActive) { enable(it) }
             }
             if (settings.pushEnabled) {
                 val endpoint = push.endpoint
