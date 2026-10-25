@@ -665,4 +665,54 @@
     <string name="error_too_many_redirects">This address keeps redirecting, so Paperless-ngx couldn\'t be reached. Check the address.</string>
     <string name="error_no_upload_task">The server didn\'t return a task for the upload.</string>
     <string name="queue_duplicate_of">It is a duplicate of document #%1$s.</string>
+
+    <!-- Page manager -->
+    <string name="pages_menu">Manage pages</string>
+    <string name="pages_title">Pages</string>
+    <string name="pages_reset">Undo all changes</string>
+    <string name="pages_hint">Tap pages to select them. Long-press and drag a page to move it.</string>
+    <string name="pages_hint_legacy">Tap pages to select them. This Paperless version can delete pages and split documents; update to 2.18 or later to move and rotate single pages.</string>
+    <string name="pages_split_after">Split after</string>
+    <string name="pages_split_here">A new document starts after this page</string>
+    <string name="pages_clear_selection">Done</string>
+    <string name="pages_keep_one">A document needs at least one page.</string>
+    <string name="pages_doc_label">Doc %1$d</string>
+    <string name="pages_legacy_one_at_a_time">This Paperless version can\'t delete pages and split in one go. Save one change first, then the other.</string>
+    <string name="pages_confirm_title">Save the page changes?</string>
+    <string name="pages_confirm_body">Paperless changes the document\'s file and reads its text again.</string>
+    <string name="pages_confirm_body_version">Paperless saves the changed file as a new version of this document and reads its text again. The earlier version stays in its version history.</string>
+    <string name="pages_confirm_split_title">Split this document?</string>
+    <string name="pages_delete_original">Delete the original afterwards</string>
+    <string name="pages_working">Paperless is working on the pages…</string>
+    <string name="pages_saved">Pages saved.</string>
+    <string name="pages_still_working">Paperless is still working on the pages. Open the document again in a while to see the result.</string>
+    <string name="pages_failed">Paperless couldn\'t change the pages.</string>
+    <plurals name="pages_count">
+        <item quantity="one">%d page</item>
+        <item quantity="other">%d pages</item>
+    </plurals>
+    <plurals name="pages_documents">
+        <item quantity="one">%d document</item>
+        <item quantity="other">%d documents</item>
+    </plurals>
+    <plurals name="pages_confirm_split_body">
+        <item quantity="one">Paperless makes %d new document from these pages, with this document\'s title, tags and other details.</item>
+        <item quantity="other">Paperless makes %d new documents from these pages, each with this document\'s title, tags and other details.</item>
+    </plurals>
+    <plurals name="pages_split_done">
+        <item quantity="one">%d new document added.</item>
+        <item quantity="other">%d new documents added.</item>
+    </plurals>
+
+    <!-- Statistics -->
+    <string name="stats_label">Library</string>
+    <string name="stats_asn">ASN %1$d</string>
+    <string name="stats_documents">documents</string>
+    <string name="stats_in_inbox">%1$s in the inbox</string>
+    <string name="stats_characters">%1$s characters</string>
+    <string name="stats_correspondents">People</string>
+    <string name="stats_types">Types</string>
+    <string name="stats_paths">Paths</string>
+    <string name="stats_file_types">File types</string>
+    <string name="stats_other_types">Other</string>
 </resources>

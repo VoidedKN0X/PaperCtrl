@@ -186,7 +186,7 @@ private fun PdfPage(pdf: PdfDoc, index: Int, widthPx: Int) {
 }
 
 /** A PdfRenderer with a small bitmap cache; PdfRenderer allows one open page at a time, hence the lock. */
-private class PdfDoc(file: LocalFile) {
+internal class PdfDoc(file: LocalFile) {
     private val fd = ParcelFileDescriptor.open(file.file, ParcelFileDescriptor.MODE_READ_ONLY)
     private val renderer = PdfRenderer(fd)
     private val lock = Mutex()

@@ -67,6 +67,11 @@ class DocumentFiles(private val context: Context) {
             LocalFile(target, Staging.safeName(name, mime), mime)
         }
 
+    /** Drops the cached files of document [id], after its pages were changed on the server. */
+    fun forget(client: PaperlessClient, id: Int) {
+        dirFor(client).listFiles()?.filter { it.name.startsWith("$id-") }?.forEach { it.delete() }
+    }
+
     /** Saves a copy to the phone's Downloads folder (Downloads/PaperCtrl). Returns its name. */
     suspend fun saveToDownloads(file: LocalFile): String = withContext(Dispatchers.IO) {
         val values = ContentValues().apply {
