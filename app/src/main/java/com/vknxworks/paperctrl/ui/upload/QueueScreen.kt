@@ -1,5 +1,10 @@
 package com.vknxworks.paperctrl.ui.upload
 
+import com.vknxworks.paperctrl.ui.components.CtrlProgressBar
+import com.vknxworks.paperctrl.ui.theme.CtrlType
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -148,7 +153,7 @@ private fun QueueCard(
     onOpen: () -> Unit,
 ) {
     val context = LocalContext.current
-    Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+    Surface(shape = CtrlShapes.Card, color = CtrlColors.Surface, border = androidx.compose.foundation.BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StatusBadge(item)
@@ -170,14 +175,14 @@ private fun QueueCard(
                             Formatter.formatShortFileSize(context, item.sizeBytes),
                             serverLabel,
                             DateUtils.getRelativeTimeSpanString(item.createdAt).toString(),
-                        ).joinToString("  ·  "),
-                        style = MaterialTheme.typography.bodySmall,
+                        ).joinToString(" · "),
+                        style = CtrlType.Mono,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
             if (item.status == QueueStatus.UPLOADING) {
-                LinearProgressIndicator(progress = { item.progress }, modifier = Modifier.fillMaxWidth().padding(top = 10.dp, end = 8.dp))
+                CtrlProgressBar(item.progress, Modifier.padding(top = 12.dp, end = 8.dp))
             }
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.End) {
                 if (item.status == QueueStatus.DONE && item.documentId != null) {
@@ -200,13 +205,13 @@ private fun QueueCard(
 @Composable
 private fun StatusBadge(item: QueueItem) {
     Box(
-        Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh),
+        Modifier.size(40.dp).clip(CtrlShapes.Control).background(CtrlColors.Raised),
         contentAlignment = Alignment.Center,
     ) {
         when (item.status) {
             QueueStatus.WAITING -> Icon(Icons.Outlined.Schedule, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            QueueStatus.UPLOADING -> CircularProgressIndicator(progress = { item.progress }, modifier = Modifier.size(24.dp), strokeWidth = 3.dp)
-            QueueStatus.CONSUMING -> CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+            QueueStatus.UPLOADING -> CircularProgressIndicator(progress = { item.progress }, modifier = Modifier.size(24.dp), color = CtrlColors.Accent, trackColor = CtrlColors.Track, strokeWidth = 3.dp)
+            QueueStatus.CONSUMING -> CircularProgressIndicator(Modifier.size(24.dp), color = CtrlColors.Accent, strokeWidth = 2.dp)
             QueueStatus.DONE -> Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
             QueueStatus.FAILED -> Icon(Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.error)
         }
@@ -227,10 +232,10 @@ private fun statusText(item: QueueItem): String = when (item.status) {
 private fun EditSheet(item: QueueItem, onDismiss: () -> Unit) {
     val c = LocalContext.current.container
     var meta by remember(item.id) { mutableStateOf(item.meta) }
-    ModalBottomSheet(
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), 
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = CtrlColors.Surface,
     ) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             Text(

@@ -6,6 +6,28 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.Dns
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Gavel
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.ui.text.style.TextOverflow
+import com.vknxworks.paperctrl.ui.components.CtrlButton
+import com.vknxworks.paperctrl.ui.components.CtrlSquareButton
+import com.vknxworks.paperctrl.ui.components.SectionLabel
+import com.vknxworks.paperctrl.ui.components.initials
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlType
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,17 +37,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -81,30 +94,36 @@ fun YouScreen() {
     if (picking) AddressPickerSheet(server, onDismiss = { picking = false })
 
     Column(Modifier.fillMaxSize()) {
-        ScreenTopBar(stringResource(R.string.you))
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
-            Column(
-                Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = 8.dp, bottom = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+        // Close button on the left, mono "PROFILE" label centred.
+        Box(
+            Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = Gutter, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            CtrlSquareButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = nav::back, modifier = Modifier.align(Alignment.CenterStart))
+            SectionLabel(stringResource(R.string.you_profile))
+        }
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 24.dp)) {
+            Row(
+                Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = 14.dp, bottom = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    Modifier.size(96.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
+                    Modifier.size(68.dp).clip(RoundedCornerShape(22.dp)).background(CtrlColors.Accent),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(server.displayName.take(1).uppercase(), style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
+                    Text(initials(server.displayName), style = MaterialTheme.typography.headlineSmall, color = CtrlColors.OnAccent)
                 }
-                Spacer(Modifier.height(14.dp))
-                Text(server.displayName, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-                Text(
-                    listOfNotNull(
+                Spacer(Modifier.width(16.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(server.displayName, style = MaterialTheme.typography.headlineSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(s.address.removeSuffix("/"), style = CtrlType.Mono, color = CtrlColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    val extra = listOfNotNull(
                         server.username.takeIf { it != server.displayName },
                         server.serverVersion?.let { stringResource(R.string.you_paperless_version, it) },
                         stringResource(R.string.you_admin).takeIf { server.isSuperuser },
-                    ).joinToString("  ·  "),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
+                    ).joinToString(" · ")
+                    if (extra.isNotEmpty()) Text(extra.uppercase(), style = CtrlType.Status, color = CtrlColors.Muted, maxLines = 2)
+                }
             }
 
             Group(stringResource(R.string.you_server)) {
@@ -114,53 +133,69 @@ fun YouScreen() {
                         stringResource(if (s.viaLan) R.string.you_via_home else R.string.you_via_main).takeIf { server.lanUrl != null },
                         stringResource(R.string.not_encrypted).takeIf { !server.isEncrypted(s.address) },
                     ).joinToString("  ·  ").ifEmpty { null },
-                    icon = if (s.viaLan) Icons.Filled.Home else Icons.Filled.Dns,
+                    icon = if (s.viaLan) Icons.Outlined.Home else Icons.Outlined.Dns,
                     showChevron = server.lanUrl != null,
                     onClick = if (server.lanUrl != null) { { picking = true } } else null,
                 )
-                GroupRow(stringResource(R.string.servers_title), icon = Icons.Filled.SwapHoriz, showChevron = true, onClick = { nav.navigate(ServersRoute) })
+                GroupRow(stringResource(R.string.servers_title), icon = Icons.Outlined.SwapHoriz, showChevron = true, onClick = { nav.navigate(ServersRoute) })
             }
 
-            Group {
-                GroupRow(stringResource(R.string.settings), icon = Icons.Filled.Settings, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
+            Group(stringResource(R.string.you_app)) {
+                GroupRow(stringResource(R.string.settings), icon = Icons.Outlined.Tune, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
             }
 
             Group(stringResource(R.string.group_about)) {
                 GroupRow(
-                    stringResource(R.string.support_title),
-                    stringResource(R.string.support_subtitle),
-                    icon = Icons.Filled.Favorite,
-                    showChevron = true,
-                    onClick = { context.openUrl(SPONSOR_URL) },
-                )
-                GroupRow(
                     stringResource(R.string.bugs_title),
                     stringResource(R.string.bugs_subtitle),
-                    icon = Icons.Filled.BugReport,
+                    icon = Icons.Outlined.BugReport,
                     showChevron = true,
                     onClick = { context.openUrl(ISSUES_URL) },
                 )
                 GroupRow(
                     stringResource(R.string.source_title),
                     stringResource(R.string.source_subtitle),
-                    icon = Icons.Filled.Code,
+                    icon = Icons.Outlined.Code,
                     showChevron = true,
                     onClick = { context.openUrl(REPO_URL) },
                 )
                 GroupRow(
                     stringResource(R.string.licence_title),
                     stringResource(R.string.licence_subtitle),
-                    icon = Icons.Filled.Gavel,
+                    icon = Icons.Outlined.Gavel,
                     showChevron = true,
                     onClick = { context.openUrl(LICENCE_URL) },
                 )
             }
 
+            Column(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                CtrlButton(
+                    stringResource(R.string.support_title),
+                    onClick = { context.openUrl(SPONSOR_URL) },
+                    icon = Icons.Outlined.FavoriteBorder,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    stringResource(R.string.support_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = CtrlColors.Muted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             Text(
-                stringResource(R.string.about_footer, BuildConfig.VERSION_NAME),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                stringResource(R.string.ctrl_footer),
+                style = CtrlType.Status,
+                color = CtrlColors.Muted,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                stringResource(R.string.about_footer, BuildConfig.VERSION_NAME).uppercase(),
+                style = CtrlType.Status,
+                color = CtrlColors.Disabled,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 textAlign = TextAlign.Center,
             )
         }

@@ -1,5 +1,8 @@
 package com.vknxworks.paperctrl.share
 
+import com.vknxworks.paperctrl.ui.components.CtrlWordmark
+import com.vknxworks.paperctrl.ui.components.CtrlSquareButton
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import android.text.format.Formatter
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -101,9 +104,11 @@ fun ShareScreen(
                 onAction = onCancel,
             )
             else -> Column(Modifier.fillMaxSize()) {
-                Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 20.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, stringResource(R.string.cancel)) }
+                Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    CtrlSquareButton(Icons.Filled.Close, stringResource(R.string.cancel), onClick = onCancel)
+                    Spacer(Modifier.width(14.dp))
                     Text(stringResource(R.string.share_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    CtrlWordmark()
                 }
                 val images = files.count { it.isImage }
                 val docCount = if (merge && images >= 2) files.size - images + 1 else files.size
@@ -146,7 +151,7 @@ fun ShareScreen(
                 }
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)) {
                     if (busy) {
-                        Box(Modifier.fillMaxWidth().height(52.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp)) }
+                        Box(Modifier.fillMaxWidth().height(56.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp), color = CtrlColors.Accent) }
                     } else {
                         val details = showDetails && !meta.isEmpty
                         PillButton(
@@ -167,7 +172,7 @@ private fun FileRow(f: StagedFile) {
     val context = LocalContext.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(
-            Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
+            Modifier.size(36.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(11.dp)).background(CtrlColors.Raised),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

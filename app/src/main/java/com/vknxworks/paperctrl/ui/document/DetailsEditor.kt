@@ -1,5 +1,8 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.components.CtrlSwitch
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
+import com.vknxworks.paperctrl.ui.components.ctrlFieldColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -23,11 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,7 +97,7 @@ fun DetailsEditor(
     val none = stringResource(R.string.detail_none)
 
     Column {
-        TextField(
+        CtrlTextField(
             value = edit.title,
             onValueChange = { onChange(edit.copy(title = it)) },
             label = { Text(stringResource(R.string.meta_title)) },
@@ -119,7 +119,7 @@ fun DetailsEditor(
             }
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.Numbers, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 14.dp, start = 8.dp))
-                TextField(
+                CtrlTextField(
                     value = asnText,
                     onValueChange = { v -> val d = v.filter(Char::isDigit).take(9); asnText = d; onChange(edit.copy(asn = d.toIntOrNull())) },
                     label = { Text(stringResource(R.string.meta_asn)) },
@@ -235,7 +235,7 @@ private fun CustomFieldInput(
     when (type) {
         "boolean" -> GroupRow(name, null, onClick = if (enabled) { { onChange(JsonPrimitive(!((value as? JsonPrimitive)?.booleanOrNull ?: false))) } } else null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Switch((value as? JsonPrimitive)?.booleanOrNull ?: false, onCheckedChange = { onChange(JsonPrimitive(it)) }, enabled = enabled)
+                CtrlSwitch((value as? JsonPrimitive)?.booleanOrNull ?: false, onCheckedChange = { onChange(JsonPrimitive(it)) }, enabled = enabled)
                 remove()
             }
         }
@@ -284,7 +284,7 @@ private fun CustomFieldInput(
             }
             var text by remember(value) { mutableStateOf(str.orEmpty()) }
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextField(
+                CtrlTextField(
                     value = text,
                     onValueChange = { v ->
                         text = v
@@ -331,11 +331,4 @@ private fun CustomFieldInput(
 }
 
 @Composable
-private fun fieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-    focusedIndicatorColor = Color.Transparent,
-    unfocusedIndicatorColor = Color.Transparent,
-    disabledIndicatorColor = Color.Transparent,
-)
+private fun fieldColors() = ctrlFieldColors()

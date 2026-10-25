@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
@@ -156,7 +157,7 @@ private fun PdfViewer(file: LocalFile, modifier: Modifier) {
         }
     }
     if (grid) {
-        ModalBottomSheet(onDismissRequest = { grid = false }) {
+        ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = { grid = false }) {
             LazyVerticalGrid(GridCells.Adaptive(100.dp), contentPadding = PaddingValues(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(pdf.pageCount) { i ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {

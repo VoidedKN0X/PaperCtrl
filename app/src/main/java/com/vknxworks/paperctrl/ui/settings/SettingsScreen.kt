@@ -19,7 +19,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.settings.AppSettings
-import com.vknxworks.paperctrl.data.settings.ThemeChoice
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
 import com.vknxworks.paperctrl.data.settings.PdfQualityChoice
 import com.vknxworks.paperctrl.notify.InboxDigestWorker
 import com.vknxworks.paperctrl.notify.rememberNotificationsAllowed
@@ -75,21 +81,7 @@ fun SettingsScreen() {
         topBar = { ScreenTopBar(stringResource(R.string.settings)) },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
-            Group(stringResource(R.string.settings_appearance)) {
-                GroupChoice(
-                    stringResource(R.string.settings_theme),
-                    ThemeChoice.entries.map { it to stringResource(it.label) },
-                    s.theme,
-                    icon = Icons.Outlined.DarkMode,
-                ) { v -> update { it.copy(theme = v) } }
-                GroupSwitch(
-                    stringResource(R.string.settings_dynamic),
-                    stringResource(R.string.settings_dynamic_body),
-                    s.dynamicColor,
-                    icon = Icons.Outlined.Palette,
-                ) { v -> update { it.copy(dynamicColor = v) } }
-            }
-
+            // Ctrl / Signal is dark only: no theme or wallpaper-colour choice any more.
             Group(stringResource(R.string.settings_notifications)) {
                 if (!canNotify) NotificationsBlockedRow(askNotify)
                 GroupSwitch(stringResource(R.string.settings_notify_added), stringResource(R.string.settings_notify_added_body), s.notifyAdded && canNotify) { v ->
@@ -207,6 +199,11 @@ internal fun NotificationsBlockedRow(onAllow: () -> Unit) {
         icon = Icons.Outlined.NotificationsOff,
         iconTint = MaterialTheme.colorScheme.error,
         onClick = onAllow,
-        trailing = { TextButton(onClick = onAllow) { Text(stringResource(R.string.notifications_allow)) } },
+        trailing = {
+            Box(
+                Modifier.clip(CtrlShapes.Control).background(CtrlColors.Accent).clickable(role = Role.Button, onClick = onAllow)
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+            ) { Text(stringResource(R.string.notifications_allow), style = MaterialTheme.typography.labelLarge, color = CtrlColors.OnAccent) }
+        },
     )
 }

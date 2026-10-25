@@ -1,5 +1,8 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -35,7 +38,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -104,7 +106,7 @@ fun ShareLinksSheet(model: DocumentModel, onDismiss: () -> Unit) {
         )
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             Text(stringResource(R.string.share_links), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp))
             Text(
@@ -202,7 +204,7 @@ fun PermissionsSheet(model: DocumentModel, onDismiss: () -> Unit) {
     fun groupNames(ids: Set<Int>) = ids.map { id -> groups.firstOrNull { it.id == id }?.name ?: "#$id" }.joinToString(", ")
     val nobody = stringResource(R.string.perm_nobody)
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             Text(stringResource(R.string.doc_permissions), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp))
             SettingsGroup {
@@ -274,14 +276,14 @@ fun DocumentSearchSheet(excludeId: Int, onDismiss: () -> Unit, onPick: (Document
         }.getOrDefault(emptyList())
         loading = false
     }
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        TextField(
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        CtrlTextField(
             value = text,
             onValueChange = { text = it },
             placeholder = { Text(stringResource(R.string.search)) },
             leadingIcon = { Icon(Icons.Outlined.Search, null) },
             singleLine = true,
-            shape = CircleShape,
+            shape = CtrlShapes.Field,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         )
         if (loading && results.isEmpty()) Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }

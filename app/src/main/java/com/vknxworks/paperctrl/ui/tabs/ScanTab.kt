@@ -1,5 +1,10 @@
 package com.vknxworks.paperctrl.ui.tabs
 
+import com.vknxworks.paperctrl.ui.theme.Gutter
+import com.vknxworks.paperctrl.ui.theme.CtrlType
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.components.CtrlSecondaryButton
+import com.vknxworks.paperctrl.ui.components.CtrlHeroCard
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -82,20 +87,23 @@ fun ScanTab() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                Modifier.widthIn(max = 420.dp).padding(horizontal = 32.dp, vertical = 24.dp),
+                Modifier.widthIn(max = 460.dp).padding(horizontal = Gutter, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Box(
-                    Modifier.size(88.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)),
-                    contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Outlined.DocumentScanner, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary) }
-                Text(stringResource(R.string.scan_empty_title), style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+                // Hero: pages scanned and waiting to be uploaded; tapping it opens the scanner.
+                CtrlHeroCard(
+                    label = stringResource(R.string.scan_hero_label),
+                    value = "%02d".format(scanPages.size),
+                    trailingLabel = if (active > 0) stringResource(R.string.scan_hero_uploading, active) else stringResource(R.string.scan_hero_pages),
+                    onClick = { nav.navigate(if (scanPages.isEmpty()) ScannerRoute() else ScanReviewRoute) },
+                )
+                Text(stringResource(R.string.scan_empty_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
                 Text(
                     stringResource(R.string.scan_empty_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 PillButton(
                     stringResource(if (scanPages.isEmpty()) R.string.scan_start else R.string.scan_continue),
@@ -106,19 +114,16 @@ fun ScanTab() {
                 if (scanPages.isNotEmpty()) {
                     Text(
                         pluralStringResource(R.plurals.scan_pages_waiting, scanPages.size, scanPages.size),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        style = CtrlType.Mono,
+                        color = CtrlColors.Accent,
                     )
                 }
-                OutlinedButton(
+                CtrlSecondaryButton(
+                    stringResource(R.string.scan_pick_files),
                     onClick = { AppLock.expectReturn(); pick.launch(ShareActivity.SUPPORTED_TYPES) },
-                    shape = CircleShape,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                ) {
-                    Icon(Icons.Outlined.UploadFile, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.scan_pick_files), style = MaterialTheme.typography.titleMedium)
-                }
+                    icon = Icons.Outlined.UploadFile,
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 Text(
                     stringResource(R.string.scan_share_hint),
                     style = MaterialTheme.typography.bodySmall,

@@ -1,5 +1,15 @@
 package com.vknxworks.paperctrl.ui.auth
 
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import com.vknxworks.paperctrl.ui.components.ctrlDialog
+import com.vknxworks.paperctrl.ui.components.SectionLabel
+import com.vknxworks.paperctrl.ui.components.CtrlWordmark
+import com.vknxworks.paperctrl.ui.components.CtrlSquareButton
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
+import com.vknxworks.paperctrl.ui.components.ctrlFieldColors
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,8 +46,6 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -233,9 +241,14 @@ fun ServerSetupScreen(onDone: () -> Unit, onCancel: (() -> Unit)?) {
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Box(Modifier.height(48.dp)) {
-                if (onCancel != null) IconButton(onClick = onCancel) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
+            Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (onCancel != null) {
+                    CtrlSquareButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.back), onClick = onCancel)
+                    Spacer(Modifier.width(14.dp))
+                }
+                CtrlWordmark()
             }
+            SectionLabel(stringResource(R.string.lock_brand), Modifier.padding(top = 12.dp))
             Text(
                 stringResource(if (onCancel == null) R.string.app_name else R.string.setup_add_title),
                 style = MaterialTheme.typography.displaySmall,
@@ -277,7 +290,7 @@ fun ServerSetupScreen(onDone: () -> Unit, onCancel: (() -> Unit)?) {
                     SegmentedButton(
                         selected = method == m,
                         onClick = { method = m; error = null },
-                        shape = SegmentedButtonDefaults.itemShape(i, Method.entries.size),
+                        shape = SegmentedButtonDefaults.itemShape(i, Method.entries.size, baseShape = CtrlShapes.Control),
                         enabled = !busy,
                     ) {
                         Text(stringResource(if (m == Method.PASSWORD) R.string.setup_method_password else R.string.setup_method_token))
@@ -360,6 +373,9 @@ private fun TrustDialog(trust: NeedsTrust, onDismiss: () -> Unit, onTrust: () ->
     val df = remember { DateFormat.getDateInstance(DateFormat.MEDIUM) }
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.ctrlDialog(),
+        shape = CtrlShapes.Sheet,
+        containerColor = CtrlColors.Surface,
         title = { Text(stringResource(if (trust.changed) R.string.trust_changed_title else R.string.trust_title)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -401,7 +417,7 @@ private fun CertLine(label: String, value: String, mono: Boolean = false) {
 @Composable
 private fun Notice(icon: ImageVector, text: String, warn: Boolean = false) {
     Row(
-        Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surfaceContainer).padding(14.dp),
+        Modifier.fillMaxWidth().clip(CtrlShapes.Field).background(CtrlColors.Surface).border(1.dp, CtrlColors.Outline, CtrlShapes.Field).padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, null, tint = if (warn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
@@ -423,7 +439,7 @@ private fun Field(
     visual: VisualTransformation = VisualTransformation.None,
     trailing: (@Composable () -> Unit)? = null,
 ) {
-    TextField(
+    CtrlTextField(
         value = value,
         onValueChange = onChange,
         label = { Text(label) },
@@ -435,14 +451,7 @@ private fun Field(
         visualTransformation = visual,
         trailingIcon = trailing,
         shape = MaterialTheme.shapes.medium,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-        ),
+        colors = ctrlFieldColors(),
         modifier = modifier.fillMaxWidth(),
     )
 }

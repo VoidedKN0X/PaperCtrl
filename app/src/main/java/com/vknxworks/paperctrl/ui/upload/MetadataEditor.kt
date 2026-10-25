@@ -1,5 +1,11 @@
 package com.vknxworks.paperctrl.ui.upload
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
+import com.vknxworks.paperctrl.ui.components.ctrlFieldColors
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,8 +46,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -128,7 +132,7 @@ fun MetadataEditor(
 
     Column(modifier) {
         if (showTitle) {
-            TextField(
+            CtrlTextField(
                 value = meta.title.orEmpty(),
                 onValueChange = { onChange(meta.copy(title = it.ifEmpty { null })) },
                 label = { Text(stringResource(R.string.meta_title)) },
@@ -187,11 +191,11 @@ fun MetadataEditor(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
+                    Modifier.size(36.dp).clip(RoundedCornerShape(11.dp)).background(CtrlColors.Raised),
                     contentAlignment = Alignment.Center,
                 ) { Icon(Icons.Outlined.Numbers, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary) }
                 Spacer(Modifier.width(14.dp))
-                TextField(
+                CtrlTextField(
                     value = asnText,
                     onValueChange = { v ->
                         val digits = v.filter(Char::isDigit).take(9)
@@ -317,22 +321,22 @@ fun PickerSheet(
         val q = query.trim()
         if (q.isEmpty()) options else options.filter { it.label.contains(q, ignoreCase = true) }
     }
-    ModalBottomSheet(
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), 
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = CtrlColors.Surface,
     ) {
         Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
             if (multi) TextButton(onClick = { onDone(chosen) }) { Text(stringResource(R.string.done)) }
         }
-        TextField(
+        CtrlTextField(
             value = query,
             onValueChange = { query = it },
             placeholder = { Text(stringResource(R.string.search)) },
             leadingIcon = { Icon(Icons.Outlined.Search, null) },
             singleLine = true,
-            shape = CircleShape,
+            shape = CtrlShapes.Field,
             colors = fieldColors(),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         )
@@ -377,7 +381,7 @@ private fun OptionRow(label: String, detail: String?, color: Color?, selected: B
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        if (color != null) Box(Modifier.size(14.dp).clip(CircleShape).background(color))
+        if (color != null) Box(Modifier.size(10.dp).clip(CtrlShapes.Dot).background(color))
         Column(Modifier.weight(1f)) {
             Text(
                 label,
@@ -411,12 +415,7 @@ private fun loadingMark(loading: Boolean): (@Composable () -> Unit)? {
 }
 
 @Composable
-private fun fieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    focusedIndicatorColor = Color.Transparent,
-    unfocusedIndicatorColor = Color.Transparent,
-)
+private fun fieldColors() = ctrlFieldColors()
 
 fun formatDate(iso: String): String = runCatching {
     LocalDate.parse(iso).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))

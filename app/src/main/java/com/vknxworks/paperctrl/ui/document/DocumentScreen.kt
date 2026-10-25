@@ -1,5 +1,10 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.components.LoadingView
+import com.vknxworks.paperctrl.ui.components.CtrlProgressBar
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -54,7 +59,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -185,8 +189,11 @@ fun DocumentScreen(id: Int) {
                 ExtendedFloatingActionButton(
                     onClick = { model.save { err -> if (err != null) toast(err) else toast(context.getString(R.string.doc_saved)) } },
                     modifier = Modifier.navigationBarsPadding(),
+                    shape = CtrlShapes.Button,
+                    containerColor = CtrlColors.Accent,
+                    contentColor = CtrlColors.OnAccent,
                 ) {
-                    if (model.saving) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.save))
+                    if (model.saving) CircularProgressIndicator(Modifier.size(20.dp), color = CtrlColors.OnAccent, strokeWidth = 2.dp) else Text(stringResource(R.string.save), style = MaterialTheme.typography.titleMedium)
                 }
             }
         },
@@ -195,7 +202,7 @@ fun DocumentScreen(id: Int) {
             doc == null && model.error != null -> Box(Modifier.padding(padding).fillMaxSize()) {
                 MessageView(Icons.Outlined.Description, stringResource(R.string.load_failed), model.error, actionLabel = stringResource(R.string.retry), onAction = { model.load() })
             }
-            doc == null -> Box(Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            doc == null -> LoadingView(Modifier.padding(padding))
             else -> Column(Modifier.padding(padding).fillMaxSize()) {
                 PrimaryScrollableTabRow(selectedTabIndex = tab, edgePadding = Gutter, containerColor = MaterialTheme.colorScheme.background) {
                     DocTab.entries.forEach { t ->
@@ -211,8 +218,8 @@ fun DocumentScreen(id: Int) {
                         DocTab.PREVIEW -> Column(Modifier.fillMaxSize()) {
                             if (doc.hasArchive) {
                                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp)) {
-                                    SegmentedButton(selected = !model.original, onClick = { model.showOriginal(false) }, shape = SegmentedButtonDefaults.itemShape(0, 2)) { Text(stringResource(R.string.doc_archived)) }
-                                    SegmentedButton(selected = model.original, onClick = { model.showOriginal(true) }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text(stringResource(R.string.doc_original)) }
+                                    SegmentedButton(selected = !model.original, onClick = { model.showOriginal(false) }, shape = SegmentedButtonDefaults.itemShape(0, 2, baseShape = CtrlShapes.Control)) { Text(stringResource(R.string.doc_archived)) }
+                                    SegmentedButton(selected = model.original, onClick = { model.showOriginal(true) }, shape = SegmentedButtonDefaults.itemShape(1, 2, baseShape = CtrlShapes.Control)) { Text(stringResource(R.string.doc_original)) }
                                 }
                             }
                             // Deleted when PaperCtrl locked (app lock on): download it again after unlocking.
@@ -222,8 +229,8 @@ fun DocumentScreen(id: Int) {
                                 f != null -> DocumentViewer(f, onOpenWith = { AppLock.expectReturn(); runCatching { context.startActivity(c.files.openWithIntent(f)) } }, modifier = Modifier.weight(1f))
                                 model.fileError != null -> MessageView(Icons.Outlined.Description, stringResource(R.string.load_failed), model.fileError, actionLabel = stringResource(R.string.retry), onAction = { model.loadFile() })
                                 else -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                                    CircularProgressIndicator()
-                                    if (model.progress > 0f) LinearProgressIndicator(progress = { model.progress }, modifier = Modifier.padding(24.dp).fillMaxWidth())
+                                    CircularProgressIndicator(color = CtrlColors.Accent)
+                                    if (model.progress > 0f) CtrlProgressBar(model.progress, Modifier.padding(24.dp))
                                 }
                             }
                         }
@@ -296,7 +303,7 @@ private fun ContentTab(content: String) {
         if (find.length < 2) emptyList() else Regex(Regex.escape(find), RegexOption.IGNORE_CASE).findAll(content).map { it.range }.toList()
     }
     Column(Modifier.fillMaxSize()) {
-        TextField(
+        CtrlTextField(
             value = find,
             onValueChange = { find = it },
             placeholder = { Text(stringResource(R.string.doc_find)) },
@@ -355,7 +362,7 @@ private fun NotesTab(model: DocumentModel) {
             }
         }
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = Gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            TextField(
+            CtrlTextField(
                 value = text,
                 onValueChange = { text = it },
                 placeholder = { Text(stringResource(R.string.notes_add)) },
