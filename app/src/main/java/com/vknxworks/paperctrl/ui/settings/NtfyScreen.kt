@@ -106,7 +106,11 @@ fun NtfyScreen() {
                     GroupRow(
                         stringResource(R.string.ntfy_no_distributor),
                         icon = Icons.Outlined.Download,
-                        onClick = { AppLock.expectReturn(); context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Push.NTFY_DOWNLOAD))) },
+                        onClick = {
+                            AppLock.expectReturn()
+                            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Push.NTFY_DOWNLOAD))) }
+                                .onFailure { Toast.makeText(context, context.getString(R.string.open_link_failed), Toast.LENGTH_SHORT).show() }
+                        },
                     )
                 }
                 return@Column

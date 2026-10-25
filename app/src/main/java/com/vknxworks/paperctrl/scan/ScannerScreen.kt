@@ -95,6 +95,7 @@ import com.vknxworks.paperctrl.ui.components.MessageView
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.ScanReviewRoute
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.opencv.core.CvType
@@ -194,17 +195,26 @@ private fun ScannerContent(retakeId: String?) {
         }
     }
 
+    // Set when the scanner leaves the screen: camera callbacks still on their way must not use the camera.
+    val gone = remember { java.util.concurrent.atomic.AtomicBoolean(false) }
+
     fun capture() {
-        if (busy) return
+        if (busy || gone.get()) return
         busy = true
         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
         scope.launch { flash.snapTo(0.8f); flash.animateTo(0f, tween(250)) }
         val file = File(context.cacheDir, "capture-${UUID.randomUUID()}.jpg")
+        try {
         controller.takePicture(
             ImageCapture.OutputFileOptions.Builder(file).build(),
             ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    // The scanner was closed meanwhile: don't leave the photo of the page behind.
+                    if (gone.get() || !scope.isActive) {
+                        file.delete()
+                        return
+                    }
                     scope.launch {
                         runCatching { c.scan.addPhoto(file, settings.scanFilter, retakeId) }
                             .onFailure { Toast.makeText(context, context.getString(R.string.scanner_capture_failed), Toast.LENGTH_SHORT).show() }
@@ -216,11 +226,17 @@ private fun ScannerContent(retakeId: String?) {
 
                 override fun onError(exception: ImageCaptureException) {
                     file.delete()
+                    if (gone.get()) return
                     busy = false
                     Toast.makeText(context, context.getString(R.string.scanner_capture_failed), Toast.LENGTH_SHORT).show()
                 }
             },
         )
+        } catch (e: Exception) {
+            // The camera isn't ready (or is already closing).
+            file.delete()
+            busy = false
+        }
     }
 
     val autoNow by rememberUpdatedState(auto)
@@ -241,6 +257,7 @@ private fun ScannerContent(retakeId: String?) {
                 val (w, h) = if (rot % 180 == 0) image.width to image.height else image.height to image.width
                 val steady = tracker.feed(upright)
                 ContextCompat.getMainExecutor(context).execute {
+                    if (gone.get()) return@execute
                     live = LiveQuad(upright, w, h, steady)
                     if (autoNow && !busyNow && steady >= 1f) {
                         tracker.reset()
@@ -254,8 +271,9 @@ private fun ScannerContent(retakeId: String?) {
         }
         controller.bindToLifecycle(lifecycleOwner)
         onDispose {
-            controller.clearImageAnalysisAnalyzer()
-            controller.unbind()
+            gone.set(true)
+            runCatching { controller.clearImageAnalysisAnalyzer() }
+            runCatching { controller.unbind() }
             analysisExecutor.shutdown()
         }
     }

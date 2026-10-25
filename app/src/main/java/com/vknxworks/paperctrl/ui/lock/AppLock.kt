@@ -336,7 +336,14 @@ fun AppLockGate(content: @Composable () -> Unit) {
         return
     }
     val vault = c.vault
+    // Locking "as soon as you leave" can happen while the screen is closing (Back on the first screen, or
+    // swiped away from Recents). The app still locks, but the lock screen, its dialogs and the fingerprint
+    // prompt are only shown on a screen that stays: a closing one gets a plain background instead.
+    val activity = context.findActivity()
+    val closing = activity != null && (activity.isFinishing || activity.isDestroyed)
     when {
+        closing && (vault.enabled && !AppLock.unlocked || settings.appLock && !vault.enabled && !AppLock.unlocked) ->
+            Box(Modifier.fillMaxSize().background(CtrlColors.Background))
         // Updated from the old app lock (the phone's screen lock): confirm once, then choose a PIN.
         settings.appLock && !vault.enabled -> {
             if (!AppLock.unlocked) LegacyLockedScreen()
@@ -390,6 +397,7 @@ private fun LegacyLockedScreen() {
     var error by remember { mutableStateOf<String?>(null) }
     fun unlock() {
         val activity = context.findActivity() ?: return
+        if (activity.isFinishing || activity.isDestroyed) return
         AppLock.legacyAuthenticate(activity) { error = it }
     }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -473,6 +481,8 @@ private fun PinLockScreen() {
 
     fun askFingerprint() {
         val a = activity ?: return
+        // Never on a screen that is closing (Back on the first screen, swiped away): the prompt has no window to show in.
+        if (a.isFinishing || a.isDestroyed) return
         val cipher = vault.biometricUnlockCipher() ?: run {
             message = if (!vault.biometricEnabled) context.getString(R.string.lock_fingerprint_changed) else null
             return
@@ -538,7 +548,7 @@ private fun PinLockScreen() {
         showConfirm = pin.length >= LockVault.PIN_MIN && pin.length != vault.pinLength,
         onFingerprint = if (bioAvailable) ::askFingerprint else null,
         bottom = {
-            TextButton(onClick = { forgetting = true }) { Text(stringResource(R.string.lock_forgot), color = CtrlColors.Muted) }
+            TextButton(onClick = { if (activity?.isFinishing != true) forgetting = true }) { Text(stringResource(R.string.lock_forgot), color = CtrlColors.Muted) }
         },
     )
     if (forgetting) {

@@ -153,7 +153,7 @@ fun DocumentScreen(id: Int) {
                             })
                             DropdownMenuItem(text = { Text(stringResource(R.string.doc_share_file)) }, leadingIcon = { Icon(Icons.Outlined.Share, null) }, onClick = {
                                 menu = false
-                                withFile { f -> AppLock.expectReturn(); context.startActivity(Intent.createChooser(c.files.shareIntent(f), null)) }
+                                withFile { f -> AppLock.expectReturn(); runCatching { context.startActivity(Intent.createChooser(c.files.shareIntent(f), null)) }.onFailure { toast(it.friendlyMessage(context)) } }
                             })
                             DropdownMenuItem(text = { Text(stringResource(R.string.viewer_open_with)) }, leadingIcon = { Icon(Icons.Outlined.OpenInNew, null) }, onClick = {
                                 menu = false
