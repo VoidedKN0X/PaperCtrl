@@ -364,7 +364,7 @@ private fun ObjectEditSheet(kind: ObjectKind, item: Item?, onDismiss: () -> Unit
                         val col = parseColor(hex) ?: Color.Gray
                         Box(
                             Modifier.size(36.dp).background(col, RoundedCornerShape(11.dp))
-                                .border(if (hex.equals(color, true)) 3.dp else 1.dp, if (hex.equals(color, true)) CtrlColors.Accent else CtrlColors.ControlOutline, RoundedCornerShape(11.dp))
+                                .border(if (hex.equals(color, true)) 3.dp else 1.dp, if (hex.equals(color, true)) CtrlColors.AccentText else CtrlColors.ControlOutline, RoundedCornerShape(11.dp))
                                 .clickable { color = hex },
                         )
                     }

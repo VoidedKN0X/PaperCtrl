@@ -297,7 +297,7 @@ private fun DocumentResults(
         )
     }
     val footer: @Composable () -> Unit = {
-        if (model.loading) Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(24.dp), color = CtrlColors.Accent) }
+        if (model.loading) Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(24.dp), color = CtrlColors.AccentText) }
     }
     if (grid) {
         val state = rememberLazyGridState()

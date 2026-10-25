@@ -115,7 +115,7 @@ fun ScanTab() {
                     Text(
                         pluralStringResource(R.plurals.scan_pages_waiting, scanPages.size, scanPages.size),
                         style = CtrlType.Mono,
-                        color = CtrlColors.Accent,
+                        color = CtrlColors.AccentText,
                     )
                 }
                 CtrlSecondaryButton(

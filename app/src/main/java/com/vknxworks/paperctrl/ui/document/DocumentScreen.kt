@@ -229,7 +229,7 @@ fun DocumentScreen(id: Int) {
                                 f != null -> DocumentViewer(f, onOpenWith = { AppLock.expectReturn(); runCatching { context.startActivity(c.files.openWithIntent(f)) } }, modifier = Modifier.weight(1f))
                                 model.fileError != null -> MessageView(Icons.Outlined.Description, stringResource(R.string.load_failed), model.fileError, actionLabel = stringResource(R.string.retry), onAction = { model.loadFile() })
                                 else -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                                    CircularProgressIndicator(color = CtrlColors.Accent)
+                                    CircularProgressIndicator(color = CtrlColors.AccentText)
                                     if (model.progress > 0f) CtrlProgressBar(model.progress, Modifier.padding(24.dp))
                                 }
                             }

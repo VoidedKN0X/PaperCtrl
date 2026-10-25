@@ -72,10 +72,11 @@ import com.vknxworks.paperctrl.ui.theme.CtrlType
 fun CtrlWordmark(modifier: Modifier = Modifier) {
     val left = stringResource(R.string.wordmark_name)
     val right = stringResource(R.string.wordmark_ctrl)
+    val slash = CtrlColors.AccentText
     Text(
         buildAnnotatedString {
             append(left)
-            withStyle(SpanStyle(color = CtrlColors.Accent)) { append("/") }
+            withStyle(SpanStyle(color = slash)) { append("/") }
             append(right)
         },
         style = CtrlType.Wordmark,
@@ -180,7 +181,7 @@ fun CtrlHeroCard(
 @Composable
 fun CtrlSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val track by animateColorAsState(if (checked) CtrlColors.Accent else CtrlColors.SwitchOff, label = "switch-track")
-    val knob by animateColorAsState(if (checked) CtrlColors.OnAccent else CtrlColors.Disabled, label = "switch-knob")
+    val knob by animateColorAsState(if (checked) CtrlColors.OnAccent else CtrlColors.SwitchOffKnob, label = "switch-knob")
     val x by animateDpAsState(if (checked) 20.dp else 0.dp, label = "switch-knob-x")
     val shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
     Box(
@@ -273,11 +274,11 @@ fun ctrlFieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
     unfocusedContainerColor = CtrlColors.Surface,
     disabledContainerColor = CtrlColors.Surface,
     errorContainerColor = CtrlColors.Surface,
-    focusedBorderColor = CtrlColors.Accent,
+    focusedBorderColor = CtrlColors.AccentText,
     unfocusedBorderColor = CtrlColors.ControlOutline,
     disabledBorderColor = CtrlColors.Outline,
-    cursorColor = CtrlColors.Accent,
-    focusedLabelColor = CtrlColors.Accent,
+    cursorColor = CtrlColors.AccentText,
+    focusedLabelColor = CtrlColors.AccentText,
     unfocusedLabelColor = CtrlColors.Muted,
     focusedPlaceholderColor = CtrlColors.Muted,
     unfocusedPlaceholderColor = CtrlColors.Muted,
@@ -339,12 +340,13 @@ fun CtrlProgressBar(progress: Float, modifier: Modifier = Modifier, accent: Bool
                 .fillMaxWidth(progress.coerceIn(0f, 1f))
                 .fillMaxHeight()
                 .clip(shape)
-                .background(if (accent) CtrlColors.Accent else CtrlColors.Text),
+                .background(if (accent) CtrlColors.Accent else CtrlColors.ProgressFill),
         )
     }
 }
 
 /** Draws the 1dp list divider along the top edge, as between plain list rows. */
+@Composable
 fun Modifier.topDivider(color: Color = CtrlColors.Divider, width: Dp = 1.dp): Modifier = drawBehind {
     val h = width.toPx()
     drawRect(color, topLeft = Offset(0f, 0f), size = androidx.compose.ui.geometry.Size(size.width, h))
@@ -406,6 +408,7 @@ fun CtrlBottomBar(items: List<CtrlTab>, selectedIndex: Int, onSelect: (Int) -> U
 }
 
 /** Ctrl bottom sheets: the 1dp card border along the 26dp top corners. */
+@Composable
 fun Modifier.ctrlSheet(): Modifier = border(
     1.dp,
     CtrlColors.Outline,

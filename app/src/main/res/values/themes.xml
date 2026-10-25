@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Ctrl / Signal: dark only, edge to edge, light system bar icons. -->
-    <style name="Theme.PaperCtrl" parent="android:Theme.Material.NoActionBar">
+    <!-- Ctrl / Signal: follows the device theme (values-night holds the dark variant), edge to edge. -->
+    <style name="Theme.PaperCtrl" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_bg</item>
         <item name="android:colorBackground">@color/window_bg</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:enforceNavigationBarContrast">false</item>
-        <item name="android:colorAccent">#FFB48CFF</item>
+        <item name="android:colorAccent">@color/ctrl_accent_text</item>
     </style>
 </resources>

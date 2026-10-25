@@ -151,7 +151,7 @@ fun ShareScreen(
                 }
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp)) {
                     if (busy) {
-                        Box(Modifier.fillMaxWidth().height(56.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp), color = CtrlColors.Accent) }
+                        Box(Modifier.fillMaxWidth().height(56.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp), color = CtrlColors.AccentText) }
                     } else {
                         val details = showDetails && !meta.isEmpty
                         PillButton(

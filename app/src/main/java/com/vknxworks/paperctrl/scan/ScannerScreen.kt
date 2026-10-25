@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.Role
 import com.vknxworks.paperctrl.ui.theme.CtrlType
 import com.vknxworks.paperctrl.ui.theme.CtrlShapes
 import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlForceDark
 import androidx.compose.foundation.BorderStroke
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.Manifest
@@ -111,8 +112,14 @@ private data class LiveQuad(val corners: List<Corner>?, val frameW: Int, val fra
  * The camera: outlines the page it finds, captures by itself once the page holds still (or with the
  * shutter button), and adds each capture as a page. [retakeId] replaces that page instead.
  */
+/** The camera view stays dark in both themes: its controls sit on top of the live picture. */
 @Composable
 fun ScannerScreen(retakeId: String?) {
+    CtrlForceDark { ScannerContent(retakeId) }
+}
+
+@Composable
+private fun ScannerContent(retakeId: String?) {
     val context = LocalContext.current
     val c = context.container
     val nav = LocalNavigator.current

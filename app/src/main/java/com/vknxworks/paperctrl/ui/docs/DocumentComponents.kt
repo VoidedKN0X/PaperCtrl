@@ -208,8 +208,8 @@ fun DocumentRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) { TagRow(doc.tags, md) }
                 if (doc.noteCount > 0) {
-                    Icon(Icons.Outlined.StickyNote2, null, Modifier.size(14.dp), tint = CtrlColors.Accent)
-                    Text(" ${doc.noteCount}", style = CtrlType.Status, color = CtrlColors.Accent)
+                    Icon(Icons.Outlined.StickyNote2, null, Modifier.size(14.dp), tint = CtrlColors.AccentText)
+                    Text(" ${doc.noteCount}", style = CtrlType.Status, color = CtrlColors.AccentText)
                 }
             }
         }
@@ -230,7 +230,7 @@ fun DocumentCard(
         Modifier
             .clip(CtrlShapes.Card)
             .background(if (selected) CtrlColors.Accent.copy(alpha = 0.14f) else CtrlColors.Surface)
-            .border(if (selected) 2.dp else 1.dp, if (selected) CtrlColors.Accent else CtrlColors.Outline, CtrlShapes.Card)
+            .border(if (selected) 2.dp else 1.dp, if (selected) CtrlColors.AccentText else CtrlColors.Outline, CtrlShapes.Card)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
     ) {
         Box {

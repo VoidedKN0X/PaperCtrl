@@ -104,7 +104,7 @@ fun BulkBar(
         modifier = Modifier.fillMaxWidth(),
     ) {
         androidx.compose.foundation.layout.Column(Modifier.navigationBarsPadding()) {
-            if (working) LinearProgressIndicator(Modifier.fillMaxWidth(), color = CtrlColors.Accent, trackColor = CtrlColors.Track)
+            if (working) LinearProgressIndicator(Modifier.fillMaxWidth(), color = CtrlColors.AccentText, trackColor = CtrlColors.Track)
             Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onClear) { Icon(Icons.Outlined.Close, stringResource(R.string.bulk_clear)) }
                 Text(

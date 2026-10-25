@@ -210,8 +210,8 @@ private fun StatusBadge(item: QueueItem) {
     ) {
         when (item.status) {
             QueueStatus.WAITING -> Icon(Icons.Outlined.Schedule, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            QueueStatus.UPLOADING -> CircularProgressIndicator(progress = { item.progress }, modifier = Modifier.size(24.dp), color = CtrlColors.Accent, trackColor = CtrlColors.Track, strokeWidth = 3.dp)
-            QueueStatus.CONSUMING -> CircularProgressIndicator(Modifier.size(24.dp), color = CtrlColors.Accent, strokeWidth = 2.dp)
+            QueueStatus.UPLOADING -> CircularProgressIndicator(progress = { item.progress }, modifier = Modifier.size(24.dp), color = CtrlColors.AccentText, trackColor = CtrlColors.Track, strokeWidth = 3.dp)
+            QueueStatus.CONSUMING -> CircularProgressIndicator(Modifier.size(24.dp), color = CtrlColors.AccentText, strokeWidth = 2.dp)
             QueueStatus.DONE -> Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
             QueueStatus.FAILED -> Icon(Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.error)
         }
