@@ -74,6 +74,8 @@ import com.vknxworks.paperctrl.ui.theme.Gutter
 fun ScreenTopBar(
     title: String,
     showBack: Boolean = true,
+    /** What the back button does; leaving the screen by default. */
+    onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val nav = LocalNavigator.current
@@ -87,7 +89,7 @@ fun ScreenTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (showBack) {
-            CtrlSquareButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.back), onClick = nav::back)
+            CtrlSquareButton(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.back), onClick = onBack ?: nav::back)
             Spacer(Modifier.width(14.dp))
         }
         Text(

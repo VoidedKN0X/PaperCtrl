@@ -19,7 +19,8 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Inbox** to sort new documents with swipes and Paperless' own suggestions
 - **Documents** with full-text search, filters, saved views and bulk editing; the first page of your list and inbox stays visible offline
 - **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
-- **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash
+- **Page manager**: delete, reorder, rotate and split a document's pages on your server, from page thumbnails drawn on the phone (what's offered follows your Paperless version)
+- **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash, with your library's statistics at the top
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through **[ntfy](https://f-droid.org/packages/io.heckel.ntfy/)** and your own ntfy server
 - **Widget, quick settings tile and shortcuts** to start a scan in one tap
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)

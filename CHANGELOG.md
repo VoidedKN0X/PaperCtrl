@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.0
+
+### New
+
+- **Manage pages.** A PDF document's **⋮** menu has a new **Manage pages** item (when you're allowed to change the document). It shows every page as a thumbnail, drawn on the phone from the document's original file, so nothing extra is fetched from the server beyond the file itself.
+  - **Select pages** by tapping them (an accent border and tick show what's selected), then **Left** / **Right** to rotate them, **Delete** to remove them, or **Split after** to start a new document after them. Tap **Done** to clear the selection, and the undo button in the top bar to start over.
+  - **Move pages** by long-pressing one and dragging it to its new place.
+  - **Splitting:** a scissors mark shows where each new document starts, and every page shows which document ("DOC 1", "DOC 2"…) it ends up in. The bottom bar counts the pages and documents you'll get.
+  - **Save** asks first. Changes to one document are saved back to it; on Paperless-ngx 3 that's a new version of the document, with the old one kept in its version history. A split makes new documents with this document's title, tags and other details, and you can choose to **delete the original afterwards**.
+  - **Following the result:** while Paperless works, the document shows "Paperless is working on the pages…". PaperCtrl watches Paperless' task list, then loads the changed document and its file again, or, after a split that deleted the original, goes back to the list and says how many documents were added. If Paperless reports a problem, its reason is shown. If it takes longer than five minutes, PaperCtrl tells you to look again later.
+  - **Only what your server can do is offered.** Paperless-ngx 2.18 and later (including 3.x) can do everything above in one go. Older servers can delete pages and split documents, but not move or rotate single pages, and not delete pages and split in the same save; PaperCtrl hides what they can't do and says why.
+- **Library statistics in Organise.** The top of the Organise tab now shows your library in the Ctrl style: an accent card with the number of documents you can see, the latest archive serial number (ASN), how many are in the inbox and how many characters of text Paperless has read. Below it, a card counts your tags, correspondents, document types and storage paths, with bars for the most common file types (PDF, JPEG, PNG…). It's read again each time you open the tab, and simply stays hidden when the server can't be reached.
+
+### Changed
+
+- **Viewed files are refreshed after a page change**, so the preview never shows the pages as they were before the edit.
+
 ## 0.6.0
 
 ### New

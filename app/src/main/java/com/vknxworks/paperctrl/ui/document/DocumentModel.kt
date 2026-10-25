@@ -27,7 +27,17 @@ import com.vknxworks.paperctrl.data.files.LocalFile
 import com.vknxworks.paperctrl.ui.components.friendlyMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.widget.Toast
+import com.vknxworks.paperctrl.R
+import com.vknxworks.paperctrl.data.api.PageEditSupport
+import com.vknxworks.paperctrl.data.api.PageOp
+import com.vknxworks.paperctrl.data.api.TaskState
+import com.vknxworks.paperctrl.data.api.deletePages
+import com.vknxworks.paperctrl.data.api.editPdf
+import com.vknxworks.paperctrl.data.api.pageEditTasks
+import com.vknxworks.paperctrl.data.api.splitDocument
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -64,6 +74,13 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
     var original by mutableStateOf(false)
         private set
     private var fileJob: Job? = null
+
+    /** A page edit was sent and PaperCtrl is waiting for Paperless to finish it. */
+    var pageEditRunning by mutableStateOf(false)
+        private set
+    /** The document was replaced by the documents a split made (original deleted): leave its screen. */
+    var gone by mutableStateOf(false)
+        private set
 
     val client: PaperlessClient? get() = c.sessions.active.value?.client
     val dirty: Boolean get() = doc?.let { edit != null && edit != DocEdit.of(it) } ?: false
@@ -203,5 +220,106 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
     fun replaceDoc(d: Document) {
         doc = d
         edit = DocEdit.of(d)
+    }
+
+    /**
+     * Sends a page edit and follows it: the consume tasks Paperless starts for it are found in the task
+     * list by their file names, then the document is loaded again (or the screen closes when the
+     * original was deleted after a split).
+     */
+    fun applyPageEdit(plan: PagePlan, support: PageEditSupport) {
+        val cl = client ?: return
+        if (pageEditRunning) return
+        pageEditRunning = true
+        viewModelScope.launch {
+            fun toast(msg: String) = Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            try {
+                val expected = when (plan) {
+                    is PagePlan.Edit -> if (plan.outputs > 1) plan.outputs else if (support.consumesEdits) 1 else 0
+                    is PagePlan.DeletePages -> if (support.consumesEdits) 1 else 0
+                    is PagePlan.Split -> plan.groupCount
+                }
+                val before = if (expected > 0) runCatching { cl.pageEditTasks(id).map { it.taskId }.toSet() }.getOrDefault(emptySet()) else emptySet()
+                when (plan) {
+                    is PagePlan.Edit -> cl.editPdf(id, plan.ops, updateDocument = plan.outputs == 1, deleteOriginal = plan.outputs > 1 && plan.deleteOriginal)
+                    is PagePlan.DeletePages -> cl.deletePages(id, plan.pages)
+                    is PagePlan.Split -> cl.splitDocument(id, plan.groups, plan.deleteOriginal)
+                }
+                val replaces = plan.outputs > 1
+                if (expected == 0) {
+                    // Paperless 2.x changed the file right away; its text is read again in the background.
+                    delay(1500)
+                    refreshAfterEdit()
+                    toast(context.getString(R.string.pages_saved))
+                    return@launch
+                }
+                val until = System.currentTimeMillis() + 5 * 60_000L
+                var finished: List<com.vknxworks.paperctrl.data.api.PageEditTask>? = null
+                while (System.currentTimeMillis() < until) {
+                    delay(2500)
+                    val fresh = runCatching { cl.pageEditTasks(id) }.getOrNull()?.filter { it.taskId !in before } ?: continue
+                    if (fresh.size >= expected && fresh.all { it.status.state == TaskState.SUCCESS || it.status.state == TaskState.FAILURE }) {
+                        finished = fresh
+                        break
+                    }
+                }
+                if (finished == null) {
+                    toast(context.getString(R.string.pages_still_working))
+                    return@launch
+                }
+                when {
+                    finished.any { it.status.state == TaskState.FAILURE } -> {
+                        val why = finished.firstNotNullOfOrNull { t -> t.status.message?.takeIf { t.status.state == TaskState.FAILURE } }
+                        toast(context.getString(R.string.pages_failed) + (why?.let { "\n\n$it" } ?: ""))
+                        if (!replaces) refreshAfterEdit()
+                    }
+                    replaces -> {
+                        toast(context.resources.getQuantityString(R.plurals.pages_split_done, finished.size, finished.size))
+                        if (plan.deleteOriginal) gone = true
+                    }
+                    else -> {
+                        refreshAfterEdit()
+                        toast(context.getString(R.string.pages_saved))
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                toast(e.friendlyMessage(context))
+            } finally {
+                pageEditRunning = false
+            }
+        }
+    }
+
+    private suspend fun refreshAfterEdit() {
+        val cl = client ?: return
+        runCatching { c.files.forget(cl, id) }
+        runCatching { cl.document(id, fullPerms = true) }.onSuccess { d ->
+            doc = d
+            edit = DocEdit.of(d)
+            file = null
+            loadFile()
+        }
+    }
+}
+
+/** What the page manager asks Paperless to do. */
+sealed class PagePlan {
+    abstract val outputs: Int
+    abstract val deleteOriginal: Boolean
+
+    /** edit_pdf: the new page list (order, rotation, output document). */
+    data class Edit(val ops: List<PageOp>, override val outputs: Int, override val deleteOriginal: Boolean) : PagePlan()
+
+    /** delete_pages (servers without edit_pdf). */
+    data class DeletePages(val pages: List<Int>) : PagePlan() {
+        override val outputs: Int get() = 1
+        override val deleteOriginal: Boolean get() = false
+    }
+
+    /** split (servers without edit_pdf): [groups] like "1-2,3,4-5". */
+    data class Split(val groups: String, val groupCount: Int, override val deleteOriginal: Boolean) : PagePlan() {
+        override val outputs: Int get() = groupCount
     }
 }

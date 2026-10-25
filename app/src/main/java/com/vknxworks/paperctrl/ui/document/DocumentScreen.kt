@@ -42,6 +42,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.TravelExplore
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -82,6 +83,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.documentOperation
+import com.vknxworks.paperctrl.data.api.pageEditSupport
 import com.vknxworks.paperctrl.data.api.webUrl
 import com.vknxworks.paperctrl.data.search.DocumentQuery
 import com.vknxworks.paperctrl.ui.components.ConfirmDialog
@@ -117,7 +119,17 @@ fun DocumentScreen(id: Int) {
     var permissions by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
     var linkPicker by remember { mutableStateOf<((Int) -> Unit)?>(null) }
+    var managingPages by rememberSaveable { mutableStateOf(false) }
     val doc = model.doc
+
+    // A split replaced this document (its original was deleted): nothing left to show.
+    LaunchedEffect(model.gone) { if (model.gone) nav.back() }
+    val server = session?.server
+    val pageSupport = remember(server?.apiVersion, server?.serverVersion) { pageEditSupport(server?.apiVersion ?: 9, server?.serverVersion) }
+    if (managingPages && doc != null) {
+        PageManagerScreen(model, pageSupport, onClose = { managingPages = false })
+        return
+    }
 
     fun toast(msg: String) = Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
     fun withFile(action: (com.vknxworks.paperctrl.data.files.LocalFile) -> Unit) {
@@ -157,6 +169,12 @@ fun DocumentScreen(id: Int) {
                                 c.pendingQuery.value = DocumentQuery(moreLike = id, moreLikeTitle = doc.title, sort = com.vknxworks.paperctrl.data.search.SortField.SCORE)
                                 nav.nav.navigate(DocumentsRoute) { launchSingleTop = true }
                             })
+                            if (doc.userCanChange && doc.mimeType == "application/pdf") {
+                                DropdownMenuItem(text = { Text(stringResource(R.string.pages_menu)) }, leadingIcon = { Icon(Icons.Outlined.Layers, null) }, enabled = !model.pageEditRunning, onClick = {
+                                    menu = false
+                                    managingPages = true
+                                })
+                            }
                             if (doc.userCanChange) {
                                 DropdownMenuItem(text = { Text(stringResource(R.string.doc_reprocess)) }, leadingIcon = { Icon(Icons.Outlined.Refresh, null) }, onClick = {
                                     menu = false
@@ -210,6 +228,17 @@ fun DocumentScreen(id: Int) {
                             selected = tab == t.ordinal,
                             onClick = { tab = t.ordinal },
                             text = { Text(stringResource(t.label) + if (t == DocTab.NOTES && doc.noteCount > 0) " (${doc.noteCount})" else "") },
+                        )
+                    }
+                }
+                if (model.pageEditRunning) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(16.dp), color = CtrlColors.AccentText, strokeWidth = 2.dp)
+                        Text(
+                            stringResource(R.string.pages_working),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 10.dp),
                         )
                     }
                 }

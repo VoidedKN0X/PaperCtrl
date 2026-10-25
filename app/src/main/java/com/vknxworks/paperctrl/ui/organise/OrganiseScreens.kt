@@ -146,6 +146,7 @@ fun OrganiseTab() {
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         TabTitle(stringResource(R.string.tab_organise))
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = LocalBottomClearance.current + 16.dp)) {
+            StatsSection()
             Group {
                 GroupRow(stringResource(R.string.meta_tags), pluralStringResource(R.plurals.organise_count, md.tags.size, md.tags.size), icon = Icons.Outlined.Sell, showChevron = true, onClick = { nav.navigate(ObjectListRoute(ObjectKind.TAGS.name)) })
                 GroupRow(stringResource(R.string.organise_correspondents), pluralStringResource(R.plurals.organise_count, md.correspondents.size, md.correspondents.size), icon = Icons.Outlined.Person, showChevron = true, onClick = { nav.navigate(ObjectListRoute(ObjectKind.CORRESPONDENTS.name)) })
