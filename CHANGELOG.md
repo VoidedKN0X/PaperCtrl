@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.6.0
+
+### New
+
+- **Light mode that follows the device theme.** PaperCtrl now switches between dark and light by itself, the moment you change your phone's dark theme setting (or when it switches on a schedule). There's still no theme setting in the app and no wallpaper colours: it simply follows the phone.
+- **"Signal Light" colours:** a warm off-white background (#F5F5F1), white cards with a soft grey border, near-black text and grey secondary text. Hero cards, main buttons, the open tab, switches that are on and the PIN dots keep the same lavender accent fill with dark text as in dark mode. Accent-coloured text and icons (the slash in PAPER/CTRL, note counts, links, spinners, the fingerprint key, a field you're typing in) use a deeper purple (#6A3BDB) in light mode so they stay readable on white.
+
+### Changed
+
+- **Status and navigation bars follow the theme too:** they show the app background, with light icons in dark mode and dark icons in light mode. The window colour while PaperCtrl starts matches the theme as well, so there's no dark flash in light mode.
+- **Every screen works in both themes:** inbox, documents (list and grid), document details, text, notes and history, filters, organise lists and editors, the upload queue, scan review and page editing, sharing to PaperCtrl, signing in, your profile, settings, ntfy, all sheets and dialogs, and the lock and PIN screens (white keys with a thin border in light mode).
+- **Switches in light mode:** a light grey track with a grey knob when off; the accent track with a dark knob when on.
+- **Progress bars in light mode:** a light grey track with a near-black fill (accent for the main progress).
+- **Errors in light mode** use a deeper red (#D93636) that reads well on white.
+- **Home screen widget:** now uses the Ctrl colours and follows the phone's dark or light setting, with an accent Scan button. It no longer takes its colours from the wallpaper.
+- **Notifications** show the PaperCtrl accent colour on their icon, matching the theme.
+
+### Not changed
+
+- **The camera scanner stays dark in both themes**, so its buttons and hints stay clear over the live camera picture. The ASN barcode scanner stays dark for the same reason.
+- **Document pages are still shown on white**, like paper, in both themes.
+
 ## 0.5.0
 
 PaperCtrl has a new look: "Ctrl / Signal", the design every Ctrl app now shares. Everything works as before: the same screens, tabs, settings and features, only restyled.

@@ -78,6 +78,7 @@ object Notifications {
             DIGEST_ID,
             NotificationCompat.Builder(context, CH_DIGEST)
                 .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.ctrl_accent_text))
                 .setContentTitle(context.resources.getQuantityString(R.plurals.digest_title, count, count))
                 .setContentText(context.getString(R.string.digest_body))
                 .setAutoCancel(true)
@@ -94,6 +95,7 @@ object Notifications {
             id,
             NotificationCompat.Builder(context, CH_EVENTS)
                 .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.ctrl_accent_text))
                 .setContentTitle(title)
                 .setContentText(text)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
@@ -128,6 +130,7 @@ object Notifications {
         }
         return NotificationCompat.Builder(context, CH_UPLOADS)
             .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.ctrl_accent_text))
             .setContentTitle(context.getString(R.string.notif_upload_title))
             .setContentText(text)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
@@ -148,6 +151,7 @@ object Notifications {
             resultId(item),
             NotificationCompat.Builder(context, CH_RESULTS)
                 .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.ctrl_accent_text))
                 .setContentTitle(context.getString(R.string.notif_added_title))
                 .setContentText(title ?: item.fileName)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
@@ -166,6 +170,7 @@ object Notifications {
             resultId(item),
             NotificationCompat.Builder(context, CH_RESULTS)
                 .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.ctrl_accent_text))
                 .setContentTitle(context.getString(R.string.notif_failed_title))
                 .setContentText(text)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
@@ -193,6 +198,7 @@ object Notifications {
     private fun publicVersion(context: Context, channel: String, title: String): Notification =
         NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.ctrl_accent_text))
             .setContentTitle(title)
             .build()
 

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Ctrl / Signal background -->
-    <color name="window_bg">#FF08080A</color>
+    <!-- Ctrl / Signal Light background (dark in values-night) -->
+    <color name="window_bg">#FFF5F5F1</color>
     <color name="ic_bg">#FF121418</color>
+    <!-- Accent text colour, also used for notification icons -->
+    <color name="ctrl_accent_text">#FF6A3BDB</color>
 </resources>

@@ -55,6 +55,7 @@ fun ConfirmDialog(
 }
 
 /** Ctrl dialog edge: the 1dp card border around a 26dp-radius dialog. */
+@Composable
 fun Modifier.ctrlDialog(): Modifier = border(1.dp, CtrlColors.Outline, CtrlShapes.Sheet)
 
 /** The one main action on a screen: an accent [CtrlButton]. */

@@ -354,7 +354,7 @@ fun <T> ChoiceSheet(
 
 @Composable
 fun LoadingView(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = CtrlColors.Accent, trackColor = CtrlColors.Track) }
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = CtrlColors.AccentText, trackColor = CtrlColors.Track) }
 }
 
 /** Centred icon, title and explanation, with an optional action. Used for empty and error states. */

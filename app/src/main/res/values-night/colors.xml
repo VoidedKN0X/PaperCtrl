@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ctrl / Signal dark background -->
+    <color name="window_bg">#FF08080A</color>
+    <color name="ctrl_accent_text">#FFB48CFF</color>
+</resources>

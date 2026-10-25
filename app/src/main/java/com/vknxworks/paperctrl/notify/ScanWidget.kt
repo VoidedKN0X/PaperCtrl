@@ -8,7 +8,8 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
+import androidx.glance.color.ColorProvider
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
@@ -40,13 +41,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
+// Ctrl / Signal colours for the widget, following the device's dark / light setting (no wallpaper colours).
+private val WidgetBackground = ColorProvider(day = CtrlColors.Light.surface, night = CtrlColors.Dark.surface)
+private val WidgetText = ColorProvider(day = CtrlColors.Light.text, night = CtrlColors.Dark.text)
+private val WidgetAccent = ColorProvider(day = CtrlColors.Accent, night = CtrlColors.Accent)
+private val WidgetOnAccent = ColorProvider(day = CtrlColors.OnAccent, night = CtrlColors.OnAccent)
+
 /** Home screen widget: a big Scan button and how many documents wait in the inbox. */
 class ScanWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val count = WidgetState.inboxCount(context)
         provideContent {
-            GlanceTheme { Content(context, count) }
+            Content(context, count)
         }
     }
 
@@ -59,12 +66,12 @@ class ScanWidget : GlanceAppWidget() {
             .putExtra(Notifications.EXTRA_OPEN, Notifications.OPEN_INBOX)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         Column(
-            GlanceModifier.fillMaxSize().background(GlanceTheme.colors.widgetBackground).cornerRadius(24.dp).padding(12.dp),
+            GlanceModifier.fillMaxSize().background(WidgetBackground).cornerRadius(22.dp).padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
-                GlanceModifier.fillMaxWidth().background(GlanceTheme.colors.primary).cornerRadius(20.dp).padding(vertical = 12.dp, horizontal = 14.dp)
+                GlanceModifier.fillMaxWidth().background(WidgetAccent).cornerRadius(16.dp).padding(vertical = 12.dp, horizontal = 14.dp)
                     .clickable(actionStartActivity(scan)),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,12 +80,12 @@ class ScanWidget : GlanceAppWidget() {
                     ImageProvider(R.drawable.ic_scan_glyph),
                     contentDescription = null,
                     modifier = GlanceModifier.size(22.dp),
-                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimary),
+                    colorFilter = ColorFilter.tint(WidgetOnAccent),
                 )
                 Spacer(GlanceModifier.width(8.dp))
                 Text(
                     context.getString(R.string.widget_scan),
-                    style = TextStyle(color = GlanceTheme.colors.onPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                    style = TextStyle(color = WidgetOnAccent, fontSize = 16.sp, fontWeight = FontWeight.Bold),
                 )
             }
             if (count >= 0) {
@@ -87,7 +94,7 @@ class ScanWidget : GlanceAppWidget() {
                     Text(
                         if (count == 0) context.getString(R.string.widget_inbox_empty)
                         else context.resources.getQuantityString(R.plurals.widget_inbox, count, count),
-                        style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 13.sp),
+                        style = TextStyle(color = WidgetText, fontSize = 13.sp),
                     )
                 }
             }

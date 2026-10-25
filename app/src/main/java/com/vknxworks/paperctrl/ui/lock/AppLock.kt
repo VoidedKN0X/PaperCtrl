@@ -710,7 +710,7 @@ private fun PinPadScreen(
             )
             Spacer(Modifier.height(28.dp))
             Box(Modifier.height(20.dp).offset { IntOffset(shake.roundToInt(), 0) }, contentAlignment = Alignment.Center) {
-                if (checking) CircularProgressIndicator(Modifier.size(20.dp), color = CtrlColors.Accent, strokeWidth = 2.dp)
+                if (checking) CircularProgressIndicator(Modifier.size(20.dp), color = CtrlColors.AccentText, strokeWidth = 2.dp)
                 else Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     repeat(maxOf(pin.length, LockVault.PIN_MIN)) { i ->
                         val cell = RoundedCornerShape(5.dp)
@@ -738,11 +738,11 @@ private fun PinPadScreen(
                     // Bottom-left: fingerprint (outlined in the accent) when offered, otherwise OK / Next.
                     if (onFingerprint != null && !showConfirm) {
                         KeyBox(
-                            Modifier.weight(1f).border(1.dp, CtrlColors.Accent, KeyShape),
+                            Modifier.weight(1f).border(1.dp, CtrlColors.AccentText, KeyShape),
                             enabled = enabled,
                             description = stringResource(R.string.lock_use_fingerprint),
                             onClick = onFingerprint,
-                        ) { Icon(Icons.Outlined.Fingerprint, null, Modifier.size(26.dp), tint = CtrlColors.Accent) }
+                        ) { Icon(Icons.Outlined.Fingerprint, null, Modifier.size(26.dp), tint = CtrlColors.AccentText) }
                     } else {
                         val on = enabled && showConfirm
                         KeyBox(
