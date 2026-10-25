@@ -101,9 +101,11 @@ fun ShareLinksSheet(model: DocumentModel, onDismiss: () -> Unit) {
 
     fun share(url: String) {
         AppLock.expectReturn()
-        context.startActivity(
-            Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url).putExtra(Intent.EXTRA_SUBJECT, doc.title), null),
-        )
+        runCatching {
+            context.startActivity(
+                Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url).putExtra(Intent.EXTRA_SUBJECT, doc.title), null),
+            )
+        }
     }
 
     ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {

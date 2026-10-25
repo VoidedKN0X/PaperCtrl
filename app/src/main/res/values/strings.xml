@@ -22,18 +22,11 @@
     <string name="tab_organise">Organise</string>
 
     <!-- Placeholders until each stage lands -->
-    <string name="inbox_empty_title">Your inbox</string>
-    <string name="inbox_empty_body">New documents waiting to be sorted will show up here, with quick swipes to file them.</string>
-    <string name="documents_empty_title">Your documents</string>
-    <string name="documents_empty_body">Browse and search everything in your Paperless-ngx library here.</string>
     <string name="scan_empty_title">Scan to Paperless</string>
     <string name="scan_empty_body">Scan paper with the camera: PaperCtrl finds the page, straightens it and turns it into a PDF. Or upload PDFs and photos already on this phone.</string>
     <string name="scan_pick_files">Upload files</string>
     <string name="scan_share_hint">You can also share files to PaperCtrl from any other app.</string>
     <string name="scan_queue_idle">Nothing waiting</string>
-    <string name="organise_empty_title">Organise</string>
-    <string name="organise_empty_body">Tags, correspondents, document types, storage paths and custom fields will be managed here.</string>
-    <string name="coming_soon">Coming soon</string>
 
     <!-- Common -->
     <string name="back">Back</string>
@@ -69,10 +62,6 @@
     <string name="about_footer">PaperCtrl %1$s · VKNXWorks</string>
 
     <!-- Settings -->
-    <string name="settings_appearance">Appearance</string>
-    <string name="settings_theme">Theme</string>
-    <string name="settings_dynamic">Use wallpaper colours</string>
-    <string name="settings_dynamic_body">Replaces the default colours with ones from your wallpaper</string>
     <string name="theme_system">Follow system</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>

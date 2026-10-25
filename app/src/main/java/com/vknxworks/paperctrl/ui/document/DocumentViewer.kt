@@ -197,10 +197,11 @@ internal class PdfDoc(file: LocalFile) {
     val pageCount: Int get() = renderer.pageCount
 
     fun aspect(i: Int): Float {
+        if (i !in aspects.indices) return 0.707f
         if (aspects[i] < 0) {
-            synchronized(renderer) {
-                renderer.openPage(i).use { aspects[i] = it.width.toFloat() / it.height }
-            }
+            // A damaged page (or a renderer already closed while leaving the screen) falls back to A4.
+            val a = runCatching { synchronized(renderer) { renderer.openPage(i).use { it.width.toFloat() / it.height } } }.getOrNull()
+            aspects[i] = a?.takeIf { it.isFinite() && it > 0 } ?: 0f
         }
         return aspects[i].takeIf { it > 0 } ?: 0.707f
     }
@@ -227,5 +228,6 @@ internal class PdfDoc(file: LocalFile) {
     fun close() {
         synchronized(renderer) { runCatching { renderer.close() } }
         runCatching { fd.close() }
+        cache.evictAll()
     }
 }

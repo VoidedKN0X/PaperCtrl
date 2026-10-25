@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.1
+
+### Fixed
+
+- **No more crash when closing PaperCtrl with the app lock on.** With **Lock again** set to "As soon as you leave", pressing Back on the first screen or swiping PaperCtrl away from recent apps locked the app while its screen was already closing, and the lock screen (or the fingerprint prompt) tried to open on that closing screen. PaperCtrl still locks straight away, and opens locked next time, but no longer shows the lock screen on a screen that is going away. The fingerprint prompt and the "Forgot PIN?" dialog are never opened on a closing screen either.
+- **Closing the scanner while it takes a photo no longer crashes.** Leaving the camera (Back, the close button, or switching away) right as auto-capture or the shutter fired could make the finished photo arrive after the camera was gone. It's now quietly thrown away, together with its file, and live page outlines stop the moment the scanner closes. If the camera isn't ready when you tap the shutter, nothing happens instead of a crash.
+- **A damaged PDF page no longer crashes the viewer or the page manager.** If Android can't open one page of a PDF, it's shown at A4 size instead of closing the app. The pages' preview images are also freed as soon as you leave a document or the page manager, so PaperCtrl uses less memory.
+- **Sharing a document, sharing a share link and "Install ntfy" no longer crash** on a phone with no app that can take them (for example no browser): sharing a document says it didn't work, a new share link is still copied, and "Install ntfy" says it couldn't open the link.
+
+### Security
+
+- **Fewer ways in from other apps.** Two receivers that AndroidX libraries add for developer tools (WorkManager diagnostics and the baseline profile installer) are removed, so other apps can't send them commands. PaperCtrl's only open doors are now the launcher, Share to PaperCtrl, the widget, the quick settings tile and ntfy push (which checks its own secret token).
+
+### Changed
+
+- Internal cleanup: removed unused text left over from the old placeholder screens and the removed Appearance settings, and an unused library entry.
+
 ## 0.7.0
 
 ### New
