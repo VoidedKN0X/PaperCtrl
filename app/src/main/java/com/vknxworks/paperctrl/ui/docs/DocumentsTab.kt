@@ -1,5 +1,15 @@
 package com.vknxworks.paperctrl.ui.docs
 
+import com.vknxworks.paperctrl.ui.components.LoadingView
+import com.vknxworks.paperctrl.ui.components.SectionLabel
+import com.vknxworks.paperctrl.ui.components.CtrlTopBar
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import com.vknxworks.paperctrl.ui.components.StatusDot
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
+import com.vknxworks.paperctrl.ui.components.ctrlFieldColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -47,8 +57,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -80,7 +88,6 @@ import com.vknxworks.paperctrl.data.search.SortField
 import com.vknxworks.paperctrl.data.search.TextMode
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.MessageView
-import com.vknxworks.paperctrl.ui.components.ProfileButton
 import com.vknxworks.paperctrl.ui.components.SwitchAddressBar
 import com.vknxworks.paperctrl.ui.nav.DocumentRoute
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
@@ -141,8 +148,9 @@ fun DocumentsTab() {
 
     val q = model.query
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(start = Gutter, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            TextField(
+        CtrlTopBar()
+        Row(Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            CtrlTextField(
                 value = text,
                 onValueChange = { text = it },
                 placeholder = { Text(stringResource(R.string.documents_search_hint, stringResource(q.textMode.label))) },
@@ -151,25 +159,20 @@ fun DocumentsTab() {
                     if (text.isNotEmpty()) IconButton(onClick = { text = ""; suggestions = emptyList() }) { Icon(Icons.Outlined.Close, stringResource(R.string.clear)) }
                 },
                 singleLine = true,
-                shape = CircleShape,
+                shape = CtrlShapes.Field,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { focus.clearFocus(); suggestions = emptyList() }),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
+                colors = ctrlFieldColors(),
                 modifier = Modifier.weight(1f),
             )
-            ProfileButton()
         }
         if (suggestions.isNotEmpty()) {
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Gutter, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 suggestions.forEach { s ->
                     Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = CtrlShapes.Chip,
+                        color = CtrlColors.Raised,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, CtrlColors.ControlOutline),
                         modifier = Modifier.clickable {
                             val words = text.trim().split(' ').dropLast(1)
                             text = (words + s).joinToString(" ")
@@ -238,7 +241,7 @@ fun DocumentsTab() {
         Box(Modifier.weight(1f)) {
             PullToRefreshBox(isRefreshing = model.refreshing, onRefresh = { model.refresh() }, modifier = Modifier.fillMaxSize()) {
                 when {
-                    !model.loaded && model.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    !model.loaded && model.loading -> LoadingView()
                     model.items.isEmpty() && model.error != null -> MessageView(
                         Icons.Outlined.CloudOff, stringResource(R.string.load_failed), model.error,
                         actionLabel = stringResource(R.string.retry), onAction = { model.refresh() },
@@ -288,15 +291,13 @@ private fun DocumentResults(
 ) {
     val bottom = LocalBottomClearance.current + 16.dp
     val header: @Composable () -> Unit = {
-        Text(
+        SectionLabel(
             pluralStringResource(R.plurals.documents_count, model.total, model.total),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = Gutter, vertical = 4.dp),
+            Modifier.padding(horizontal = if (grid) 4.dp else Gutter, vertical = 8.dp),
         )
     }
     val footer: @Composable () -> Unit = {
-        if (model.loading) Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(24.dp)) }
+        if (model.loading) Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(24.dp), color = CtrlColors.Accent) }
     }
     if (grid) {
         val state = rememberLazyGridState()
@@ -333,12 +334,15 @@ private fun DocumentResults(
 @Composable
 fun OfflineBanner() {
     Row(
-        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.tertiaryContainer).padding(horizontal = Gutter, vertical = 8.dp),
+        Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 4.dp).clip(CtrlShapes.Control).background(CtrlColors.Surface)
+            .border(1.dp, CtrlColors.Outline, CtrlShapes.Control).padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Outlined.CloudOff, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onTertiaryContainer)
+        StatusDot(CtrlColors.Disabled)
+        Spacer(Modifier.size(10.dp))
+        Icon(Icons.Outlined.CloudOff, null, Modifier.size(18.dp), tint = CtrlColors.Muted)
         Spacer(Modifier.size(8.dp))
-        Text(stringResource(R.string.offline_banner), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
+        Text(stringResource(R.string.offline_banner), style = MaterialTheme.typography.bodySmall, color = CtrlColors.Muted)
     }
 }
 

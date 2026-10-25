@@ -1,5 +1,8 @@
 package com.vknxworks.paperctrl.ui.inbox
 
+import androidx.compose.foundation.layout.heightIn
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -69,6 +72,10 @@ import com.vknxworks.paperctrl.data.search.SortField
 import com.vknxworks.paperctrl.notify.WidgetState
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.MessageView
+import com.vknxworks.paperctrl.ui.components.CtrlHeroCard
+import com.vknxworks.paperctrl.ui.components.LoadingView
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlType
 import com.vknxworks.paperctrl.ui.components.PillButton
 import com.vknxworks.paperctrl.ui.components.SwitchAddressBar
 import com.vknxworks.paperctrl.ui.components.TabTitle
@@ -150,7 +157,7 @@ fun InboxTab() {
                 PullToRefreshBox(isRefreshing = model.refreshing, onRefresh = { model.refresh() }, modifier = Modifier.fillMaxSize()) {
                     when {
                         md.tags.isNotEmpty() && inboxTags.isEmpty() -> MessageView(Icons.Outlined.Inbox, stringResource(R.string.inbox_no_tag), stringResource(R.string.inbox_no_tag_body))
-                        !model.loaded -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                        !model.loaded -> LoadingView()
                         model.items.isEmpty() && model.error != null -> MessageView(Icons.Outlined.CloudOff, stringResource(R.string.load_failed), model.error, actionLabel = stringResource(R.string.retry), onAction = { model.refresh() })
                         model.items.isEmpty() -> MessageView(Icons.Outlined.DoneAll, stringResource(R.string.inbox_empty_done), stringResource(R.string.inbox_empty_done_body))
                         else -> {
@@ -158,13 +165,20 @@ fun InboxTab() {
                             val nearEnd by remember { derivedStateOf { (state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= state.layoutInfo.totalItemsCount - 6 } }
                             LaunchedEffect(state) { snapshotFlow { nearEnd }.distinctUntilChanged().collect { if (it) model.loadMore() } }
                             LazyColumn(state = state, contentPadding = PaddingValues(bottom = LocalBottomClearance.current + 16.dp), modifier = Modifier.fillMaxSize()) {
-                                item {
-                                    Text(
-                                        pluralStringResource(R.plurals.inbox_count, model.total, model.total) + "  ·  " + stringResource(R.string.inbox_swipe_hint),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(horizontal = Gutter, vertical = 4.dp),
-                                    )
+                                item(key = "hero") {
+                                    // Hero: how many documents are waiting to be sorted.
+                                    CtrlHeroCard(
+                                        label = stringResource(R.string.inbox_hero_label),
+                                        value = "%02d".format(model.total),
+                                        trailingLabel = stringResource(R.string.inbox_hero_tags, inboxTags.size),
+                                        modifier = Modifier.padding(start = Gutter, end = Gutter, top = 4.dp, bottom = 18.dp),
+                                    ) {
+                                        Text(
+                                            pluralStringResource(R.plurals.inbox_count, model.total, model.total) + " · " + stringResource(R.string.inbox_swipe_hint),
+                                            style = CtrlType.Mono,
+                                            color = CtrlColors.OnAccent,
+                                        )
+                                    }
                                 }
                                 items(model.items, key = { it.id }) { doc ->
                                     SwipeRow(
@@ -228,7 +242,7 @@ private fun SwipeRow(enabled: Boolean, onDone: () -> Unit, onEdit: () -> Unit, c
             val toEnd = state.dismissDirection == SwipeToDismissBoxValue.StartToEnd
             Row(
                 Modifier.fillMaxSize()
-                    .background(if (toEnd) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer)
+                    .background(if (toEnd) CtrlColors.Accent else CtrlColors.Raised)
                     .padding(horizontal = 24.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = if (toEnd) Arrangement.Start else Arrangement.End,
@@ -236,12 +250,12 @@ private fun SwipeRow(enabled: Boolean, onDone: () -> Unit, onEdit: () -> Unit, c
                 Icon(
                     if (toEnd) Icons.Outlined.DoneAll else Icons.Outlined.Edit,
                     null,
-                    tint = if (toEnd) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = if (toEnd) CtrlColors.OnAccent else CtrlColors.Text,
                 )
                 Text(
                     "  " + stringResource(if (toEnd) R.string.inbox_mark_done else R.string.inbox_quick_edit),
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (toEnd) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    color = if (toEnd) CtrlColors.OnAccent else CtrlColors.Text,
                 )
             }
         },
@@ -281,7 +295,7 @@ private fun QuickEditSheet(doc: Document, md: ServerMetadata, inboxTags: List<In
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             val s = suggestions
             if (s != null && (s.correspondents.isNotEmpty() || s.documentTypes.isNotEmpty() || s.tags.isNotEmpty() || s.dates.isNotEmpty() || s.storagePaths.isNotEmpty())) {
@@ -317,7 +331,13 @@ private fun QuickEditSheet(doc: Document, md: ServerMetadata, inboxTags: List<In
                 if (busy) {
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                 } else {
-                    androidx.compose.material3.OutlinedButton(onClick = { save(false) }, modifier = Modifier.weight(1f).padding(vertical = 2.dp)) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { save(false) },
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        shape = CtrlShapes.Button,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, CtrlColors.ControlOutline),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = CtrlColors.Surface, contentColor = CtrlColors.Text),
+                    ) {
                         Text(stringResource(R.string.save))
                     }
                     PillButton(stringResource(R.string.inbox_save_done), onClick = { save(true) }, modifier = Modifier.weight(1.4f))

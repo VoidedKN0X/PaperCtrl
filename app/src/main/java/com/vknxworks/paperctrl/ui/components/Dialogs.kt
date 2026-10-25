@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import androidx.compose.material3.AlertDialog
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -35,6 +38,11 @@ fun ConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.ctrlDialog(),
+        shape = CtrlShapes.Sheet,
+        containerColor = CtrlColors.Surface,
+        titleContentColor = CtrlColors.Text,
+        textContentColor = CtrlColors.Muted,
         title = { Text(title) },
         text = { Text(body) },
         confirmButton = {
@@ -46,7 +54,10 @@ fun ConfirmDialog(
     )
 }
 
-/** The one main action on a screen. */
+/** Ctrl dialog edge: the 1dp card border around a 26dp-radius dialog. */
+fun Modifier.ctrlDialog(): Modifier = border(1.dp, CtrlColors.Outline, CtrlShapes.Sheet)
+
+/** The one main action on a screen: an accent [CtrlButton]. */
 @Composable
 fun PillButton(
     text: String,
@@ -54,21 +65,8 @@ fun PillButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     enabled: Boolean = true,
-    container: Color = MaterialTheme.colorScheme.primary,
-    content: Color = MaterialTheme.colorScheme.onPrimary,
+    container: Color = CtrlColors.Accent,
+    content: Color = CtrlColors.OnAccent,
 ) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.heightIn(min = 52.dp),
-        shape = CircleShape,
-        colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = content),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-    ) {
-        if (icon != null) {
-            Icon(icon, null, Modifier.size(22.dp))
-            Spacer(Modifier.width(8.dp))
-        }
-        Text(text, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
+    CtrlButton(text, onClick, modifier, icon = icon, enabled = enabled, container = container, content = content)
 }

@@ -1,5 +1,16 @@
 package com.vknxworks.paperctrl.ui.organise
 
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.heightIn
+import com.vknxworks.paperctrl.ui.components.LoadingView
+import com.vknxworks.paperctrl.ui.components.topDivider
+import com.vknxworks.paperctrl.ui.theme.CtrlType
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,7 +56,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -222,33 +232,34 @@ fun ObjectListScreen(kindName: String) {
         topBar = { ScreenTopBar(stringResource(kind.title)) },
         floatingActionButton = {
             if (kind != ObjectKind.VIEWS) {
-                FloatingActionButton(onClick = { creating = true }, modifier = Modifier.navigationBarsPadding()) { Icon(Icons.Outlined.Add, stringResource(R.string.organise_add)) }
+                FloatingActionButton(onClick = { creating = true }, modifier = Modifier.navigationBarsPadding(), shape = CtrlShapes.Button, containerColor = CtrlColors.Accent, contentColor = CtrlColors.OnAccent) { Icon(Icons.Outlined.Add, stringResource(R.string.organise_add)) }
             }
         },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            TextField(
+            CtrlTextField(
                 value = query,
                 onValueChange = { query = it },
                 placeholder = { Text(stringResource(R.string.search)) },
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 singleLine = true,
-                shape = CircleShape,
+                shape = CtrlShapes.Field,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 6.dp),
             )
             PullToRefreshBox(isRefreshing = refreshing, onRefresh = { refreshing = true; reload++ }, modifier = Modifier.weight(1f)) {
                 when {
-                    shown == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    shown == null -> LoadingView()
                     shown.isEmpty() -> MessageView(kind.icon, stringResource(R.string.organise_empty), null)
                     else -> LazyColumn(contentPadding = PaddingValues(bottom = 96.dp), modifier = Modifier.fillMaxSize()) {
                         items(shown, key = { it.id }) { item ->
                             Row(
-                                Modifier.fillMaxWidth().clickable { open(item) }.padding(start = Gutter, end = 4.dp, top = 8.dp, bottom = 8.dp),
+                                Modifier.fillMaxWidth().clickable { open(item) }.padding(horizontal = Gutter).topDivider().heightIn(min = 60.dp).padding(start = 0.dp, end = 0.dp, top = 6.dp, bottom = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Box(Modifier.size(14.dp).background(item.color ?: MaterialTheme.colorScheme.outlineVariant, CircleShape))
-                                Column(Modifier.weight(1f).padding(start = 14.dp)) {
-                                    Text(item.name, style = MaterialTheme.typography.bodyLarge)
+                                Text("${item.id}", style = CtrlType.Mono, color = CtrlColors.Muted, modifier = Modifier.widthIn(min = 34.dp))
+                                Box(Modifier.size(10.dp).background(item.color ?: CtrlColors.Disabled, CtrlShapes.Dot))
+                                Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                                    Text(item.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                                     val sub = listOfNotNull(
                                         item.count?.let { pluralStringResource(R.plurals.documents_count, it, it) },
                                         stringResource(R.string.organise_inbox_tag).takeIf { item.inbox },
@@ -340,20 +351,20 @@ private fun ObjectEditSheet(kind: ObjectKind, item: Item?, onDismiss: () -> Unit
     var options by remember { mutableStateOf(item?.field?.selectOptions?.joinToString(", ") { it.second }.orEmpty()) }
     var currency by remember { mutableStateOf(item?.field?.defaultCurrency.orEmpty()) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(if (item == null) R.string.organise_new else R.string.organise_edit), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                 if (item != null) TextButton(onClick = onDelete) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
             }
-            TextField(name, { name = it }, label = { Text(stringResource(R.string.organise_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
+            CtrlTextField(name, { name = it }, label = { Text(stringResource(R.string.organise_name)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
             if (kind == ObjectKind.TAGS) {
                 FlowRow(Modifier.padding(horizontal = 20.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     TAG_COLORS.forEach { hex ->
                         val col = parseColor(hex) ?: Color.Gray
                         Box(
-                            Modifier.size(36.dp).background(col, CircleShape)
-                                .border(if (hex.equals(color, true)) 3.dp else 1.dp, if (hex.equals(color, true)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                            Modifier.size(36.dp).background(col, RoundedCornerShape(11.dp))
+                                .border(if (hex.equals(color, true)) 3.dp else 1.dp, if (hex.equals(color, true)) CtrlColors.Accent else CtrlColors.ControlOutline, RoundedCornerShape(11.dp))
                                 .clickable { color = hex },
                         )
                     }
@@ -361,7 +372,7 @@ private fun ObjectEditSheet(kind: ObjectKind, item: Item?, onDismiss: () -> Unit
                 Group { GroupSwitch(stringResource(R.string.organise_inbox_tag), stringResource(R.string.organise_inbox_tag_body), inbox, icon = Icons.Outlined.Inbox) { inbox = it } }
             }
             if (kind == ObjectKind.PATHS) {
-                TextField(path, { path = it }, label = { Text(stringResource(R.string.organise_path_template)) }, placeholder = { Text("{{ created_year }}/{{ correspondent }}/{{ title }}") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
+                CtrlTextField(path, { path = it }, label = { Text(stringResource(R.string.organise_path_template)) }, placeholder = { Text("{{ created_year }}/{{ correspondent }}/{{ title }}") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
             }
             if (kind == ObjectKind.FIELDS) {
                 Group {
@@ -372,17 +383,17 @@ private fun ObjectEditSheet(kind: ObjectKind, item: Item?, onDismiss: () -> Unit
                     }
                 }
                 if (dataType == "select") {
-                    TextField(options, { options = it }, label = { Text(stringResource(R.string.organise_select_options)) }, supportingText = { Text(stringResource(R.string.organise_select_options_hint)) }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
+                    CtrlTextField(options, { options = it }, label = { Text(stringResource(R.string.organise_select_options)) }, supportingText = { Text(stringResource(R.string.organise_select_options_hint)) }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
                 }
                 if (dataType == "monetary") {
-                    TextField(currency, { currency = it.uppercase().take(3) }, label = { Text(stringResource(R.string.organise_currency)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
+                    CtrlTextField(currency, { currency = it.uppercase().take(3) }, label = { Text(stringResource(R.string.organise_currency)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp))
                 }
             }
             if (kind != ObjectKind.FIELDS) {
                 Group(stringResource(R.string.organise_matching), footer = stringResource(R.string.organise_matching_footer)) {
                     GroupChoice(stringResource(R.string.organise_algorithm), MATCHING.map { it.first to stringResource(it.second) }, algorithm) { algorithm = it }
                     if (algorithm in 1..5) {
-                        TextField(match, { match = it }, label = { Text(stringResource(R.string.organise_match)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp))
+                        CtrlTextField(match, { match = it }, label = { Text(stringResource(R.string.organise_match)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp))
                         GroupSwitch(stringResource(R.string.organise_insensitive), checked = insensitive) { insensitive = it }
                     }
                 }

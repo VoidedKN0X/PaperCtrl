@@ -66,7 +66,12 @@ import com.vknxworks.paperctrl.notify.NotifyPermission
 import com.vknxworks.paperctrl.notify.rememberNotifyPermission
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
-import com.vknxworks.paperctrl.ui.components.LocalHazeState
+import com.vknxworks.paperctrl.ui.components.CtrlBottomBar
+import com.vknxworks.paperctrl.ui.components.CtrlTab
+import com.vknxworks.paperctrl.ui.components.CtrlWordmark
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.NavigationRailItemDefaults
 import com.vknxworks.paperctrl.ui.settings.SettingsScreen
 import com.vknxworks.paperctrl.ui.settings.YouScreen
 import com.vknxworks.paperctrl.ui.docs.DocumentsTab
@@ -81,8 +86,6 @@ import com.vknxworks.paperctrl.scan.ScanReviewScreen
 import com.vknxworks.paperctrl.scan.PageEditScreen
 import com.vknxworks.paperctrl.ui.settings.NtfyScreen
 import androidx.navigation.toRoute
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.rememberHazeState
 
 @Composable
 fun AppRoot() {
@@ -115,7 +118,7 @@ private fun MainScaffold() {
     val backStack by navController.currentBackStackEntryAsState()
     val dest = backStack?.destination
     val selectedIndex = topDestinations.indexOfFirst { top -> dest?.hierarchy?.any { it.hasRoute(top.route::class) } == true }
-    val items = topDestinations.map { TabItem(stringResource(it.label), it.icon, it.selectedIcon) }
+    val items = topDestinations.map { CtrlTab(stringResource(it.label), it.icon) }
 
     fun selectTab(i: Int) {
         navController.navigate(topDestinations[i].route) {
@@ -163,14 +166,22 @@ private fun MainScaffold() {
                         containerColor = MaterialTheme.colorScheme.background,
                         modifier = Modifier.fillMaxHeight().statusBarsPadding(),
                     ) {
+                        CtrlWordmark(Modifier.padding(vertical = 16.dp))
                         Spacer(Modifier.weight(1f))
                         items.forEachIndexed { i, item ->
                             val selected = i == selectedIndex
                             NavigationRailItem(
                                 selected = selected,
                                 onClick = { selectTab(i) },
-                                icon = { Icon(if (selected) item.selectedIcon else item.icon, contentDescription = item.label) },
+                                icon = { Icon(item.icon, contentDescription = item.label, modifier = Modifier.size(22.dp)) },
                                 label = { Text(item.label) },
+                                colors = NavigationRailItemDefaults.colors(
+                                    selectedIconColor = CtrlColors.OnAccent,
+                                    selectedTextColor = CtrlColors.Accent,
+                                    indicatorColor = CtrlColors.Accent,
+                                    unselectedIconColor = CtrlColors.Muted,
+                                    unselectedTextColor = CtrlColors.Muted,
+                                ),
                             )
                         }
                         Spacer(Modifier.weight(1f))
@@ -185,27 +196,26 @@ private fun MainScaffold() {
 }
 
 /**
- * Phones: content runs edge to edge and scrolls under a floating glass island.
- * The island shows on the main tabs; pushed screens get the full height.
+ * Phones: content runs edge to edge and scrolls under the floating Ctrl bottom bar.
+ * The bar shows on the main tabs; pushed screens get the full height.
  */
 @Composable
 private fun PhoneLayout(
     navController: NavHostController,
-    items: List<TabItem>,
+    items: List<CtrlTab>,
     showTabs: Boolean,
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
 ) {
-    val hazeState = rememberHazeState()
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
 
     CompositionLocalProvider(
-        LocalHazeState provides hazeState,
+        // The bar itself, its 28dp gap to the bottom and the navigation bar inset.
         LocalBottomClearance provides if (showTabs) overlayHeight else 0.dp,
     ) {
         Box(Modifier.fillMaxSize()) {
-            Box(Modifier.fillMaxSize().hazeSource(hazeState).then(if (showTabs) Modifier else Modifier.navigationBarsPadding())) {
+            Box(Modifier.fillMaxSize().then(if (showTabs) Modifier else Modifier.navigationBarsPadding())) {
                 AppNavHost(navController)
             }
             AnimatedVisibility(
@@ -214,12 +224,10 @@ private fun PhoneLayout(
                 exit = fadeOut() + slideOutVertically { it / 2 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .onSizeChanged { overlayHeight = with(density) { it.height.toDp() } }
-                    .navigationBarsPadding()
-                    .padding(bottom = 12.dp),
+                    .onSizeChanged { overlayHeight = with(density) { it.height.toDp() } },
             ) {
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    GlassTabBar(items = items, selectedIndex = selectedIndex, onSelect = onSelect)
+                Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 20.dp, end = 20.dp, bottom = 28.dp)) {
+                    CtrlBottomBar(items = items, selectedIndex = selectedIndex, onSelect = onSelect)
                 }
             }
         }

@@ -1,5 +1,13 @@
 package com.vknxworks.paperctrl.scan
 
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
+import com.vknxworks.paperctrl.ui.theme.CtrlType
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import androidx.compose.foundation.BorderStroke
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import android.Manifest
 import android.content.Context
@@ -306,7 +314,7 @@ fun ScannerScreen(retakeId: String?) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Surface(shape = CircleShape, color = Color.Black.copy(alpha = 0.55f)) {
+            Surface(shape = CtrlShapes.Control, color = CtrlColors.Background.copy(alpha = 0.78f), border = BorderStroke(1.dp, CtrlColors.ControlOutline)) {
                 Text(
                     stringResource(
                         when {
@@ -316,9 +324,9 @@ fun ScannerScreen(retakeId: String?) {
                             else -> R.string.scanner_hint_found
                         },
                     ),
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = CtrlColors.Text,
+                    style = CtrlType.Status,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
                 )
             }
             Row(Modifier.fillMaxWidth().padding(horizontal = 28.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -335,16 +343,16 @@ fun ScannerScreen(retakeId: String?) {
                         var thumb by remember { mutableStateOf<File?>(null) }
                         LaunchedEffect(last.id, last.version) { thumb = c.scan.previewFile(last, 300) }
                         Box(
-                            Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)).border(2.dp, Color.White, RoundedCornerShape(12.dp))
+                            Modifier.size(64.dp).clip(RoundedCornerShape(16.dp)).border(2.dp, CtrlColors.Text, RoundedCornerShape(16.dp))
                                 .clickable { nav.navigate(ScanReviewRoute) },
                             contentAlignment = Alignment.Center,
                         ) {
                             AsyncImage(model = thumb, contentDescription = stringResource(R.string.scanner_review), modifier = Modifier.fillMaxSize())
-                            Surface(shape = CircleShape, color = accent, modifier = Modifier.align(Alignment.TopEnd).padding(3.dp)) {
+                            Surface(shape = CtrlShapes.Chip, color = accent, modifier = Modifier.align(Alignment.TopEnd).padding(3.dp)) {
                                 Text(
                                     "${pages.size}",
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    style = MaterialTheme.typography.labelMedium,
+                                    color = CtrlColors.OnAccent,
+                                    style = CtrlType.Status,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
                                 )
                             }
@@ -358,15 +366,22 @@ fun ScannerScreen(retakeId: String?) {
 
 @Composable
 private fun Shutter(progress: Float, busy: Boolean, onClick: () -> Unit) {
-    Box(Modifier.size(84.dp), contentAlignment = Alignment.Center) {
+    val shutterLabel = stringResource(R.string.scanner_capture)
+    // Accent shutter: a rounded square inside a thin ring that fills while auto-capture waits for a steady page.
+    Box(Modifier.size(88.dp), contentAlignment = Alignment.Center) {
+        val ring = RoundedCornerShape(30.dp)
+        Box(Modifier.size(88.dp).border(2.dp, CtrlColors.Text.copy(alpha = 0.35f), ring))
         if (progress > 0f) {
-            CircularProgressIndicator(progress = { progress.coerceIn(0f, 1f) }, modifier = Modifier.size(84.dp), color = Color.White, strokeWidth = 4.dp)
+            CircularProgressIndicator(progress = { progress.coerceIn(0f, 1f) }, modifier = Modifier.size(88.dp), color = CtrlColors.Accent, trackColor = Color.Transparent, strokeWidth = 3.dp)
         }
         Box(
-            Modifier.size(68.dp).clip(CircleShape).background(Color.White).clickable(enabled = !busy, onClick = onClick),
+            Modifier.size(70.dp).clip(RoundedCornerShape(24.dp)).background(CtrlColors.Accent)
+                .clickable(enabled = !busy, role = Role.Button, onClick = onClick)
+                .semantics { contentDescription = shutterLabel },
             contentAlignment = Alignment.Center,
         ) {
-            if (busy) CircularProgressIndicator(Modifier.size(28.dp), color = Color.Black, strokeWidth = 3.dp)
+            if (busy) CircularProgressIndicator(Modifier.size(28.dp), color = CtrlColors.OnAccent, strokeWidth = 3.dp)
+            else Icon(Icons.Outlined.CameraAlt, null, Modifier.size(26.dp), tint = CtrlColors.OnAccent)
         }
     }
 }
@@ -380,12 +395,13 @@ private fun RoundIcon(
     onClick: () -> Unit,
 ) {
     Box(
-        Modifier.size(if (big) 56.dp else 48.dp).clip(CircleShape)
-            .background(if (active) MaterialTheme.colorScheme.primary.copy(alpha = 0.85f) else Color.Black.copy(alpha = 0.45f))
+        Modifier.size(if (big) 56.dp else 48.dp).clip(CtrlShapes.Control)
+            .background(if (active) CtrlColors.Accent else CtrlColors.Surface.copy(alpha = 0.82f))
+            .border(1.dp, if (active) CtrlColors.Accent else CtrlColors.ControlOutline, CtrlShapes.Control)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, description, tint = if (active) MaterialTheme.colorScheme.onPrimary else Color.White)
+        Icon(icon, description, Modifier.size(22.dp), tint = if (active) CtrlColors.OnAccent else CtrlColors.Text)
     }
 }
 

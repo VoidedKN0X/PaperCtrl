@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.5.0
+
+PaperCtrl has a new look: "Ctrl / Signal", the design every Ctrl app now shares. Everything works as before: the same screens, tabs, settings and features, only restyled.
+
+### Changed
+
+- **Dark only, with one purple accent.** The whole app uses a near-black background (#08080A), dark grey cards with a thin border, off-white text and a single lavender accent (#B48CFF) for whatever matters most. The status and navigation bars use the same background, edge to edge, with light icons.
+- **New fonts.** All text is set in Space Grotesk; numbers, dates, document numbers, section labels and the wordmark use JetBrains Mono. Both fonts are bundled in the app (no font downloads, nothing from Google) and replace Manrope.
+- **New top bar.** The main tabs show a **PAPER/CTRL** wordmark on the left (the slash in the accent colour) and your profile picture on the right: a rounded square with your initials and a small accent square while you're connected. Tapping it still opens your profile and settings. Other screens have a square back button and their title.
+- **Floating bottom bar.** The tab bar is now a dark rounded bar floating above the bottom of the screen. The open tab is an accent block showing its icon and name; the other tabs show only their icon. Lists scroll clear of it. On tablets the side rail uses the same accent.
+- **Inbox:** the number of documents to sort now sits in a large accent card at the top, with the swipe hint below it. Swiping a document right shows an accent background, swiping left a grey one.
+- **Document lists:** plain rows separated by thin lines, each starting with the document number, date and ASN in mono, then the title and the correspondent and type. Note counts are in the accent colour. Grid view uses bordered dark cards.
+- **Tags are small square chips**: 9dp rounded corners, the tag's own colour as a small square dot next to its name, instead of fully coloured round pills.
+- **Scanner:** the shutter is now an accent rounded square with a camera icon, inside a ring that fills in the accent colour while auto-capture waits for a steady page. Flashlight, auto-capture and gallery buttons are dark rounded squares (accent when switched on), the hint is a dark mono label, and the page counter is an accent chip.
+- **Scan tab:** a large accent card shows how many scanned pages are waiting (tap it to continue scanning); **Upload files** is a dark outlined button.
+- **Switches:** every switch is a rounded-rectangle Ctrl switch: accent track with a dark knob when on, grey when off. TalkBack still reads them as switches.
+- **Buttons, fields and progress:** main buttons are accent-filled with dark text and 18dp corners; secondary buttons are dark with a border. Text fields are dark with a border that turns accent when you type, and an accent cursor. Upload and download progress uses a slim bar.
+- **Lock screen:** an accent lock badge, "VKNXWORKS · CTRL", a big **Locked** title, square PIN cells that fill in the accent colour, and a 3-column keypad of large rounded keys with mono digits. The fingerprint key (outlined in the accent) sits bottom-left when fingerprint unlock is on, and turns into **OK** once you've typed enough digits for a PIN of a different length; delete sits bottom-right. **Forgot PIN?** is below the keypad. How the lock works hasn't changed. The PIN set-up and change screens use the same keypad.
+- **Profile (You) page:** an accent avatar with your initials, your name and the server address in mono, then cards for **Server**, **App** (Settings) and **About**. **Support PaperCtrl** is now an accent button at the bottom, above a "GOOGLE-FREE · TELEMETRY-FREE · ARM64" footer and the version line.
+- **Settings and every grouped list** use dark cards with mono section labels (PRIVACY AND SECURITY, NOTIFICATIONS…) and thin lines between rows. The **Allow** button on the "Notifications are blocked" row is accent-filled.
+- **Sheets and dialogs** (filters, details, choices, share links, confirmations, certificate check) are dark cards with 26dp corners and a thin border.
+- **Organise lists** show each item's number in mono and its colour as a small square.
+- **Signing in** shows the PAPER/CTRL wordmark and the new fields and buttons.
+- Icons use the outlined style throughout.
+
+### Removed
+
+- **Theme** (Follow system / Dark / Light / Pure black) and **Use wallpaper colours** are gone from **Settings**, along with the whole Appearance section: PaperCtrl is always dark now. Your old choice is kept on the phone but no longer does anything.
+- The frosted-glass blur behind the tab bar is gone, and with it the library that drew it, so the app is slightly smaller.
+
 ## 0.4.8
 
 ### Fixed

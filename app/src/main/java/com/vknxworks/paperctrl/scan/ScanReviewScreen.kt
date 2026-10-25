@@ -1,5 +1,10 @@
 package com.vknxworks.paperctrl.scan
 
+import com.vknxworks.paperctrl.ui.components.CtrlSecondaryButton
+import com.vknxworks.paperctrl.ui.theme.CtrlType
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -113,11 +118,7 @@ fun ScanReviewScreen() {
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    FilledTonalButton(onClick = { nav.navigate(ScannerRoute()) }, shape = CircleShape, modifier = Modifier.height(52.dp)) {
-                        Icon(Icons.Outlined.AddAPhoto, null)
-                        Spacer(Modifier.size(8.dp))
-                        Text(stringResource(R.string.scan_add_pages))
-                    }
+                    CtrlSecondaryButton(stringResource(R.string.scan_add_pages), onClick = { nav.navigate(ScannerRoute()) }, icon = Icons.Outlined.AddAPhoto)
                     PillButton(stringResource(R.string.scan_upload), onClick = { uploading = true }, modifier = Modifier.weight(1f))
                 }
             }
@@ -269,11 +270,11 @@ private fun PageCard(page: ScanPage, number: Int, modifier: Modifier, lifted: Bo
             } else {
                 AsyncImage(model = file, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
             }
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary, modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)) {
+            Surface(shape = CtrlShapes.Chip, color = CtrlColors.Accent, modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)) {
                 Text(
-                    "$number",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.labelLarge,
+                    "%02d".format(number),
+                    color = CtrlColors.OnAccent,
+                    style = CtrlType.Status,
                     modifier = Modifier.padding(horizontal = 9.dp, vertical = 2.dp),
                 )
             }
@@ -295,10 +296,10 @@ private fun UploadSheet(pageCount: Int, onDismiss: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
     val serverId = active?.server?.id
 
-    ModalBottomSheet(
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), 
         onDismissRequest = { if (!busy) onDismiss() },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = CtrlColors.Surface,
     ) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             Text(

@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PaperCtrl</string>
+    <!-- Top bar wordmark: shown as PAPER/CTRL with the slash in the accent colour -->
+    <string name="wordmark_name" translatable="false">PAPER</string>
+    <string name="wordmark_ctrl" translatable="false">CTRL</string>
+    <string name="ctrl_footer" translatable="false">GOOGLE-FREE · TELEMETRY-FREE · ARM64</string>
+    <string name="lock_brand" translatable="false">VKNXWORKS · CTRL</string>
+    <string name="lock_locked">Locked</string>
+    <string name="inbox_hero_label">To sort</string>
+    <string name="inbox_hero_tags">Inbox tags · %1$d</string>
+    <string name="you_profile">Profile</string>
+    <string name="you_app">App</string>
+    <string name="scan_hero_label">Scanner</string>
+    <string name="scan_hero_pages">Pages ready</string>
+    <string name="scan_hero_uploading">%1$d uploading</string>
 
     <!-- Tabs -->
     <string name="tab_inbox">Inbox</string>
@@ -277,6 +290,7 @@
     <string name="scanner_open_settings">Open app settings</string>
     <string name="scanner_capture_failed">Couldn\'t take the picture. Try again.</string>
     <string name="scanner_torch">Flashlight</string>
+    <string name="scanner_capture">Take picture</string>
     <string name="scanner_auto_on">Auto-capture on</string>
     <string name="scanner_auto_off">Auto-capture off</string>
     <string name="scanner_hint_searching">Looking for a document…</string>

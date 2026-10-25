@@ -1,5 +1,6 @@
 package com.vknxworks.paperctrl.ui.docs
 
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import android.widget.Toast
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -96,9 +97,14 @@ fun BulkBar(
         }
     }
 
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 3.dp, modifier = Modifier.fillMaxWidth()) {
+    Surface(
+        color = CtrlColors.Surface,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, CtrlColors.ControlOutline),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         androidx.compose.foundation.layout.Column(Modifier.navigationBarsPadding()) {
-            if (working) LinearProgressIndicator(Modifier.fillMaxWidth())
+            if (working) LinearProgressIndicator(Modifier.fillMaxWidth(), color = CtrlColors.Accent, trackColor = CtrlColors.Track)
             Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onClear) { Icon(Icons.Outlined.Close, stringResource(R.string.bulk_clear)) }
                 Text(

@@ -17,6 +17,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.unit.em
+import com.vknxworks.paperctrl.ui.components.topDivider
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.theme.CtrlType
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -76,7 +82,7 @@ fun Thumbnail(doc: Document, modifier: Modifier = Modifier) {
     val c = LocalContext.current.container
     val session by c.sessions.active.collectAsStateWithLifecycle()
     val url = session?.client?.url("documents/${doc.id}/thumb/")?.toString()
-    Box(modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
+    Box(modifier.background(CtrlColors.Raised), contentAlignment = Alignment.Center) {
         Icon(Icons.Outlined.Description, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
         if (url != null) {
             AsyncImage(
@@ -92,16 +98,24 @@ fun Thumbnail(doc: Document, modifier: Modifier = Modifier) {
 
 @Composable
 fun TagChip(tag: Tag, small: Boolean = false) {
-    val bg = parseColor(tag.color) ?: MaterialTheme.colorScheme.secondaryContainer
-    val fg = parseColor(tag.textColor) ?: if (bg.luminance() > 0.5f) Color.Black else Color.White
-    Surface(shape = CircleShape, color = bg) {
+    // Small 9dp-radius chip: the tag's own colour as a square dot, its name in mono on the surface.
+    val dot = parseColor(tag.color) ?: CtrlColors.Accent
+    Row(
+        Modifier
+            .clip(CtrlShapes.Chip)
+            .background(CtrlColors.Raised)
+            .border(1.dp, CtrlColors.ControlOutline, CtrlShapes.Chip)
+            .padding(horizontal = if (small) 7.dp else 9.dp, vertical = if (small) 2.dp else 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(if (small) 6.dp else 8.dp).clip(CtrlShapes.Dot).background(dot))
+        Spacer(Modifier.width(if (small) 5.dp else 6.dp))
         Text(
             tag.name,
-            color = fg,
-            style = if (small) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
+            color = CtrlColors.Text,
+            style = if (small) CtrlType.Status.copy(letterSpacing = 0.02.em) else CtrlType.Mono.copy(fontWeight = FontWeight.Medium),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = if (small) 7.dp else 10.dp, vertical = if (small) 1.dp else 3.dp),
         )
     }
 }
@@ -112,7 +126,7 @@ fun TagRow(tagIds: List<Int>, md: ServerMetadata, max: Int = 4, small: Boolean =
     if (tags.isEmpty()) return
     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         tags.take(max).forEach { TagChip(it, small) }
-        if (tags.size > max) Text("+${tags.size - max}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (tags.size > max) Text("+${tags.size - max}", style = CtrlType.Status, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -128,7 +142,7 @@ fun highlights(html: String): AnnotatedString = buildAnnotatedString {
         if (open < 0 || close < 0) { append(rest.substring(start)); break }
         val s = length
         append(rest.substring(open + 1, close))
-        addStyle(SpanStyle(fontWeight = FontWeight.Bold, background = Color(0x55F0C27A)), s, length)
+        addStyle(SpanStyle(fontWeight = FontWeight.Bold, background = CtrlColors.Accent.copy(alpha = 0.33f)), s, length)
         rest = rest.substring(close + 7)
     }
 }
@@ -147,30 +161,45 @@ fun DocumentRow(
     Row(
         modifier
             .fillMaxWidth()
-            .background(if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.background)
+            .background(if (selected) CtrlColors.Accent.copy(alpha = 0.12f) else MaterialTheme.colorScheme.background)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = Gutter, vertical = 10.dp),
+            .padding(horizontal = Gutter)
+            .topDivider()
+            .heightIn(min = 52.dp)
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.Top,
     ) {
         Box {
-            Thumbnail(doc, Modifier.width(56.dp).height(74.dp).clip(RoundedCornerShape(8.dp)))
+            Thumbnail(doc, Modifier.width(52.dp).height(68.dp).clip(RoundedCornerShape(10.dp)).border(1.dp, CtrlColors.Outline, RoundedCornerShape(10.dp)))
             if (selecting) {
                 Icon(
                     Icons.Filled.CheckCircle,
                     null,
                     tint = if (selected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.align(Alignment.TopStart).padding(3.dp).size(20.dp).background(Color.Black.copy(alpha = 0.25f), CircleShape),
+                    modifier = Modifier.align(Alignment.TopStart).padding(3.dp).size(20.dp).background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(7.dp)),
                 )
             }
         }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(doc.title.ifBlank { doc.originalFileName ?: "#${doc.id}" }, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            // Leading mono meta: the document number, date and ASN.
+            Text(
+                listOfNotNull("#${doc.id}", doc.createdDate?.let(::formatDate), doc.asn?.let { "ASN $it" }).joinToString(" · ").uppercase(),
+                style = CtrlType.Status,
+                color = CtrlColors.Muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                doc.title.ifBlank { doc.originalFileName ?: "#${doc.id}" },
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
             val meta = listOfNotNull(
                 md.correspondent(doc.correspondent)?.name,
                 md.documentType(doc.documentType)?.name,
-                doc.createdDate?.let(::formatDate),
-                doc.asn?.let { "ASN $it" },
             ).joinToString("  ·  ")
             if (meta.isNotEmpty()) Text(meta, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
             doc.searchHit?.highlights?.takeIf { it.isNotBlank() }?.let {
@@ -179,8 +208,8 @@ fun DocumentRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) { TagRow(doc.tags, md) }
                 if (doc.noteCount > 0) {
-                    Icon(Icons.Outlined.StickyNote2, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(" ${doc.noteCount}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.Outlined.StickyNote2, null, Modifier.size(14.dp), tint = CtrlColors.Accent)
+                    Text(" ${doc.noteCount}", style = CtrlType.Status, color = CtrlColors.Accent)
                 }
             }
         }
@@ -199,9 +228,9 @@ fun DocumentCard(
 ) {
     Column(
         Modifier
-            .clip(MaterialTheme.shapes.medium)
-            .background(if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceContainer)
-            .border(if (selected) 2.dp else 0.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+            .clip(CtrlShapes.Card)
+            .background(if (selected) CtrlColors.Accent.copy(alpha = 0.14f) else CtrlColors.Surface)
+            .border(if (selected) 2.dp else 1.dp, if (selected) CtrlColors.Accent else CtrlColors.Outline, CtrlShapes.Card)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
     ) {
         Box {
@@ -211,14 +240,21 @@ fun DocumentCard(
                     Icons.Filled.CheckCircle,
                     null,
                     tint = if (selected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.align(Alignment.TopStart).padding(6.dp).size(24.dp).background(Color.Black.copy(alpha = 0.25f), CircleShape),
+                    modifier = Modifier.align(Alignment.TopStart).padding(6.dp).size(24.dp).background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(7.dp)),
                 )
             }
         }
-        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                listOfNotNull("#${doc.id}", doc.createdDate?.let(::formatDate)).joinToString(" · ").uppercase(),
+                style = CtrlType.Status,
+                color = CtrlColors.Muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             Text(doc.title.ifBlank { "#${doc.id}" }, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(
-                listOfNotNull(md.correspondent(doc.correspondent)?.name, doc.createdDate?.let(::formatDate)).joinToString("  ·  "),
+                md.correspondent(doc.correspondent)?.name.orEmpty(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

@@ -15,14 +15,13 @@ import com.vknxworks.paperctrl.ui.lock.AppLockGate
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vknxworks.paperctrl.data.settings.ThemeChoice
 import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.nav.AppRoot
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
+import com.vknxworks.paperctrl.ui.theme.CTRL_BAR_SCRIM
 import com.vknxworks.paperctrl.ui.components.ScreenPrivacy
 import com.vknxworks.paperctrl.ui.components.WindowPrivacy
 import com.vknxworks.paperctrl.ui.lock.lockCovering
@@ -42,15 +41,9 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
-            val dark = when (settings.theme) {
-                ThemeChoice.SYSTEM -> isSystemInDarkTheme()
-                ThemeChoice.LIGHT -> false
-                ThemeChoice.DARK, ThemeChoice.BLACK -> true
-            }
-            // Keep status and navigation bar icons readable when the app theme differs from the system's.
-            DisposableEffect(dark) {
-                val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
-                else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            // Ctrl / Signal is dark only: light bar icons over the app background, edge to edge.
+            DisposableEffect(Unit) {
+                val style = SystemBarStyle.dark(CTRL_BAR_SCRIM)
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }

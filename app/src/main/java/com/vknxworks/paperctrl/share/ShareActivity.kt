@@ -15,7 +15,6 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,8 +29,8 @@ import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.UploadMeta
 import com.vknxworks.paperctrl.data.queue.StagedFile
 import com.vknxworks.paperctrl.data.queue.Staging
-import com.vknxworks.paperctrl.data.settings.ThemeChoice
 import com.vknxworks.paperctrl.ui.theme.PaperCtrlTheme
+import com.vknxworks.paperctrl.ui.theme.CTRL_BAR_SCRIM
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import com.vknxworks.paperctrl.ui.lock.AppLockGate
 import com.vknxworks.paperctrl.notify.NotifyPermission
@@ -85,13 +84,9 @@ class ShareActivity : ComponentActivity() {
 
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
-            val dark = when (settings.theme) {
-                ThemeChoice.SYSTEM -> isSystemInDarkTheme()
-                ThemeChoice.LIGHT -> false
-                ThemeChoice.DARK, ThemeChoice.BLACK -> true
-            }
-            DisposableEffect(dark) {
-                val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            // Ctrl / Signal is dark only: light bar icons over the app background, edge to edge.
+            DisposableEffect(Unit) {
+                val style = SystemBarStyle.dark(CTRL_BAR_SCRIM)
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }

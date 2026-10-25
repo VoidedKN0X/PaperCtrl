@@ -1,5 +1,9 @@
 package com.vknxworks.paperctrl.ui.docs
 
+import com.vknxworks.paperctrl.ui.theme.CtrlShapes
+import com.vknxworks.paperctrl.ui.components.CtrlSecondaryButton
+import com.vknxworks.paperctrl.ui.components.ctrlSheet
+import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -84,10 +88,10 @@ fun FilterSheet(initial: DocumentQuery, md: ServerMetadata, onDismiss: () -> Uni
     val any = stringResource(R.string.filter_any)
     fun names(ids: Set<Int>, lookup: (Int) -> String?) = ids.mapNotNull(lookup).joinToString(", ").ifEmpty { any }
 
-    ModalBottomSheet(
+    ModalBottomSheet(modifier = Modifier.ctrlSheet(), 
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = CtrlColors.Surface,
     ) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 12.dp)) {
@@ -107,7 +111,7 @@ fun FilterSheet(initial: DocumentQuery, md: ServerMetadata, onDismiss: () -> Uni
                     SegmentedButton(
                         selected = q.textMode == m,
                         onClick = { q = q.copy(textMode = m) },
-                        shape = SegmentedButtonDefaults.itemShape(i, TextMode.entries.size),
+                        shape = SegmentedButtonDefaults.itemShape(i, TextMode.entries.size, baseShape = CtrlShapes.Control),
                     ) { Text(stringResource(m.label), maxLines = 1) }
                 }
             }
@@ -149,7 +153,7 @@ fun FilterSheet(initial: DocumentQuery, md: ServerMetadata, onDismiss: () -> Uni
                 }
             }
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f).padding(vertical = 2.dp)) { Text(stringResource(R.string.cancel)) }
+                CtrlSecondaryButton(stringResource(R.string.cancel), onClick = onDismiss, modifier = Modifier.weight(1f))
                 PillButton(stringResource(R.string.filters_apply), onClick = { onApply(q) }, modifier = Modifier.weight(2f))
             }
         }
