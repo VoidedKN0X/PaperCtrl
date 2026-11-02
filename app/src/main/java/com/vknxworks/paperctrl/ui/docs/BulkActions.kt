@@ -1,5 +1,7 @@
 package com.vknxworks.paperctrl.ui.docs
 
+import com.vknxworks.paperctrl.ui.components.ctrlMenuItemColors
+import com.vknxworks.paperctrl.ui.components.CtrlDropdownMenu
 import com.vknxworks.paperctrl.ui.theme.CtrlColors
 import android.widget.Toast
 import androidx.compose.foundation.layout.Row
@@ -18,7 +20,6 @@ import androidx.compose.material.icons.outlined.MergeType
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Sell
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -122,19 +123,22 @@ fun BulkBar(
                 IconButton(onClick = { pick = BulkPick.ADD_TAGS }) { Icon(Icons.Outlined.Sell, stringResource(R.string.bulk_add_tags)) }
                 Row {
                     IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, stringResource(R.string.more)) }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    CtrlDropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(
+                            colors = ctrlMenuItemColors(),
                             text = { Text(stringResource(R.string.bulk_remove_tags)) },
                             leadingIcon = { Icon(Icons.Outlined.Sell, null) },
                             onClick = { menu = false; pick = BulkPick.REMOVE_TAGS },
                         )
                         DropdownMenuItem(
+                            colors = ctrlMenuItemColors(),
                             text = { Text(stringResource(R.string.meta_storage_path)) },
                             leadingIcon = { Icon(Icons.Outlined.Folder, null) },
                             onClick = { menu = false; pick = BulkPick.PATH },
                         )
                         if (extended) {
                             DropdownMenuItem(
+                                colors = ctrlMenuItemColors(),
                                 text = { Text(stringResource(R.string.bulk_download)) },
                                 leadingIcon = { Icon(Icons.Outlined.Download, null) },
                                 onClick = {
@@ -150,6 +154,7 @@ fun BulkBar(
                                 },
                             )
                             DropdownMenuItem(
+                                colors = ctrlMenuItemColors(),
                                 text = { Text(stringResource(R.string.bulk_rotate)) },
                                 leadingIcon = { Icon(Icons.AutoMirrored.Outlined.RotateRight, null) },
                                 onClick = {
@@ -160,6 +165,7 @@ fun BulkBar(
                             )
                             if (selected.size > 1) {
                                 DropdownMenuItem(
+                                    colors = ctrlMenuItemColors(),
                                     text = { Text(stringResource(R.string.bulk_merge)) },
                                     leadingIcon = { Icon(Icons.Outlined.MergeType, null) },
                                     onClick = { menu = false; confirmMerge = true },
@@ -167,6 +173,7 @@ fun BulkBar(
                             }
                         }
                         DropdownMenuItem(
+                            colors = ctrlMenuItemColors(),
                             text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                             leadingIcon = { Icon(Icons.Outlined.Delete, null, tint = MaterialTheme.colorScheme.error) },
                             onClick = { menu = false; confirmDelete = true },

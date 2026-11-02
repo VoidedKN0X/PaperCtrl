@@ -414,3 +414,40 @@ fun Modifier.ctrlSheet(): Modifier = border(
     CtrlColors.Outline,
     androidx.compose.foundation.shape.RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
 )
+
+/**
+ * Popup menu in the Ctrl style: flat surface, 16dp corners, a 1dp card border and no shadow or
+ * tonal tint (Material's shadow showed as a grey box around the popup). Reads the current palette.
+ */
+@Composable
+fun CtrlDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: androidx.compose.ui.unit.DpOffset = androidx.compose.ui.unit.DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    androidx.compose.material3.DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+        containerColor = CtrlColors.Surface,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, CtrlColors.Outline),
+        content = content,
+    )
+}
+
+/** Menu item colours: palette text, muted icons, disabled grey. Items may still tint themselves (e.g. delete in red). */
+@Composable
+fun ctrlMenuItemColors(): androidx.compose.material3.MenuItemColors = androidx.compose.material3.MenuDefaults.itemColors(
+    textColor = CtrlColors.Text,
+    leadingIconColor = CtrlColors.Muted,
+    trailingIconColor = CtrlColors.Muted,
+    disabledTextColor = CtrlColors.Disabled,
+    disabledLeadingIconColor = CtrlColors.Disabled,
+    disabledTrailingIconColor = CtrlColors.Disabled,
+)

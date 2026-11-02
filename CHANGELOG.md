@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.2
+
+### Fixed
+
+- **Popup menus no longer show a grey box around them.** Menus used Android's default shadow, which was drawn as a grey, square-looking edge around the popup (most visible in light mode). They're now a flat Signal card: the card colour of the current theme (dark grey in dark mode, white in light mode), 16dp rounded corners, a thin card border and no shadow. Menu text uses the normal text colour, icons are grey, unavailable items are dimmed, and **Delete** stays red. Nothing else about the menus changed. This applies to:
+  - the **⋮ menu on a document** (download, share, open with, open in browser, more like this, pages, reprocess, permissions, delete)
+  - the **sort menu** on the Documents tab
+  - the **more actions menu** when you've selected several documents (remove tags, storage path, download, rotate, merge, delete)
+
 ## 0.7.1
 
 ### Fixed

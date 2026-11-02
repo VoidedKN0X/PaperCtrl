@@ -1,5 +1,7 @@
 package com.vknxworks.paperctrl.ui.document
 
+import com.vknxworks.paperctrl.ui.components.ctrlMenuItemColors
+import com.vknxworks.paperctrl.ui.components.CtrlDropdownMenu
 import com.vknxworks.paperctrl.ui.components.LoadingView
 import com.vknxworks.paperctrl.ui.components.CtrlProgressBar
 import com.vknxworks.paperctrl.ui.theme.CtrlShapes
@@ -44,7 +46,6 @@ import androidx.compose.material.icons.outlined.TravelExplore
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -146,37 +147,37 @@ fun DocumentScreen(id: Int) {
                     IconButton(onClick = { sharing = true }) { Icon(Icons.Outlined.Link, stringResource(R.string.share_links)) }
                     Box {
                         IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, stringResource(R.string.more)) }
-                        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                            DropdownMenuItem(text = { Text(stringResource(R.string.doc_download)) }, leadingIcon = { Icon(Icons.Outlined.Download, null) }, onClick = {
+                        CtrlDropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                            DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.doc_download)) }, leadingIcon = { Icon(Icons.Outlined.Download, null) }, onClick = {
                                 menu = false
                                 withFile { f -> scope.launch { runCatching { c.files.saveToDownloads(f) }.onSuccess { toast(context.getString(R.string.download_saved, it)) }.onFailure { toast(it.friendlyMessage(context)) } } }
                             })
-                            DropdownMenuItem(text = { Text(stringResource(R.string.doc_share_file)) }, leadingIcon = { Icon(Icons.Outlined.Share, null) }, onClick = {
+                            DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.doc_share_file)) }, leadingIcon = { Icon(Icons.Outlined.Share, null) }, onClick = {
                                 menu = false
                                 withFile { f -> AppLock.expectReturn(); runCatching { context.startActivity(Intent.createChooser(c.files.shareIntent(f), null)) }.onFailure { toast(it.friendlyMessage(context)) } }
                             })
-                            DropdownMenuItem(text = { Text(stringResource(R.string.viewer_open_with)) }, leadingIcon = { Icon(Icons.Outlined.OpenInNew, null) }, onClick = {
+                            DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.viewer_open_with)) }, leadingIcon = { Icon(Icons.Outlined.OpenInNew, null) }, onClick = {
                                 menu = false
                                 withFile { f -> AppLock.expectReturn(); runCatching { context.startActivity(c.files.openWithIntent(f)) }.onFailure { toast(context.getString(R.string.open_link_failed)) } }
                             })
-                            DropdownMenuItem(text = { Text(stringResource(R.string.doc_open_browser)) }, leadingIcon = { Icon(Icons.Outlined.OpenInBrowser, null) }, onClick = {
+                            DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.doc_open_browser)) }, leadingIcon = { Icon(Icons.Outlined.OpenInBrowser, null) }, onClick = {
                                 menu = false
                                 val url = model.client?.webUrl(id) ?: return@DropdownMenuItem
                                 AppLock.expectReturn(); try { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) } catch (_: ActivityNotFoundException) { toast(context.getString(R.string.open_link_failed)) }
                             })
-                            DropdownMenuItem(text = { Text(stringResource(R.string.doc_more_like)) }, leadingIcon = { Icon(Icons.Outlined.TravelExplore, null) }, onClick = {
+                            DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.doc_more_like)) }, leadingIcon = { Icon(Icons.Outlined.TravelExplore, null) }, onClick = {
                                 menu = false
                                 c.pendingQuery.value = DocumentQuery(moreLike = id, moreLikeTitle = doc.title, sort = com.vknxworks.paperctrl.data.search.SortField.SCORE)
                                 nav.nav.navigate(DocumentsRoute) { launchSingleTop = true }
                             })
                             if (doc.userCanChange && doc.mimeType == "application/pdf") {
-                                DropdownMenuItem(text = { Text(stringResource(R.string.pages_menu)) }, leadingIcon = { Icon(Icons.Outlined.Layers, null) }, enabled = !model.pageEditRunning, onClick = {
+                                DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.pages_menu)) }, leadingIcon = { Icon(Icons.Outlined.Layers, null) }, enabled = !model.pageEditRunning, onClick = {
                                     menu = false
                                     managingPages = true
                                 })
                             }
                             if (doc.userCanChange) {
-                                DropdownMenuItem(text = { Text(stringResource(R.string.doc_reprocess)) }, leadingIcon = { Icon(Icons.Outlined.Refresh, null) }, onClick = {
+                                DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.doc_reprocess)) }, leadingIcon = { Icon(Icons.Outlined.Refresh, null) }, onClick = {
                                     menu = false
                                     scope.launch {
                                         runCatching { model.client?.documentOperation("reprocess", listOf(id)) }
@@ -187,11 +188,12 @@ fun DocumentScreen(id: Int) {
                             }
                             val me = session?.server
                             if (me != null && (doc.owner == null || doc.owner == me.userId || me.isSuperuser)) {
-                                DropdownMenuItem(text = { Text(stringResource(R.string.doc_permissions)) }, leadingIcon = { Icon(Icons.Outlined.Lock, null) }, onClick = { menu = false; permissions = true })
+                                DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.doc_permissions)) }, leadingIcon = { Icon(Icons.Outlined.Lock, null) }, onClick = { menu = false; permissions = true })
                             }
                             if (doc.userCanChange) {
                                 HorizontalDivider()
                                 DropdownMenuItem(
+                                    colors = ctrlMenuItemColors(),
                                     text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                                     leadingIcon = { Icon(Icons.Outlined.Delete, null, tint = MaterialTheme.colorScheme.error) },
                                     onClick = { menu = false; deleting = true },

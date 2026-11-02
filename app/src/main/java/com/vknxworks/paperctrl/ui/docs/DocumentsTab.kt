@@ -1,5 +1,7 @@
 package com.vknxworks.paperctrl.ui.docs
 
+import com.vknxworks.paperctrl.ui.components.ctrlMenuItemColors
+import com.vknxworks.paperctrl.ui.components.CtrlDropdownMenu
 import com.vknxworks.paperctrl.ui.components.LoadingView
 import com.vknxworks.paperctrl.ui.components.SectionLabel
 import com.vknxworks.paperctrl.ui.components.CtrlTopBar
@@ -49,7 +51,6 @@ import androidx.compose.material.icons.outlined.ViewList
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -198,9 +199,10 @@ fun DocumentsTab() {
                     label = { Text(stringResource(q.sort.label) + if (q.reverse) " ↓" else " ↑") },
                     leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Sort, null, Modifier.size(18.dp)) },
                 )
-                DropdownMenu(expanded = sortMenu, onDismissRequest = { sortMenu = false }) {
+                CtrlDropdownMenu(expanded = sortMenu, onDismissRequest = { sortMenu = false }) {
                     SortField.entries.filter { it != SortField.SCORE || q.isFullText }.forEach { f ->
                         DropdownMenuItem(
+                            colors = ctrlMenuItemColors(),
                             text = { Text(stringResource(f.label) + if (f == q.sort) (if (q.reverse) "  ↓" else "  ↑") else "") },
                             onClick = {
                                 sortMenu = false
