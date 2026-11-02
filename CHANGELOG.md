@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.3
+
+Notifications keep document names private while the app lock is on, and "Forgot PIN?" now also clears an unfinished scan.
+
+### Security
+
+- **Notifications don't show document names while the app lock is on.** Until now, upload progress ("Sending …"), "Document added", "Upload failed" and push from Paperless through ntfy showed the file name, document title or correspondent in the notification shade whenever the phone itself was unlocked, even with PaperCtrl's app lock on. With the app lock on, these notifications now only show their title (for example "Document added" or "Upload failed"); tap one and unlock PaperCtrl to see which document it is. With the app lock off nothing changes, and the lock screen still only shows the title when you hide sensitive notification content in Android's settings.
+- **"Forgot PIN?" also deletes an unfinished scan.** Resetting the app lock removed every server, its queued uploads and cached documents, but the pages of a scan you hadn't sent yet stayed on the phone, and showed up again in the scanner after the reset. They're now deleted too.
+
+### Project
+
+- New **SECURITY.md** that explains how to report a security problem privately, which versions get fixes, and the SHA-256 fingerprint of PaperCtrl's release key.
+- New issue forms for **bug reports** and **feature requests**, with a link for reporting security problems privately instead of in a public issue.
+- README: a clearer first install step (which file to tap on the Releases page), a new **Is it safe to install?** section (open source, built by GitHub Actions, signing key fingerprint, what each permission is for), a **How PaperCtrl is made** section, the full Ctrl series list, and a note that PaperCtrl isn't made by or affiliated with the Paperless-ngx project. The empty Screenshots section is gone.
+
 ## 0.7.2
 
 ### Fixed

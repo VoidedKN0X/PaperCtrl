@@ -19,7 +19,7 @@ import com.vknxworks.paperctrl.data.queue.QueueItem
 /**
  * Upload progress and results. Notification text never includes document contents; file names and
  * titles are private notification content, replaced by a bare title on a lock screen that hides
- * sensitive content.
+ * sensitive content. With the app lock on, they're left out everywhere (see [hideNames]).
  */
 object Notifications {
     const val CH_UPLOADS = "uploads"
@@ -97,7 +97,7 @@ object Notifications {
                 .setSmallIcon(R.drawable.ic_notification)
             .setColor(context.getColor(R.color.ctrl_accent_text))
                 .setContentTitle(title)
-                .setContentText(text)
+                .setContentText(if (hideNames(context)) null else text)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setPublicVersion(publicVersion(context, CH_EVENTS, title))
                 .setAutoCancel(true)
@@ -123,7 +123,9 @@ object Notifications {
     /** Ongoing notification while a file uploads or Paperless processes it. [progress] null = indeterminate. */
     fun progress(context: Context, item: QueueItem, progress: Float?): Notification {
         ensureChannels(context)
-        val text = if (progress != null) {
+        val text = if (hideNames(context)) {
+            null
+        } else if (progress != null) {
             context.getString(R.string.notif_uploading, item.fileName)
         } else {
             context.getString(R.string.notif_consuming, item.fileName)
@@ -153,7 +155,7 @@ object Notifications {
                 .setSmallIcon(R.drawable.ic_notification)
             .setColor(context.getColor(R.color.ctrl_accent_text))
                 .setContentTitle(context.getString(R.string.notif_added_title))
-                .setContentText(title ?: item.fileName)
+                .setContentText(if (hideNames(context)) null else title ?: item.fileName)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setPublicVersion(publicVersion(context, CH_RESULTS, context.getString(R.string.notif_added_title)))
                 .setAutoCancel(true)
@@ -164,7 +166,7 @@ object Notifications {
 
     fun failed(context: Context, item: QueueItem, message: String?) {
         if (!context.container.settings.settings.value.notifyFailed) return
-        val text = listOfNotNull(item.fileName, message).joinToString(": ")
+        val text = if (hideNames(context)) null else listOfNotNull(item.fileName, message).joinToString(": ")
         post(
             context,
             resultId(item),
@@ -175,7 +177,7 @@ object Notifications {
                 .setContentText(text)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setPublicVersion(publicVersion(context, CH_RESULTS, context.getString(R.string.notif_failed_title)))
-                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setStyle(text?.let { NotificationCompat.BigTextStyle().bigText(it) })
                 .setAutoCancel(true)
                 .setContentIntent(openQueue(context))
                 .build(),
@@ -189,6 +191,17 @@ object Notifications {
             nm.cancel(progressId(item))
             nm.cancel(resultId(item))
         }
+    }
+
+    /**
+     * With the app lock on, notifications only show their title: no file name, document title or
+     * Paperless' message, not even in the notification shade of an unlocked phone, since the app lock
+     * is meant to keep documents private from whoever holds the phone. The vault is read directly, so
+     * this also holds for a push that starts PaperCtrl before its settings are loaded.
+     */
+    private fun hideNames(context: Context): Boolean {
+        val c = context.container
+        return c.vault.enabled || c.settings.settings.value.appLock
     }
 
     /**

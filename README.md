@@ -26,10 +26,6 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional [app lock](#app-lock) with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), and **Hide in screenshots** and **Hide in recent apps** switches
 
-## Screenshots
-
-Coming soon.
-
 ## Requirements
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
@@ -39,8 +35,8 @@ Coming soon.
 
 ## Install
 
-1. Download the latest `.apk` file from the [Releases page](https://github.com/VoidedKN0X/PaperCtrl/releases/latest).
-2. Open it on your phone. Android may ask you to allow installing apps from your browser or file manager.
+1. Open the [Releases page](https://github.com/VoidedKN0X/PaperCtrl/releases/latest) on your phone, scroll down to **Assets** and tap the file that ends in `.apk` (for example `PaperCtrl-v0.7.3.apk`). The "Source code" zip and tar.gz files are not the app; you don't need them.
+2. Open the downloaded file. Android may ask you to allow installing apps from your browser or file manager.
 3. Updates install over the old version. Your settings and login are kept.
 
 **Automatic updates:** on your phone, tap one of the buttons below.
@@ -51,6 +47,31 @@ Coming soon.
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/PaperCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
 
 If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/PaperCtrl` in Obtainium by hand.
+
+## Is it safe to install?
+
+- **Open source:** all of PaperCtrl's code is in this repo, under the GPL-3.0 licence. You can read every line.
+- **Built by GitHub, not on a personal computer:** every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo.
+- **Always signed with the same key:** Android refuses to install an update signed with a different key, so nobody else can replace PaperCtrl on your phone with their own version. The CtrlF-Droid repo only accepts APKs signed with this key. Its SHA-256 certificate fingerprint is:
+
+  ```
+  00:D1:B2:3E:CC:53:BA:51:98:B3:26:71:4D:1D:70:E8:3E:3A:BD:75:E2:E7:20:E6:90:B0:F0:6F:24:84:CB:6E
+  ```
+
+  Advanced users can compare it with [AppVerifier](https://github.com/soupslurpr/AppVerifier).
+
+**Permissions** PaperCtrl asks for, and why:
+
+| Permission | What it's for |
+| --- | --- |
+| Internet | Talking to your own Paperless-ngx server |
+| See network status | Waiting with uploads until you're online |
+| Notifications | Upload results, the daily inbox reminder and push from Paperless (you can say no) |
+| Run in the foreground (data sync) | Finishing an upload with a progress notification, even if you leave the app |
+| Camera | The document scanner and reading ASN labels (asked the first time you scan) |
+| Use biometrics | Unlocking the app lock with your fingerprint, if you turn that on |
+
+PaperCtrl also only looks for one other app on your phone: the ntfy app, for push. See [Privacy](#privacy) for what it sends where.
 
 ## Getting started
 
@@ -92,6 +113,7 @@ Turn it on under your profile picture › **Settings > Privacy and security > Ap
 - **Forgot your PIN?** It can't be recovered, because it encrypts your logins. The lock screen offers to remove every server from this phone, with its queued uploads and cached data; everything on your Paperless server stays.
 - **Share to PaperCtrl** asks for the PIN before anything you share reaches the upload queue.
 - **Viewed documents are deleted when PaperCtrl locks.** The copies kept on the phone for viewing, sharing or "Open with" are removed the moment the app locks, and downloaded again when you open a document after unlocking.
+- **Notifications only show their title** while the app lock is on (for example "Document added"), never a file name or document title, even when the phone itself is unlocked.
 - **Background work while locked:** an upload that's already sending still finishes. Uploads that haven't started yet, the daily inbox reminder and the widget's inbox count wait until you unlock, because the login stays encrypted. Push from Paperless through ntfy keeps working, since it doesn't need your login.
 
 Two more switches in the same section work with or without the app lock, and are both off until you turn them on:
@@ -107,8 +129,12 @@ Signing in and the lock and PIN screens are always kept out of screenshots and r
 
 - **Servers:** only the Paperless-ngx servers you add (their main and home-network addresses). Push notifications come through your own ntfy server and the ntfy app, and **Send a test** posts to PaperCtrl's push address there.
 - **Links:** the Install ntfy button and the Support, Report a bug, Source code and Licence rows in About open in your browser only when you tap them; the app itself doesn't contact those sites.
-- **Notifications** on the lock screen only show their title when you hide sensitive notification content in Android's settings, never a file name or document title.
+- **Notifications** on the lock screen only show their title when you hide sensitive notification content in Android's settings, never a file name or document title. With the app lock on, they only show their title everywhere.
 - **No backups:** Android doesn't back up PaperCtrl's data or move it to a new phone.
+
+## How PaperCtrl is made
+
+PaperCtrl is a one-person project by VoidedKN0X (VKNXWorks). Much of the code is written with the help of AI (Claude, by Anthropic). I decide what the app does, review the changes and use the app myself. Every change is listed in the [changelog](CHANGELOG.md), and you can read every line of code here.
 
 ## Build from source
 
@@ -130,7 +156,9 @@ Or open the folder in Android Studio and press **Run** with your phone connected
 
 ## Support the project
 
-PaperCtrl is free and open source. If it's useful to you, tap **Support PaperCtrl** under **About** on the **You** page (tap your profile picture) to sponsor development on [GitHub Sponsors](https://github.com/sponsors/VoidedKN0X). Found a problem or have an idea? Tap **Report a bug** in the same section, or [open an issue](https://github.com/VoidedKN0X/PaperCtrl/issues). Starring the repo helps too.
+PaperCtrl is free and open source. If it's useful to you, tap **Support PaperCtrl** under **About** on the **You** page (tap your profile picture) to sponsor development on [GitHub Sponsors](https://github.com/sponsors/VoidedKN0X). Found a problem or have an idea? Tap **Report a bug** in the same section, or [open an issue](https://github.com/VoidedKN0X/PaperCtrl/issues/new/choose) and pick **Bug report** or **Feature request**. Starring the repo helps too.
+
+Found a security problem? Please don't open a public issue; see [SECURITY.md](SECURITY.md).
 
 ## The Ctrl series
 
@@ -152,11 +180,16 @@ Native Android apps for self-hosted services and everyday tools, all with the sa
 | **PaperCtrl** (this app) | Scan and browse documents on Paperless-ngx |
 | [PrintCtrl](https://github.com/VoidedKN0X/PrintCtrl) | Bambu Lab printers through Bambuddy, and Spoolman spools |
 | [ProxCtrl](https://github.com/VoidedKN0X/ProxCtrl) | Manage your Proxmox VE server |
+| [RideCtrl](https://github.com/VoidedKN0X/RideCtrl) | Offline maintenance, fuel and mod log for your vehicles |
 | [SeerrCtrl](https://github.com/VoidedKN0X/SeerrCtrl) | Request movies and shows on Seerr / Jellyseerr |
+| [SynapseCtrl](https://github.com/VoidedKN0X/SynapseCtrl) | Administer your Matrix Synapse server |
 | [TrueCtrl](https://github.com/VoidedKN0X/TrueCtrl) | Monitor and manage your TrueNAS server |
+| [WrtCtrl](https://github.com/VoidedKN0X/WrtCtrl) | Manage your OpenWrt router |
 
 ## License
 
 PaperCtrl is licensed under the [GNU General Public License v3.0](LICENSE). © VKNXWorks
+
+PaperCtrl is an independent app and isn't made by or affiliated with the Paperless-ngx project.
 
 The bundled fonts are licensed under the SIL Open Font License 1.1: [Space Grotesk](https://github.com/floriankarsten/space-grotesk) (`app/src/main/assets/licenses/OFL-SpaceGrotesk.txt`) and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) (`app/src/main/assets/licenses/OFL-JetBrainsMono.txt`). The SemiBold weight of Space Grotesk is a static instance made from the project's variable font.

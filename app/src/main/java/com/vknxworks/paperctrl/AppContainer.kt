@@ -98,6 +98,8 @@ class AppContainer(val context: Context) {
     /** "Forgot PIN?": the tokens can't be decrypted any more, so remove every server and start over. */
     suspend fun forgetEverything() {
         sessions.servers.value.map { it.id }.forEach { removeServer(it) }
+        // Pages of an unfinished scan aren't tied to a server: without this, whoever reset the lock would see them.
+        runCatching { scan.clear() }
         AppLock.markUnlocked()
         settings.update { it.copy(appLock = false) }
         vault.disable()
