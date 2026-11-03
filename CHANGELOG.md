@@ -5,6 +5,7 @@
 ### Project
 
 - **README:** the Ctrl series list now links to ChatCtrl, the Matrix chat app in the series. No app changes, so no new version.
+- **README:** the Ctrl series list now includes SumCtrl, the offline calculator, unit converter and work-tools app. No app changes, so no new version.
 
 ## 0.7.3
 
