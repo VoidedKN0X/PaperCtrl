@@ -1,5 +1,11 @@
 # Changelog
 
+## Project updates (2026-11-03)
+
+### Project
+
+- **README:** the Ctrl series list now links to ChatCtrl, the Matrix chat app in the series. No app changes, so no new version.
+
 ## 0.7.3
 
 Notifications keep document names private while the app lock is on, and "Forgot PIN?" now also clears an unfinished scan.
