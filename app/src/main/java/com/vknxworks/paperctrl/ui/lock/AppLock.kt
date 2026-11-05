@@ -82,6 +82,7 @@ import com.vknxworks.paperctrl.data.settings.AppSettings
 import com.vknxworks.paperctrl.ui.components.ConfirmDialog
 import com.vknxworks.paperctrl.ui.components.LoadingView
 import com.vknxworks.paperctrl.ui.components.PillButton
+import com.vknxworks.paperctrl.ui.components.ShieldScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -434,6 +435,7 @@ private fun LegacyLockedScreen() {
 
 @Composable
 private fun LockFrame(title: String, message: String, error: String?, actions: @Composable () -> Unit) {
+    ShieldScreen()
     val activity = LocalContext.current.findActivity()
     BackHandler { activity?.moveTaskToBack(true) }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -708,6 +710,7 @@ private fun PinPadScreen(
     onFingerprint: (() -> Unit)? = null,
     bottom: @Composable () -> Unit,
 ) {
+    ShieldScreen()
     val haptics = LocalHapticFeedback.current
     Surface(Modifier.fillMaxSize(), color = CtrlColors.Background) {
         Column(

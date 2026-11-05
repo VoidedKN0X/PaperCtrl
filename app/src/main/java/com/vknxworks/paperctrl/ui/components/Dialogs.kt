@@ -36,6 +36,8 @@ fun ConfirmDialog(
     dismiss: String? = null,
     onConfirm: () -> Unit,
 ) {
+    // A confirmation of something that can't be undone: no other app's floating window over it.
+    if (destructive) ShieldScreen(sensitiveData = false)
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.ctrlDialog(),

@@ -135,7 +135,7 @@ object Shortcuts {
         fun shortcut(id: String, label: Int, icon: Int, open: String) = ShortcutInfoCompat.Builder(context, id)
             .setShortLabel(context.getString(label))
             .setIcon(IconCompat.createWithResource(context, icon))
-            .setIntent(Intent(context, MainActivity::class.java).setAction(Intent.ACTION_VIEW).putExtra(Notifications.EXTRA_OPEN, open))
+            .setIntent(Intent(context, MainActivity::class.java).setAction(MainActivity.ACTION_OPEN).putExtra(Notifications.EXTRA_OPEN, open))
             .build()
         runCatching {
             ShortcutManagerCompat.setDynamicShortcuts(

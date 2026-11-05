@@ -11,6 +11,9 @@
     <!-- The document scanner and ASN label reader. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Hides other apps' floating windows while the PIN, lock, sign-in or a "can't be undone" confirmation
+         is showing (Android 12+). No prompt; other screens and other apps aren't affected. -->
+    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Push comes through the ntfy app only: the one other app PaperCtrl needs to see. -->
@@ -23,6 +26,7 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
+        android:intentMatchingFlags="enforceIntentFilter"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
@@ -40,6 +44,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- The Scan, Inbox and Search app shortcuts (MainActivity.ACTION_OPEN). -->
+            <intent-filter>
+                <action android:name="com.vknxworks.paperctrl.OPEN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- "Share to PaperCtrl": file types Paperless-ngx can consume. -->
@@ -49,6 +58,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/app_name"
+            android:requireContentUriPermissionFromCaller="read"
             android:taskAffinity=""
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

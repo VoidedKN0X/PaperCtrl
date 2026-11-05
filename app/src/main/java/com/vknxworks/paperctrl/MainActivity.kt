@@ -70,4 +70,9 @@ class MainActivity : ComponentActivity() {
     private fun handleOpen(intent: Intent?) {
         intent?.getStringExtra(Notifications.EXTRA_OPEN)?.let { container.pendingOpen.value = it }
     }
+
+    companion object {
+        /** The app shortcuts (Scan, Inbox, Search): matches the intent filter in the manifest. */
+        const val ACTION_OPEN = "com.vknxworks.paperctrl.OPEN"
+    }
 }

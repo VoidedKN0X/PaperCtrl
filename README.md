@@ -59,6 +59,7 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
   ```
 
   Advanced users can compare it with [AppVerifier](https://github.com/soupslurpr/AppVerifier).
+- **Check a download:** the release notes list the APK's SHA-256 checksum, so you can compare it with the file you downloaded. With the [GitHub CLI](https://cli.github.com/), `gh attestation verify <apk> -R VoidedKN0X/PaperCtrl` proves the APK was built by this repo's build workflow from the tagged commit. The signing-certificate fingerprint above stays the check that matters for updates.
 
 **Permissions** PaperCtrl asks for, and why:
 
@@ -70,6 +71,7 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 | Run in the foreground (data sync) | Finishing an upload with a progress notification, even if you leave the app |
 | Camera | The document scanner and reading ASN labels (asked the first time you scan) |
 | Use biometrics | Unlocking the app lock with your fingerprint, if you turn that on |
+| Hide other apps' floating windows | Hiding other apps' floating windows (chat heads, overlays) over the PIN screen, sign-in and "can't be undone" confirmations, so nothing can cover them. No prompt, and nothing changes on other screens |
 | Prevent phone from sleeping | Keeping the phone awake while an upload or inbox check is running |
 | Run at startup | Picking up waiting uploads and the daily inbox reminder again after the phone restarts |
 
@@ -128,6 +130,8 @@ Two more switches in the same section work with or without the app lock, and are
 
 Signing in and the lock and PIN screens are always kept out of screenshots and recordings, whatever these switches say. With the app lock on, the recent-apps view always shows a blank card.
 
+While the lock, PIN or sign-in screen or a "can't be undone" confirmation is showing, other apps' floating windows (chat heads, overlays) are hidden so nothing can cover it, and on Android 14+ apps that read the screen through accessibility can't see the PIN, lock or sign-in screen; real accessibility tools such as screen readers still work.
+
 ## Privacy
 
 **Telemetry-free.** PaperCtrl has no analytics, crash reporting, usage stats or tracking of any kind. It only talks to your own Paperless-ngx server. Scanning, edge detection and ASN reading all happen on the phone.
@@ -161,6 +165,8 @@ You need [Android Studio](https://developer.android.com/studio), or JDK 17 and t
 3. The APK is in `app/build/outputs/apk/debug/`. Copy it to your phone and install it.
 
 Or open the folder in Android Studio and press **Run** with your phone connected.
+
+**Dependency verification:** every library and plugin the build downloads is checked against its SHA-256 checksum in `gradle/verification-metadata.xml`, and the build stops if one doesn't match. When you change a dependency, a plugin or the Gradle version, run the **Dependency verification metadata** workflow (Actions tab, **Run workflow**), decode the file it prints, check the diff and commit it together with the change.
 
 ## Support the project
 
