@@ -70,6 +70,10 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 | Run in the foreground (data sync) | Finishing an upload with a progress notification, even if you leave the app |
 | Camera | The document scanner and reading ASN labels (asked the first time you scan) |
 | Use biometrics | Unlocking the app lock with your fingerprint, if you turn that on |
+| Prevent phone from sleeping | Keeping the phone awake while an upload or inbox check is running |
+| Run at startup | Picking up waiting uploads and the daily inbox reminder again after the phone restarts |
+
+The last two come with Android's background-work library, which runs the upload queue and the inbox reminder. Android also lists a permission named after PaperCtrl itself (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`): it only lets PaperCtrl's own parts talk to each other, and no other app can hold it. PaperCtrl has no permission for your contacts, location, microphone or files: shared files reach it only through Android's share sheet or file picker, one at a time.
 
 PaperCtrl also only looks for one other app on your phone: the ntfy app, for push. See [Privacy](#privacy) for what it sends where.
 
@@ -131,6 +135,9 @@ Signing in and the lock and PIN screens are always kept out of screenshots and r
 - **Links:** the Install ntfy button and the Support, Report a bug, Source code and Licence rows in About open in your browser only when you tap them; the app itself doesn't contact those sites.
 - **Notifications** on the lock screen only show their title when you hide sensitive notification content in Android's settings, never a file name or document title. With the app lock on, they only show their title everywhere.
 - **No backups:** Android doesn't back up PaperCtrl's data or move it to a new phone.
+- **No update check:** PaperCtrl never checks for updates by itself; Obtainium or the F-Droid client does that if you use one.
+
+**Google-free.** No Google Play services, Firebase, ML Kit or other Google libraries: the scanner is fully on-device and open source. Nothing ever goes to Google. Every build checks its dependencies for them, and release builds write nothing about you to the phone's log.
 
 ## How PaperCtrl is made
 
@@ -169,21 +176,29 @@ Native Android apps for self-hosted services and everyday tools, all with the sa
 | [AdCtrl](https://github.com/VoidedKN0X/AdCtrl) | Control your AdGuard Home DNS server |
 | [ArrCtrl](https://github.com/VoidedKN0X/ArrCtrl) | Radarr, Sonarr, Prowlarr, Bazarr, qBittorrent, autobrr and Cleanuparr in one app |
 | [BeamCtrl](https://github.com/VoidedKN0X/BeamCtrl) | TV remote for phones with an IR blaster |
+| [CallCtrl](https://github.com/VoidedKN0X/CallCtrl) | Phone app: dialer, call history and in-call screen |
 | [ChatCtrl](https://github.com/VoidedKN0X/ChatCtrl) | Matrix chat client for matrix.org and self-hosted Synapse |
+| [ClockCtrl](https://github.com/VoidedKN0X/ClockCtrl) | Alarms, timers, stopwatch and world clock |
+| [ContactCtrl](https://github.com/VoidedKN0X/ContactCtrl) | Contacts: browse, edit, import and export |
 | [CraftyCtrl](https://github.com/VoidedKN0X/CraftyCtrl) | Manage Minecraft servers on Crafty Controller |
+| [DateCtrl](https://github.com/VoidedKN0X/DateCtrl) | Calendar for the calendars on your phone and your accounts |
 | [FilesCtrl](https://github.com/VoidedKN0X/FilesCtrl) | File manager with NFS, SMB, SFTP, FTP and WebDAV |
 | [FrigateCtrl](https://github.com/VoidedKN0X/FrigateCtrl) | Watch and review your Frigate NVR cameras |
 | [ImmichCtrl](https://github.com/VoidedKN0X/ImmichCtrl) | Photos and backup for your Immich server |
 | [JellyCtrl](https://github.com/VoidedKN0X/JellyCtrl) | Movies, shows, music and Live TV from Jellyfin |
+| [LijnCtrl](https://github.com/VoidedKN0X/LijnCtrl) | Live De Lijn bus and tram departures |
+| [MailCtrl](https://github.com/VoidedKN0X/MailCtrl) | Email for Gmail and Proton Mail |
 | [MemoCtrl](https://github.com/VoidedKN0X/MemoCtrl) | Notes on your Memos server |
 | [NaviCtrl](https://github.com/VoidedKN0X/NaviCtrl) | Music player for Navidrome servers |
 | **PaperCtrl** (this app) | Scan and browse documents on Paperless-ngx |
 | [PrintCtrl](https://github.com/VoidedKN0X/PrintCtrl) | Bambu Lab printers through Bambuddy, and Spoolman spools |
 | [ProxCtrl](https://github.com/VoidedKN0X/ProxCtrl) | Manage your Proxmox VE server |
+| [RecorderCtrl](https://github.com/VoidedKN0X/RecorderCtrl) | Private, offline voice recorder |
 | [RideCtrl](https://github.com/VoidedKN0X/RideCtrl) | Offline maintenance, fuel and mod log for your vehicles |
 | [SeerrCtrl](https://github.com/VoidedKN0X/SeerrCtrl) | Request movies and shows on Seerr / Jellyseerr |
 | [SumCtrl](https://github.com/VoidedKN0X/SumCtrl) | Offline calculator, unit converter and work tools |
 | [SynapseCtrl](https://github.com/VoidedKN0X/SynapseCtrl) | Administer your Matrix Synapse server |
+| [TextCtrl](https://github.com/VoidedKN0X/TextCtrl) | Private SMS and MMS messaging |
 | [TrueCtrl](https://github.com/VoidedKN0X/TrueCtrl) | Monitor and manage your TrueNAS server |
 | [WrtCtrl](https://github.com/VoidedKN0X/WrtCtrl) | Manage your OpenWrt router |
 

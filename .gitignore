@@ -16,3 +16,5 @@ captures/
 *.jks.base64
 keystore.properties
 !debug.keystore
+# Signing keys and secrets never go in the repo.
+google-services.json

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.4
+
+A security and privacy check of the whole app and its repo. PaperCtrl works exactly as before.
+
+### Security
+
+- **Release builds no longer write debug or info messages to the phone's log**, from PaperCtrl or from the libraries it uses. PaperCtrl itself never logged your documents, server address or token, and now nothing from its libraries ends up there either.
+
+### Project
+
+- **Build checks:** every build now verifies that the Gradle wrapper is an official Gradle release, and checks that no Google Play services, Firebase, ML Kit, Play Core or Tink library has made it into the app.
+- **Repo:** Google service files are ignored by git, next to the signing keys that already were, so they can't be committed by accident.
+- **README:** the permissions table now lists every permission the app has, including keeping the phone awake during an upload and picking uploads up again after a restart, the Privacy section says PaperCtrl is Google-free and has no update check, and the Ctrl series list has every app in the series, including CallCtrl, ClockCtrl, ContactCtrl, DateCtrl, LijnCtrl, MailCtrl, RecorderCtrl and TextCtrl.
+
 ## Project updates (2026-11-03)
 
 ### Project
