@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.7
+
+Password managers work on the server setup screen again.
+
+### Fixed
+
+- Password managers can fill the server setup screen (address, username, password or token) again. 0.7.6 hid it from every app that reads the screen through accessibility, which also blocked password managers that fill that way; now only the lock screen, the PIN screens and "Forgot PIN?" are hidden from them. Other apps' floating windows are still kept off the server setup screen, and screen readers such as TalkBack keep working everywhere.
+
 ## 0.7.6
 
 More protection for the PIN screen and for what other apps hand to PaperCtrl. PaperCtrl works exactly as before.
