@@ -62,7 +62,10 @@ object RedirectGuard {
         val original = chain.call().request()
         if (sameServer(request.url, original.url)) return@Interceptor chain.proceed(request)
         if (request.body != null) {
-            throw java.io.IOException("Refused to send this request on to another server (${request.url.host})")
+            throw com.vknxworks.paperctrl.data.api.PaperlessException(
+                com.vknxworks.paperctrl.data.api.ErrorKind.REDIRECT_REFUSED,
+                request.url.host,
+            )
         }
         chain.proceed(request.newBuilder().apply { SENSITIVE_HEADERS.forEach { removeHeader(it) } }.build())
     }

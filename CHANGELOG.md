@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.5
+
+Privacy fixes for the widget and push notifications while the app lock is on. PaperCtrl works exactly as before, including plain HTTP to your own Paperless server on your home network or over Tailscale.
+
+### Security
+
+- **The widget no longer shows your inbox count while PaperCtrl is locked.** With the app lock on, the home screen widget now says "PaperCtrl is locked" instead of how many documents wait in your inbox, until you unlock the app. It switches as soon as PaperCtrl locks, also when you chose to lock after 1, 5 or 15 minutes or 1 hour away, and switches back when you unlock. The Scan button stays and opens PaperCtrl behind the lock screen as before.
+- **Push notifications no longer use the pushed text as their title while the app lock is on.** Anyone who knows your ntfy topic can post to it. For an event PaperCtrl doesn't know (anything other than "added" or "updated"), the notification used the pushed event name as its title, even with the app lock on. With the lock on it now shows the plain "Paperless" title instead; with the lock off it shows the pushed name as before, cut to 60 characters.
+
+### Fixed
+
+- **Clearer message when a server redirects a request elsewhere.** When your server redirected an upload or a change to a different server, PaperCtrl refused to send it on (as before) but said the server couldn't be reached. It now says that the server redirected the request to another server and asks you to check the address.
+
 ## 0.7.4
 
 A security and privacy check of the whole app and its repo. PaperCtrl works exactly as before.

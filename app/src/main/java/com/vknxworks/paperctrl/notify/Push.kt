@@ -192,7 +192,10 @@ object Push {
         val heading = when (json.optString("event")) {
             "added", "" -> context.getString(R.string.push_added_title)
             "updated" -> context.getString(R.string.push_updated_title)
-            else -> json.optString("event").replaceFirstChar { it.uppercase() }
+            // Anyone who knows the ntfy topic can post, so their own wording only becomes the title while the
+            // app lock is off; with the lock on, notifications never carry text from outside.
+            else -> if (Notifications.hideNames(context)) context.getString(R.string.push_generic_title)
+            else json.optString("event").take(60).replaceFirstChar { it.uppercase() }
         }
         Notifications.event(context, heading, listOfNotNull(title, correspondent).joinToString(" · ").ifEmpty { null }, id)
     }

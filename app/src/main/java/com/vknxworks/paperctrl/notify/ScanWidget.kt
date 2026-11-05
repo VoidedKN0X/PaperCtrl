@@ -40,6 +40,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.vknxworks.paperctrl.container
 
 // Ctrl / Signal colours for the widget, following the device's dark / light setting (no wallpaper colours).
 private val WidgetBackground = ColorProvider(day = CtrlColors.Light.surface, night = CtrlColors.Dark.surface)
@@ -47,18 +49,26 @@ private val WidgetText = ColorProvider(day = CtrlColors.Light.text, night = Ctrl
 private val WidgetAccent = ColorProvider(day = CtrlColors.Accent, night = CtrlColors.Accent)
 private val WidgetOnAccent = ColorProvider(day = CtrlColors.OnAccent, night = CtrlColors.OnAccent)
 
-/** Home screen widget: a big Scan button and how many documents wait in the inbox. */
+/**
+ * Home screen widget: a big Scan button and how many documents wait in the inbox. While the app lock is
+ * on and PaperCtrl is locked, the count is replaced by "PaperCtrl is locked"; the Scan button stays.
+ */
 class ScanWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val count = WidgetState.inboxCount(context)
+        val c = context.container
+        // Away for longer than the lock timeout: lock first, so the widget doesn't keep showing the count.
+        withContext(Dispatchers.Main) { runCatching { c.lockIfExpired() } }
         provideContent {
-            Content(context, count)
+            // Both are Compose state: the widget redraws when PaperCtrl locks or unlocks, or the count changes.
+            val locked = c.lockedNow
+            val count = WidgetState.inboxCountState(context)
+            Content(context, count, locked)
         }
     }
 
     @Composable
-    private fun Content(context: Context, count: Int) {
+    private fun Content(context: Context, count: Int, locked: Boolean) {
         val scan = Intent(context, MainActivity::class.java)
             .putExtra(Notifications.EXTRA_OPEN, Notifications.OPEN_SCAN)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -88,7 +98,12 @@ class ScanWidget : GlanceAppWidget() {
                     style = TextStyle(color = WidgetOnAccent, fontSize = 16.sp, fontWeight = FontWeight.Bold),
                 )
             }
-            if (count >= 0) {
+            if (locked) {
+                Spacer(GlanceModifier.size(8.dp))
+                Box(GlanceModifier.fillMaxWidth().clickable(actionStartActivity(inbox)), contentAlignment = Alignment.Center) {
+                    Text(context.getString(R.string.widget_locked), style = TextStyle(color = WidgetText, fontSize = 13.sp))
+                }
+            } else if (count >= 0) {
                 Spacer(GlanceModifier.size(8.dp))
                 Box(GlanceModifier.fillMaxWidth().clickable(actionStartActivity(inbox)), contentAlignment = Alignment.Center) {
                     Text(
@@ -107,6 +122,8 @@ class ScanWidget : GlanceAppWidget() {
         fun refresh(context: Context) {
             scope.launch {
                 runCatching {
+                    // Locks first when PaperCtrl has been away longer than the lock timeout.
+                    withContext(Dispatchers.Main) { context.container.lockIfExpired() }
                     if (GlanceAppWidgetManager(context).getGlanceIds(ScanWidget::class.java).isNotEmpty()) ScanWidget().updateAll(context)
                 }
             }

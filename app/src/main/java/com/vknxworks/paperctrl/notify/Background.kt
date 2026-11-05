@@ -1,6 +1,8 @@
 package com.vknxworks.paperctrl.notify
 
 import android.content.Context
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.mutableIntStateOf
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.app.PendingIntent
@@ -31,8 +33,17 @@ object WidgetState {
 
     fun inboxCount(context: Context): Int = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY_INBOX, -1)
 
+    /** The count as Compose state, so a running widget redraws when it changes. */
+    private var countState: MutableIntState? = null
+
+    fun inboxCountState(context: Context): Int {
+        val state = countState ?: mutableIntStateOf(inboxCount(context)).also { countState = it }
+        return state.intValue
+    }
+
     fun setInboxCount(context: Context, count: Int) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        countState?.intValue = count
         if (prefs.getInt(KEY_INBOX, -1) == count) return
         prefs.edit().putInt(KEY_INBOX, count).apply()
         ScanWidget.refresh(context)

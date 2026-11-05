@@ -199,7 +199,7 @@ object Notifications {
      * is meant to keep documents private from whoever holds the phone. The vault is read directly, so
      * this also holds for a push that starts PaperCtrl before its settings are loaded.
      */
-    private fun hideNames(context: Context): Boolean {
+    internal fun hideNames(context: Context): Boolean {
         val c = context.container
         return c.vault.enabled || c.settings.settings.value.appLock
     }

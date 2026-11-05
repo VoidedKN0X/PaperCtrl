@@ -26,6 +26,7 @@ enum class ErrorKind(@StringRes val message: Int) {
     DIFFERENT_SERVER(R.string.error_different_server),
     TOO_MANY_REDIRECTS(R.string.error_too_many_redirects),
     NO_UPLOAD_TASK(R.string.error_no_upload_task),
+    REDIRECT_REFUSED(R.string.error_redirect_refused),
 }
 
 /**

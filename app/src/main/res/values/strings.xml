@@ -601,6 +601,7 @@
     <string name="widget_description">Scan a document in one tap and see your inbox</string>
     <string name="widget_scan">Scan</string>
     <string name="widget_inbox_empty">Inbox empty</string>
+    <string name="widget_locked">PaperCtrl is locked</string>
     <string name="tile_scan">Scan to Paperless</string>
     <string name="shortcut_scan">Scan</string>
     <string name="shortcut_inbox">Inbox</string>
@@ -651,6 +652,7 @@
         <item quantity="other">%d in the inbox</item>
     </plurals>
     <string name="error_different_server">This address leads to a different Paperless server.</string>
+    <string name="error_redirect_refused">The server redirected this request to another server, so PaperCtrl didn\'t send it on. Check the server address.</string>
     <string name="error_too_many_redirects">This address keeps redirecting, so Paperless-ngx couldn\'t be reached. Check the address.</string>
     <string name="error_no_upload_task">The server didn\'t return a task for the upload.</string>
     <string name="queue_duplicate_of">It is a duplicate of document #%1$s.</string>

@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.vknxworks.paperctrl.data.lock.LockVault
 import com.vknxworks.paperctrl.ui.lock.AppLock
+import com.vknxworks.paperctrl.notify.ScanWidget
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -113,6 +114,8 @@ class AppContainer(val context: Context) {
      */
     fun onLocked() {
         sessions.onLocked()
+        // The widget hides the inbox count while PaperCtrl is locked.
+        ScanWidget.refresh(context)
         // Viewed and shared document files don't stay on the phone while PaperCtrl is locked.
         if (vault.enabled) appScope.launch(Dispatchers.IO) { runCatching { files.clear() } }
         closeKeyJob?.cancel()
@@ -126,12 +129,25 @@ class AppContainer(val context: Context) {
         }
     }
 
+    /** The app lock is on (read from the vault itself, so this holds before the settings are loaded). */
+    val lockOn: Boolean get() = vault.enabled || settings.settings.value.appLock
+
+    /** The app lock is on and PaperCtrl is locked right now. Reads Compose state, so a widget redraws on its own. */
+    val lockedNow: Boolean get() = lockOn && !AppLock.unlocked
+
+    /** Locks when PaperCtrl has been away longer than the lock timeout. Main thread. */
+    fun lockIfExpired() {
+        AppLock.lockIfExpired(lockOn, settings.settings.value.lockTimeout.millis)
+    }
+
     /** Unlocked: open the session again, and send uploads that were waiting for the unlock. */
     fun onUnlocked() {
         closeKeyJob?.cancel()
         sessions.onUnlocked()
         AppLock.markUnlocked()
         queue.resumeAfterUnlock()
+        // The widget shows the inbox count again.
+        ScanWidget.refresh(context)
         // Seal any token left unsealed (PaperCtrl stopped between setting up the lock and sealing them).
         if (vault.enabled) appScope.launch { runCatching { sessions.sealTokens() } }
     }

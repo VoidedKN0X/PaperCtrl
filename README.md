@@ -117,7 +117,8 @@ Turn it on under your profile picture › **Settings > Privacy and security > Ap
 - **Forgot your PIN?** It can't be recovered, because it encrypts your logins. The lock screen offers to remove every server from this phone, with its queued uploads and cached data; everything on your Paperless server stays.
 - **Share to PaperCtrl** asks for the PIN before anything you share reaches the upload queue.
 - **Viewed documents are deleted when PaperCtrl locks.** The copies kept on the phone for viewing, sharing or "Open with" are removed the moment the app locks, and downloaded again when you open a document after unlocking.
-- **Notifications only show their title** while the app lock is on (for example "Document added"), never a file name or document title, even when the phone itself is unlocked.
+- **Notifications only show their title** while the app lock is on (for example "Document added"), never a file name or document title, even when the phone itself is unlocked. A push with an event PaperCtrl doesn't know shows the plain "Paperless" title then, never the pushed text.
+- **The widget shows "PaperCtrl is locked"** instead of the inbox count while the app is locked, including once you've been away longer than the lock timeout. The Scan button stays and opens PaperCtrl behind the lock screen.
 - **Background work while locked:** an upload that's already sending still finishes. Uploads that haven't started yet, the daily inbox reminder and the widget's inbox count wait until you unlock, because the login stays encrypted. Push from Paperless through ntfy keeps working, since it doesn't need your login.
 
 Two more switches in the same section work with or without the app lock, and are both off until you turn them on:
