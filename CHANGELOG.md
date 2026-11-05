@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.8
+
+PaperCtrl now needs Android 15 or newer.
+
+### Changed
+
+- **Needs Android 15 or newer.** Android 13 no longer gets security updates and Android 14's end early 2027, so PaperCtrl now supports Android 15, 16 and 17 only. On older phones the version you have keeps working, but it won't get updates.
+
 ## 0.7.7
 
 Password managers work on the server setup screen again.

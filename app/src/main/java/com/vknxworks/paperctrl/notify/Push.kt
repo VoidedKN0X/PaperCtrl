@@ -1,12 +1,10 @@
 package com.vknxworks.paperctrl.notify
 
 import android.app.BroadcastOptions
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -125,23 +123,12 @@ object Push {
     }
 
     /**
-     * Sends [intent] to [distributor] with PaperCtrl's identity: shared with the broadcast from
-     * Android 14, through a pending intent before that.
+     * Sends [intent] to [distributor] with PaperCtrl's identity, shared with the broadcast.
      */
     private fun sendToDistributor(context: Context, distributor: String, intent: Intent) {
         intent.setPackage(distributor)
-        if (Build.VERSION.SDK_INT >= 34) {
-            val options = BroadcastOptions.makeBasic().setShareIdentityEnabled(true)
-            context.sendBroadcast(intent, null, options.toBundle())
-        } else {
-            val pi = PendingIntent.getBroadcast(
-                context,
-                0,
-                Intent("org.unifiedpush.dummy_app").setPackage(context.packageName),
-                PendingIntent.FLAG_IMMUTABLE,
-            )
-            context.sendBroadcast(intent.putExtra("pi", pi))
-        }
+        val options = BroadcastOptions.makeBasic().setShareIdentityEnabled(true)
+        context.sendBroadcast(intent, null, options.toBundle())
     }
 
     internal fun onEndpoint(context: Context, endpoint: String) {
@@ -209,11 +196,9 @@ object Push {
  */
 class PushReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (Build.VERSION.SDK_INT >= 34) {
-            // Only rejects senders that identify as another app; anonymous ones get through to the token check.
-            val from = sentFromPackage
-            if (from != null && from != Push.NTFY) return
-        }
+        // Only rejects senders that identify as another app; anonymous ones get through to the token check.
+        val from = sentFromPackage
+        if (from != null && from != Push.NTFY) return
         val token = Push.token(context) ?: return
         // Every message carries the random token PaperCtrl registered with; anything else isn't for us.
         if (intent.getStringExtra("token") != token) return
