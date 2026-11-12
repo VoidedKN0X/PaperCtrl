@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.9
+
+### Fixed
+
+- **The share screen is readable in the dark theme.** When you share a file to PaperCtrl from another app, the title and the file names were drawn in black on the dark background. Text now takes its colour from the theme everywhere in the app.
+
+### Changed
+
+- **Slightly smaller download.** The bundled JetBrains Mono font (numbers, readouts and labels) no longer carries the Cyrillic, Vietnamese and maths-alphabet letters PaperCtrl never shows itself, which takes about 0.1 MB off the download and 0.2 MB off the installed app. Everything looks the same; if a name or a log line shown in that font uses one of those scripts, those letters are now drawn with your phone's own font.
+- **One font file for Space Grotesk instead of four.** Regular, Medium, SemiBold and Bold now all come from one variable font file, which takes about another 0.15 MB off the download. Text should look the same as before.
+
 ## 0.7.8
 
 PaperCtrl now needs Android 15 or newer.
