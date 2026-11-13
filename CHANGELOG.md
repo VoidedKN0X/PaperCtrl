@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.7.10 (2026-11-13)
+
+### Security
+
+- **Saved logins are protected by the phone's secure chip where it has one.** On a fresh install (or after clearing PaperCtrl's data), the key that encrypts your API tokens is now created in the phone's StrongBox secure element when the phone has one, and in the normal Android Keystore otherwise. If you already use PaperCtrl nothing changes for you: your existing key keeps working and you stay signed in.
+
+### Project
+
+- The Gradle wrapper download is now checked against its published SHA-256 checksum before a build runs.
+
 ## 0.7.9
 
 ### Fixed
