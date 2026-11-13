@@ -22,8 +22,8 @@ android {
         minSdk = 35
         targetSdk = 36
         // Bump both to publish a new release (see CHANGELOG.md).
-        versionCode = 32
-        versionName = "0.7.10"
+        versionCode = 33
+        versionName = "0.8.0"
 
         // Modern 64-bit ARM phones only: keeps native scanner libraries out of the APK for other CPUs.
         ndk { abiFilters += listOf("arm64-v8a") }
@@ -125,14 +125,16 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
 
-    // Scanner: camera, edge detection / perspective correction, ASN barcodes
+    // Scanner: camera and ASN barcodes (edge detection, straightening and filters are PaperCtrl's own code)
     implementation(libs.camera.core)
     implementation(libs.camera.camera2)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
-    implementation(libs.opencv)
     implementation(libs.zxing.cpp)
 
     // Home screen widget
     implementation(libs.glance.appwidget)
+
+    // Unit tests only (not in the app)
+    testImplementation(libs.junit)
 }

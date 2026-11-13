@@ -12,7 +12,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 ## Features
 
-- **Scanner** with edge detection, auto-capture, multi-page documents, cropping and four filters, or **Add from gallery** for photos you already took. Built entirely on open-source libraries
+- **Scanner** with edge detection, auto-capture, multi-page documents, draggable corners to crop and straighten, and four filters (original, enhanced colour, grey, black and white), saved as one PDF; or **Add from gallery** for photos you already took. Edge detection, straightening and filters are PaperCtrl's own on-device code (no ML Kit, no OpenCV)
 - **Details before uploading**: title, correspondent, document type, storage path, tags and archive serial number (ASN), with ASN labels read by the camera
 - **Upload queue** that works offline and uploads when your server is reachable
 - **Share to PaperCtrl** from any app, for PDFs, images and other files Paperless accepts

@@ -98,8 +98,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.opencv.core.CvType
-import org.opencv.core.Mat
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
@@ -244,14 +242,11 @@ private fun ScannerContent(retakeId: String?) {
     val captureNow by rememberUpdatedState(::capture)
 
     DisposableEffect(lifecycleOwner) {
-        ImageOps.ensureLoaded()
         val tracker = SteadyTracker()
         controller.setImageAnalysisAnalyzer(analysisExecutor) { image ->
             try {
                 val plane = image.planes[0]
-                val gray = Mat(image.height, image.width, CvType.CV_8UC1, plane.buffer, plane.rowStride.toLong())
-                val raw = ImageOps.detect(gray)
-                gray.release()
+                val raw = ImageOps.detect(plane.buffer, image.width, image.height, plane.rowStride)
                 val rot = image.imageInfo.rotationDegrees
                 val upright = raw?.let { ImageOps.rotateCorners(it, rot) }
                 val (w, h) = if (rot % 180 == 0) image.width to image.height else image.height to image.width

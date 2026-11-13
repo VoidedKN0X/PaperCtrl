@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.8.0 (2026-11-13)
+
+The scanner now runs on PaperCtrl's own image code, which makes the download about 25 MB smaller.
+
+### Changed
+
+- **PaperCtrl's own scanner engine.** Finding the page's edges, straightening it and the four filters are now done by PaperCtrl's own on-device code instead of the large OpenCV library. The scanner works the same way: the live outline while you aim, auto-capture when the page is steady, draggable corners, rotation, multi-page PDFs and **Add from gallery**. The download goes from about 34 MB to about 8 MB.
+- **Edge detection looks for the paper two ways**: by its outline and by how much lighter it is than what it lies on, and keeps the shape that looks most like a sheet of paper seen at an angle. If a page isn't found, drag the corners as before.
+- **Enhanced** evens out shadows and the paper's tint before boosting the contrast, and **Black and white** compares each spot with its surroundings, so shadows don't turn into black patches. Pages may look slightly different from the same filters in 0.7.
+
 ## v0.7.10 (2026-11-13)
 
 ### Security
