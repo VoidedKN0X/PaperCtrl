@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.9.0 (2026-11-20)
 
-Not released yet: these changes are built but ship with the next version.
+Built and checked by CI only: nothing in this release had been run on a phone when it was published.
 
 ### Removed
 
