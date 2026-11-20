@@ -8,7 +8,6 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.lock.AppLock
 import okhttp3.Call
-import com.vknxworks.paperctrl.notify.ScanWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,7 +27,7 @@ class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
         AppLock.onLocked = { container.onLocked() }
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
-                widgetLockJob?.cancel()
+                lockTimeoutJob?.cancel()
                 val s = container.settings.settings.value
                 AppLock.onForeground(s.appLock || container.vault.enabled, s.lockTimeout.millis)
             }
@@ -36,28 +35,29 @@ class PaperCtrlApp : Application(), SingletonImageLoader.Factory {
             override fun onStop(owner: LifecycleOwner) {
                 val s = container.settings.settings.value
                 AppLock.onBackground(s.appLock || container.vault.enabled, s.lockTimeout.millis)
-                scheduleWidgetLock(s.lockTimeout.millis)
+                scheduleTimeoutLock(s.lockTimeout.millis)
             }
         })
     }
 
-    private var widgetLockJob: Job? = null
+    private var lockTimeoutJob: Job? = null
 
     /**
      * With a lock timeout ("after 1 minute" and so on) PaperCtrl only counts as locked once that time has
-     * passed. Redraw the widget then (and once more after the 5 minutes a trip to the camera or a picker
-     * may take), so it stops showing the inbox count without waiting for the app to be opened.
+     * passed. Lock then (and check once more after the 5 minutes a trip to the camera or a picker may
+     * take), so the login is closed and viewed documents are deleted without waiting for the app to be
+     * opened again.
      */
-    private fun scheduleWidgetLock(timeoutMillis: Long) {
-        widgetLockJob?.cancel()
+    private fun scheduleTimeoutLock(timeoutMillis: Long) {
+        lockTimeoutJob?.cancel()
         if (!container.lockOn || !AppLock.unlocked || timeoutMillis <= 0) return
-        widgetLockJob = container.appScope.launch(Dispatchers.Main) {
+        lockTimeoutJob = container.appScope.launch(Dispatchers.Main) {
             delay(timeoutMillis + 1_000)
-            ScanWidget.refresh(this@PaperCtrlApp)
+            runCatching { container.lockIfExpired() }
             val exemptMax = 5 * 60_000L
             if (timeoutMillis < exemptMax) {
                 delay(exemptMax - timeoutMillis)
-                ScanWidget.refresh(this@PaperCtrlApp)
+                runCatching { container.lockIfExpired() }
             }
         }
     }

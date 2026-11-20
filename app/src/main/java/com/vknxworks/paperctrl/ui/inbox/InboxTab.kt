@@ -69,7 +69,6 @@ import com.vknxworks.paperctrl.data.api.updateDocument
 import com.vknxworks.paperctrl.data.metadata.ServerMetadata
 import com.vknxworks.paperctrl.data.search.DocumentQuery
 import com.vknxworks.paperctrl.data.search.SortField
-import com.vknxworks.paperctrl.notify.WidgetState
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
 import com.vknxworks.paperctrl.ui.components.MessageView
 import com.vknxworks.paperctrl.ui.components.CtrlHeroCard
@@ -122,9 +121,6 @@ fun InboxTab() {
         if (inboxTags.isNotEmpty() && (!model.loaded || model.query.tags.toList().sorted() != inboxTags.sorted())) {
             model.load(DocumentQuery(tags = inboxTags.toSet(), sort = SortField.ADDED, reverse = true))
         }
-    }
-    LaunchedEffect(model.total, model.loaded) {
-        if (model.loaded && !model.offline) WidgetState.setInboxCount(context, model.total)
     }
 
     /** Removes the inbox tags, with an undo that puts them back. */

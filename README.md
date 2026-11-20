@@ -22,7 +22,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Page manager**: delete, reorder, rotate and split a document's pages on your server, from page thumbnails drawn on the phone (what's offered follows your Paperless version)
 - **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash, with your library's statistics at the top
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through **[ntfy](https://f-droid.org/packages/io.heckel.ntfy/)** and your own ntfy server
-- **Widget, quick settings tile and shortcuts** to start a scan in one tap
+- **App shortcuts** (long-press the PaperCtrl icon) to start a scan in one tap
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional [app lock](#app-lock) with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), and **Hide in screenshots** and **Hide in recent apps** switches
 
@@ -120,8 +120,7 @@ Turn it on under your profile picture › **Settings > Privacy and security > Ap
 - **Share to PaperCtrl** asks for the PIN before anything you share reaches the upload queue.
 - **Viewed documents are deleted when PaperCtrl locks.** The copies kept on the phone for viewing, sharing or "Open with" are removed the moment the app locks, and downloaded again when you open a document after unlocking.
 - **Notifications only show their title** while the app lock is on (for example "Document added"), never a file name or document title, even when the phone itself is unlocked. A push with an event PaperCtrl doesn't know shows the plain "Paperless" title then, never the pushed text.
-- **The widget shows "PaperCtrl is locked"** instead of the inbox count while the app is locked, including once you've been away longer than the lock timeout. The Scan button stays and opens PaperCtrl behind the lock screen.
-- **Background work while locked:** an upload that's already sending still finishes. Uploads that haven't started yet, the daily inbox reminder and the widget's inbox count wait until you unlock, because the login stays encrypted. Push from Paperless through ntfy keeps working, since it doesn't need your login.
+- **Background work while locked:** an upload that's already sending still finishes. Uploads that haven't started yet and the daily inbox reminder wait until you unlock, because the login stays encrypted. Push from Paperless through ntfy keeps working, since it doesn't need your login.
 
 Two more switches in the same section work with or without the app lock, and are both off until you turn them on:
 

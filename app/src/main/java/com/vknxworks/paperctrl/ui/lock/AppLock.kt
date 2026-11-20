@@ -200,8 +200,8 @@ object AppLock {
     private const val EXEMPT_TRIP_MAX = 5 * 60_000L
 
     /**
-     * Away for longer than the lock timeout: lock now, not only once the app is opened again. The widget,
-     * which works without PaperCtrl on screen, calls this before it draws. Call on the main thread.
+     * Away for longer than the lock timeout: lock now, not only once the app is opened again. A timer
+     * that runs while PaperCtrl is in the background calls this. Call on the main thread.
      */
     fun lockIfExpired(enabled: Boolean, timeoutMillis: Long) {
         if (!enabled || !unlocked || backgroundAt <= 0 || timeoutMillis < 0) return

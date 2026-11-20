@@ -1,11 +1,6 @@
 package com.vknxworks.paperctrl.notify
 
 import android.content.Context
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.mutableIntStateOf
-import android.service.quicksettings.Tile
-import android.service.quicksettings.TileService
-import android.app.PendingIntent
 import android.content.Intent
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -25,31 +20,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
-/** The inbox count shown on the home screen widget, saved whenever the app or the digest sees it. */
-object WidgetState {
-    private const val PREFS = "widget"
-    private const val KEY_INBOX = "inbox_count"
-
-    fun inboxCount(context: Context): Int = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY_INBOX, -1)
-
-    /** The count as Compose state, so a running widget redraws when it changes. */
-    private var countState: MutableIntState? = null
-
-    fun inboxCountState(context: Context): Int {
-        val state = countState ?: mutableIntStateOf(inboxCount(context)).also { countState = it }
-        return state.intValue
-    }
-
-    fun setInboxCount(context: Context, count: Int) {
-        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        countState?.intValue = count
-        if (prefs.getInt(KEY_INBOX, -1) == count) return
-        prefs.edit().putInt(KEY_INBOX, count).apply()
-        ScanWidget.refresh(context)
-    }
-}
-
-/** Counts the documents in the inbox: for the daily reminder and the widget. */
+/** Counts the documents in the inbox for the daily reminder. */
 class InboxDigestWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val c = applicationContext.container
@@ -60,7 +31,6 @@ class InboxDigestWorker(context: Context, params: WorkerParameters) : CoroutineW
             val inbox = md.tags.filter { it.isInboxTag }.map { it.id }
             if (inbox.isEmpty()) return Result.success()
             val count = session.client.documents(mapOf("tags__id__in" to inbox.joinToString(","), "fields" to "id"), 1, 1).count
-            WidgetState.setInboxCount(applicationContext, count)
             if (c.settings.settings.value.inboxDigest && count > 0 && tags.contains(TAG_DIGEST)) Notifications.digest(applicationContext, count)
             Result.success()
         } catch (e: Exception) {
@@ -71,7 +41,8 @@ class InboxDigestWorker(context: Context, params: WorkerParameters) : CoroutineW
     companion object {
         const val TAG_DIGEST = "inbox-digest"
         private const val NAME_DIGEST = "inbox-digest"
-        private const val NAME_WIDGET = "widget-refresh"
+        private const val NAME_LEGACY_WIDGET = "widget-refresh"
+        private const val LEGACY_WIDGET_PREFS = "widget"
 
         /** Daily at about 9:00, when the reminder is on; otherwise cancelled. */
         fun schedule(context: Context, enabled: Boolean) {
@@ -91,35 +62,14 @@ class InboxDigestWorker(context: Context, params: WorkerParameters) : CoroutineW
             wm.enqueueUniquePeriodicWork(NAME_DIGEST, ExistingPeriodicWorkPolicy.UPDATE, request)
         }
 
-        /** Keeps the widget's inbox count fresh every few hours (battery-friendly, network required). */
-        fun scheduleWidget(context: Context) {
-            val request = PeriodicWorkRequestBuilder<InboxDigestWorker>(4, TimeUnit.HOURS)
-                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true).build())
-                .build()
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(NAME_WIDGET, ExistingPeriodicWorkPolicy.KEEP, request)
+        /**
+         * PaperCtrl no longer has a home screen widget: stops the background refresh an earlier version
+         * scheduled for it every few hours, and deletes the inbox count that version saved for the widget.
+         */
+        fun cancelLegacyWidgetWork(context: Context) {
+            runCatching { WorkManager.getInstance(context).cancelUniqueWork(NAME_LEGACY_WIDGET) }
+            runCatching { context.deleteSharedPreferences(LEGACY_WIDGET_PREFS) }
         }
-
-        fun cancelWidget(context: Context) {
-            WorkManager.getInstance(context).cancelUniqueWork(NAME_WIDGET)
-        }
-    }
-}
-
-/** Quick Settings tile: "Scan to Paperless" opens straight into the camera. */
-class ScanTileService : TileService() {
-    override fun onStartListening() {
-        qsTile?.apply {
-            state = Tile.STATE_INACTIVE
-            label = getString(R.string.tile_scan)
-            updateTile()
-        }
-    }
-
-    override fun onClick() {
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra(Notifications.EXTRA_OPEN, Notifications.OPEN_SCAN)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivityAndCollapse(PendingIntent.getActivity(this, 7, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
     }
 }
 

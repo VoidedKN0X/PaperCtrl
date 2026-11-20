@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
             Push.load(this)
             // Read the stored setting: the in-memory one may not be loaded this early.
             c.appScope.launch { InboxDigestWorker.schedule(applicationContext, c.settings.stored.first().inboxDigest) }
+            // The home screen widget is gone: stop the background refresh an earlier version scheduled for it.
+            c.appScope.launch { InboxDigestWorker.cancelLegacyWidgetWork(applicationContext) }
         }
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()

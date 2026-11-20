@@ -132,9 +132,6 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.zxing.cpp)
 
-    // Home screen widget
-    implementation(libs.glance.appwidget)
-
     // Unit tests only (not in the app)
     testImplementation(libs.junit)
 }

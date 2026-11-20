@@ -139,7 +139,7 @@ private fun MainScaffold() {
         if (NotifyPermission.permissionMissing(context) && !NotifyPermission.asked(context)) askNotify()
     }
 
-    // A notification, shortcut, widget or tile asked for a screen.
+    // A notification or shortcut asked for a screen.
     val pendingOpen by c.pendingOpen.collectAsStateWithLifecycle()
     LaunchedEffect(pendingOpen) {
         val open = pendingOpen ?: return@LaunchedEffect

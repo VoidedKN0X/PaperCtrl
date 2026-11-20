@@ -95,31 +95,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Home screen widget: Scan button and inbox count. -->
-        <receiver
-            android:name=".notify.ScanWidgetReceiver"
-            android:exported="true"
-            android:label="@string/widget_label">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/scan_widget" />
-        </receiver>
-
-        <!-- Quick Settings tile: Scan to Paperless. -->
-        <service
-            android:name=".notify.ScanTileService"
-            android:exported="true"
-            android:icon="@drawable/ic_scan_glyph"
-            android:label="@string/tile_scan"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
-            </intent-filter>
-        </service>
-
         <!-- ntfy endpoint updates and messages; checked against PaperCtrl's own token, which is the real
              protection (the Android 14+ sender check only drops senders that name another app). -->
         <receiver
