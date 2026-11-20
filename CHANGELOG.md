@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+Not in a release yet. Built and checked by CI only: none of this had been run on a phone when it was written.
+
+### Changed
+
+- **Document lists do a little less work per row while scrolling.** Every thumbnail in the Documents list and grid, the Inbox, the Organise lists and the document picker used to watch the signed-in server by itself, so each row that scrolled into view started its own watcher just to work out the thumbnail's address. The server is now handed down once from the top of the app to all rows, and a row's thumbnail address is worked out once instead of every time the row is redrawn. Thumbnails, where they come from and when they load are unchanged. (Where nothing hands the server down, a thumbnail still watches it itself, as before.)
+- **The Inbox tells the list which rows are alike.** The count card at the top and the document rows are now marked as two different kinds of row, so a document row that scrolls in reuses another document row's layout rather than possibly the card's. Nothing looks different.
+
 ## v0.10.0 (2026-11-20)
 
 **This release encrypts some of what the app stores on the phone. An older version cannot read it afterwards, so export or back up anything you need before you update (details below).** Built and checked by CI only: nothing in this release had been run on a phone when it was published.

@@ -75,6 +75,7 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import com.vknxworks.paperctrl.ui.settings.SettingsScreen
 import com.vknxworks.paperctrl.ui.settings.YouScreen
 import com.vknxworks.paperctrl.ui.docs.DocumentsTab
+import com.vknxworks.paperctrl.ui.docs.LocalSessionClient
 import com.vknxworks.paperctrl.ui.inbox.InboxTab
 import com.vknxworks.paperctrl.ui.organise.OrganiseTab
 import com.vknxworks.paperctrl.ui.organise.ObjectListScreen
@@ -97,7 +98,11 @@ fun AppRoot() {
             !ready -> LoadingView()
             active == null -> ServerSetupScreen(onDone = {}, onCancel = null)
             // A fresh navigation stack per server, so nothing from the previous server stays on screen.
-            else -> key(active!!.server.id) { MainScaffold() }
+            else -> key(active!!.server.id) {
+                // The rows of every document list take the server's client from here instead of each
+                // watching the session.
+                CompositionLocalProvider(LocalSessionClient provides active?.client) { MainScaffold() }
+            }
         }
     }
 }

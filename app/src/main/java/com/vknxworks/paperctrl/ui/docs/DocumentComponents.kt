@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.Document
+import com.vknxworks.paperctrl.data.api.PaperlessClient
 import com.vknxworks.paperctrl.data.api.Tag
 import com.vknxworks.paperctrl.data.metadata.ServerMetadata
 import com.vknxworks.paperctrl.ui.theme.Gutter
@@ -76,12 +78,24 @@ fun rememberMetadata(refreshKey: Any? = null): ServerMetadata {
     return data
 }
 
+/**
+ * The active server's client, handed down once from the app's root so list rows don't each have to
+ * watch the session themselves. Null where nothing hands it down; [Thumbnail] then watches it itself.
+ */
+val LocalSessionClient = compositionLocalOf<PaperlessClient?> { null }
+
 /** The document's thumbnail from the server (kept in memory only). */
 @Composable
 fun Thumbnail(doc: Document, modifier: Modifier = Modifier) {
-    val c = LocalContext.current.container
-    val session by c.sessions.active.collectAsStateWithLifecycle()
-    val url = session?.client?.url("documents/${doc.id}/thumb/")?.toString()
+    val handedDown = LocalSessionClient.current
+    val client = if (handedDown != null) {
+        handedDown
+    } else {
+        val c = LocalContext.current.container
+        val session by c.sessions.active.collectAsStateWithLifecycle()
+        session?.client
+    }
+    val url = remember(client, doc.id) { client?.url("documents/${doc.id}/thumb/")?.toString() }
     Box(modifier.background(CtrlColors.Raised), contentAlignment = Alignment.Center) {
         Icon(Icons.Outlined.Description, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
         if (url != null) {

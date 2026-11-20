@@ -161,7 +161,7 @@ fun InboxTab() {
                             val nearEnd by remember { derivedStateOf { (state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= state.layoutInfo.totalItemsCount - 6 } }
                             LaunchedEffect(state) { snapshotFlow { nearEnd }.distinctUntilChanged().collect { if (it) model.loadMore() } }
                             LazyColumn(state = state, contentPadding = PaddingValues(bottom = LocalBottomClearance.current + 16.dp), modifier = Modifier.fillMaxSize()) {
-                                item(key = "hero") {
+                                item(key = "hero", contentType = "hero") {
                                     // Hero: how many documents are waiting to be sorted.
                                     CtrlHeroCard(
                                         label = stringResource(R.string.inbox_hero_label),
@@ -176,7 +176,7 @@ fun InboxTab() {
                                         )
                                     }
                                 }
-                                items(model.items, key = { it.id }) { doc ->
+                                items(model.items, key = { it.id }, contentType = { "document" }) { doc ->
                                     SwipeRow(
                                         enabled = selected.isEmpty(),
                                         onDone = { markDone(doc) },
