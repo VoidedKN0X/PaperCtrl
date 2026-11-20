@@ -17,7 +17,9 @@ import com.vknxworks.paperctrl.data.api.task
 import com.vknxworks.paperctrl.notify.Notifications
 import com.vknxworks.paperctrl.ui.components.friendlyMessage
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 /**
@@ -31,6 +33,7 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
     private val id: String get() = inputData.getString(KEY_ID).orEmpty()
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
+        c.queue.awaitLoaded()
         val item = c.queue.get(id)
         val notification = if (item != null) Notifications.progress(applicationContext, item, null) else null
         return ForegroundInfo(
@@ -41,6 +44,8 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
     }
 
     override suspend fun doWork(): Result {
+        // The queue is read (and decrypted) in the background when the app starts.
+        c.queue.awaitLoaded()
         val start = c.queue.get(id) ?: return Result.success()
         if (!start.isActive) return Result.success()
         c.sessions.awaitReady()
@@ -63,11 +68,20 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
         if (item.taskId == null) {
             val payload = c.queue.payload(item.id)
             if (!payload.exists()) return fail(item, applicationContext.getString(R.string.queue_file_missing))
+            // A file that's stored encrypted is decrypted in memory for sending; a large, ordinary one is sent as it is.
+            val decrypted = try {
+                withContext(Dispatchers.IO) { c.queue.sealedPayload(item.id) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                // Kept on the phone, not deleted: "Try again" on the item reads it once more.
+                return fail(item, applicationContext.getString(R.string.queue_file_unreadable))
+            }
             item = c.queue.update(item.id) { it.copy(status = QueueStatus.UPLOADING, progress = 0f, message = null) } ?: return Result.success()
             showProgress(item, 0f)
             val taskId = try {
                 var lastShown = 0L
-                client.postDocument(payload, item.fileName, item.mimeType, item.meta) { sent, total ->
+                client.postDocument(payload, item.fileName, item.mimeType, item.meta, decrypted) { sent, total ->
                     val p = if (total > 0) sent.toFloat() / total else 0f
                     c.queue.setProgress(item.id, p)
                     val now = System.currentTimeMillis()

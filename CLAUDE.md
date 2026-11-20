@@ -18,6 +18,17 @@ Every new version needs a detailed entry at the top of `CHANGELOG.md`, under a h
 - Cover every user-visible change in the version, one bullet each, with enough detail to understand it without opening the app.
 - Group with `### New`, `### Changed`, `### Fixed` and `### Security` when there's more than a couple of items.
 
+## Encryption at rest
+
+- Sealed with AES-256-GCM (`data/crypto/SealedFile`, marker `PAPERCTRL-REST1`) under the data key (`DataKeyStore`: 32 random bytes in `filesDir/data.key`, wrapped by the Keystore key `paperctrl_data_at_rest` through `KeystoreWrapper`/`KeystoreAes`; no user authentication, so uploads work in the background; `AppContainer.dataKeys`): `upload-queue/queue.json`, each `upload-queue/<id>/payload` of at most 16 MB (`UploadQueue.MAX_SEALED_PAYLOAD`), `scan-session/*.jpg` (page photos and previews) and `list-cache/*.json`.
+- Not sealed, on purpose: viewed documents in `cacheDir/docs` and `cacheDir/shared` (PdfRenderer needs a seekable file, the FileProvider hands real files to other apps), payloads over 16 MB (GCM needs the whole file in memory), `upload-staging/` and camera/import temp files (moments only), `scan-session/pages.json` (no page content), DataStore settings (server list; tokens are encrypted separately by `KeystoreCrypto`/`LockVault`, which this doesn't touch).
+- Readers must accept both sealed and ordinary files (`SealedFile.isSealed`, `SealedFile.read`). Without a data key the app reads and writes ordinary files as before.
+- Never delete or overwrite a file that can't be opened, never replace an existing `data.key`, and never create a Keystore key on the decrypt path (`KeystoreAes.existing`). An ordinary file only becomes a sealed one through `SealedFile.sealInPlace` (temp file, sync, read back, compare, atomic rename). Waiting files are only sealed in `UploadQueue.load` (before `loaded`, so before any worker reads them) and in `enqueue` (before the item exists); never while an upload could be reading them.
+- The Keystore is only asked on background threads: `UploadQueue` reads its list after construction (`loaded`/`awaitLoaded`; workers and anything that needs the real list must wait for it), `ScanSession` checks its photos after construction.
+- Irreplaceable (queue, scans): a sealed `queue.json` or sealed page photos that can't be opened turn `UploadQueue.unreadable` / `ScanSession.unreadable` on: nothing is written, deleted, cleaned up or scheduled, and the Scan tab shows the notice with "Try again" (`AppContainer.retryUnreadable`) and "Start empty" (`startEmptyUnreadable`: renames the folder to `<name>.unreadable-<time>`, never deletes). Cache (`list-cache`): an unopenable file is deleted and fetched again.
+- Sharing, "Open with", Save to Downloads and the upload itself still produce the ordinary file formats.
+- `SealedFileTest` covers the format, the migration step and the key rules (`./gradlew :app:testDebugUnitTest`; CI doesn't run it).
+
 ## Constraints
 
 - Fully FOSS, buildable for F-Droid: no Google Play Services, Firebase or ML Kit. There is one build flavor.

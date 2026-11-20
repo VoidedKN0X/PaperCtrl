@@ -17,6 +17,7 @@ import com.vknxworks.paperctrl.scan.engine.GrayImage
 import com.vknxworks.paperctrl.scan.engine.Homography
 import com.vknxworks.paperctrl.scan.engine.Pt
 import com.vknxworks.paperctrl.scan.engine.QuadDetector
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -108,7 +109,12 @@ object ImageOps {
         return out
     }
     /** Decodes [file] upright (EXIF applied), scaled so its longest side is at most [maxSide]. */
-    fun decode(file: File, maxSide: Int): Bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
+    fun decode(file: File, maxSide: Int): Bitmap = decode(ImageDecoder.createSource(file), maxSide)
+
+    /** The same for an image held in memory (a scanned page that's stored encrypted). */
+    fun decode(bytes: ByteArray, maxSide: Int): Bitmap = decode(ImageDecoder.createSource(ByteBuffer.wrap(bytes)), maxSide)
+
+    private fun decode(source: ImageDecoder.Source, maxSide: Int): Bitmap = ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
         decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
         val w = info.size.width
         val h = info.size.height
@@ -125,6 +131,13 @@ object ImageOps {
 
     fun saveJpeg(bitmap: Bitmap, file: File, quality: Int = 90) {
         FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.JPEG, quality, it) }
+    }
+
+    /** [bitmap] as a JPEG in memory. */
+    fun jpegBytes(bitmap: Bitmap, quality: Int = 90): ByteArray {
+        val out = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)
+        return out.toByteArray()
     }
 
     /** Converts normalised corners from a sensor-oriented frame to an upright one. */

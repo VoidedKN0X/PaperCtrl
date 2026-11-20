@@ -37,6 +37,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +53,7 @@ import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.queue.QueueStatus
 import com.vknxworks.paperctrl.share.ShareActivity
+import com.vknxworks.paperctrl.ui.components.ConfirmDialog
 import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.LocalBottomClearance
@@ -58,6 +62,7 @@ import com.vknxworks.paperctrl.ui.components.TabTitle
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.QueueRoute
 import com.vknxworks.paperctrl.ui.nav.ScanReviewRoute
+import kotlinx.coroutines.launch
 import com.vknxworks.paperctrl.ui.nav.ScannerRoute
 
 /** Getting paper and files into Paperless: the camera scanner, files from the phone, and the upload queue. */
@@ -68,6 +73,10 @@ fun ScanTab() {
     val nav = LocalNavigator.current
     val items by c.queue.items.collectAsStateWithLifecycle()
     val scanPages by c.scan.pages.collectAsStateWithLifecycle()
+    val queueLoaded by c.queue.loaded.collectAsStateWithLifecycle()
+    // The encrypted queue or scanned pages can't be opened: say so instead of offering to add to them.
+    val queueUnreadable by c.queue.unreadable.collectAsStateWithLifecycle()
+    val scanUnreadable by c.scan.unreadable.collectAsStateWithLifecycle()
     val active = items.count { it.isActive }
     val failed = items.count { it.status == QueueStatus.FAILED }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
@@ -91,50 +100,57 @@ fun ScanTab() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // Hero: pages scanned and waiting to be uploaded; tapping it opens the scanner.
-                CtrlHeroCard(
-                    label = stringResource(R.string.scan_hero_label),
-                    value = "%02d".format(scanPages.size),
-                    trailingLabel = if (active > 0) stringResource(R.string.scan_hero_uploading, active) else stringResource(R.string.scan_hero_pages),
-                    onClick = { nav.navigate(if (scanPages.isEmpty()) ScannerRoute() else ScanReviewRoute) },
-                )
-                Text(stringResource(R.string.scan_empty_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
-                Text(
-                    stringResource(R.string.scan_empty_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                PillButton(
-                    stringResource(if (scanPages.isEmpty()) R.string.scan_start else R.string.scan_continue),
-                    onClick = { nav.navigate(if (scanPages.isEmpty()) ScannerRoute() else ScanReviewRoute) },
-                    icon = Icons.Outlined.DocumentScanner,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                )
-                if (scanPages.isNotEmpty()) {
+                if (queueUnreadable || scanUnreadable) {
+                    UnreadableNotice(queue = queueUnreadable, scan = scanUnreadable)
+                } else {
+                    // Hero: pages scanned and waiting to be uploaded; tapping it opens the scanner.
+                    CtrlHeroCard(
+                        label = stringResource(R.string.scan_hero_label),
+                        value = "%02d".format(scanPages.size),
+                        trailingLabel = if (active > 0) stringResource(R.string.scan_hero_uploading, active) else stringResource(R.string.scan_hero_pages),
+                        onClick = { nav.navigate(if (scanPages.isEmpty()) ScannerRoute() else ScanReviewRoute) },
+                    )
+                    Text(stringResource(R.string.scan_empty_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
                     Text(
-                        pluralStringResource(R.plurals.scan_pages_waiting, scanPages.size, scanPages.size),
-                        style = CtrlType.Mono,
-                        color = CtrlColors.AccentText,
+                        stringResource(R.string.scan_empty_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    PillButton(
+                        stringResource(if (scanPages.isEmpty()) R.string.scan_start else R.string.scan_continue),
+                        onClick = { nav.navigate(if (scanPages.isEmpty()) ScannerRoute() else ScanReviewRoute) },
+                        icon = Icons.Outlined.DocumentScanner,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    if (scanPages.isNotEmpty()) {
+                        Text(
+                            pluralStringResource(R.plurals.scan_pages_waiting, scanPages.size, scanPages.size),
+                            style = CtrlType.Mono,
+                            color = CtrlColors.AccentText,
+                        )
+                    }
+                    CtrlSecondaryButton(
+                        stringResource(R.string.scan_pick_files),
+                        onClick = { AppLock.expectReturn(); pick.launch(ShareActivity.SUPPORTED_TYPES) },
+                        icon = Icons.Outlined.UploadFile,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        stringResource(R.string.scan_share_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
                     )
                 }
-                CtrlSecondaryButton(
-                    stringResource(R.string.scan_pick_files),
-                    onClick = { AppLock.expectReturn(); pick.launch(ShareActivity.SUPPORTED_TYPES) },
-                    icon = Icons.Outlined.UploadFile,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Text(
-                    stringResource(R.string.scan_share_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
             }
             Group {
                 GroupRow(
                     stringResource(R.string.queue_title),
                     when {
+                        // Still being read from storage right after the app started: no "nothing waiting" yet.
+                        !queueLoaded -> null
+                        queueUnreadable -> stringResource(R.string.rest_unreadable_row)
                         active > 0 -> pluralStringResource(R.plurals.scan_queue_active, active, active)
                         failed > 0 -> pluralStringResource(R.plurals.scan_queue_failed, failed, failed)
                         else -> stringResource(R.string.scan_queue_idle)
@@ -143,6 +159,75 @@ fun ScanTab() {
                     showChevron = true,
                     onClick = { nav.navigate(QueueRoute) },
                 )
+            }
+        }
+    }
+}
+
+/**
+ * Shown instead of the scan and upload buttons while the encrypted upload queue ([queue]) or scanned pages
+ * ([scan]) can't be opened. Nothing is deleted: "Try again" asks for the key once more, "Start empty" moves
+ * what can't be opened aside and starts fresh.
+ */
+@Composable
+private fun UnreadableNotice(queue: Boolean, scan: Boolean) {
+    val c = LocalContext.current.container
+    var busy by remember { mutableStateOf(false) }
+    var confirm by remember { mutableStateOf(false) }
+    Text(
+        stringResource(R.string.rest_unreadable_title),
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    )
+    Text(
+        stringResource(
+            when {
+                queue && scan -> R.string.rest_unreadable_body_both
+                queue -> R.string.rest_unreadable_body_queue
+                else -> R.string.rest_unreadable_body_scan
+            },
+        ),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    PillButton(
+        stringResource(R.string.rest_unreadable_retry),
+        onClick = {
+            busy = true
+            // On the app's own scope: it must finish even when this notice disappears halfway.
+            c.appScope.launch {
+                try {
+                    c.retryUnreadable()
+                } finally {
+                    busy = false
+                }
+            }
+        },
+        enabled = !busy,
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    )
+    CtrlSecondaryButton(
+        stringResource(R.string.rest_unreadable_start_empty),
+        onClick = { confirm = true },
+        enabled = !busy,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    if (confirm) {
+        ConfirmDialog(
+            stringResource(R.string.rest_unreadable_start_empty_title),
+            stringResource(R.string.rest_unreadable_start_empty_body),
+            stringResource(R.string.rest_unreadable_start_empty),
+            onDismiss = { confirm = false },
+        ) {
+            confirm = false
+            busy = true
+            c.appScope.launch {
+                try {
+                    c.startEmptyUnreadable()
+                } finally {
+                    busy = false
+                }
             }
         }
     }

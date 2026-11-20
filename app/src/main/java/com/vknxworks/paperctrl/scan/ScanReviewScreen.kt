@@ -251,8 +251,8 @@ private fun pluralTitle(n: Int): String =
 @Composable
 private fun PageCard(page: ScanPage, number: Int, modifier: Modifier, lifted: Boolean, onClick: () -> Unit) {
     val c = LocalContext.current.container
-    var file by remember(page.id) { mutableStateOf<File?>(null) }
-    LaunchedEffect(page.id, page.version) { file = c.scan.previewFile(page, 600) }
+    var file by remember(page.id) { mutableStateOf<ByteArray?>(null) }
+    LaunchedEffect(page.id, page.version) { file = c.scan.previewImage(page, 600) }
     Column(modifier) {
         Box(
             Modifier

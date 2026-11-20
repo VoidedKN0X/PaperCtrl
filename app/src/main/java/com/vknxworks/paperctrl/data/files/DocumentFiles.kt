@@ -13,6 +13,9 @@ import com.vknxworks.paperctrl.data.api.Page
 import com.vknxworks.paperctrl.data.api.PaperlessClient
 import com.vknxworks.paperctrl.data.api.PaperlessException
 import com.vknxworks.paperctrl.data.api.errorFor
+import com.vknxworks.paperctrl.data.crypto.DataKeyStore
+import com.vknxworks.paperctrl.data.crypto.SealedDataException
+import com.vknxworks.paperctrl.data.crypto.SealedFile
 import com.vknxworks.paperctrl.data.queue.Staging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,6 +29,9 @@ data class LocalFile(val file: File, val name: String, val mimeType: String)
  * Downloads documents into app-private cache storage for viewing, and copies them out only when
  * the user saves or shares them. Cached files are deleted when the app starts, when a server is removed and,
  * with the app lock on, every time PaperCtrl locks.
+ *
+ * These files are deliberately NOT encrypted at rest: Android's PdfRenderer needs a real, seekable file to
+ * draw a PDF from, and "Open with" and sharing hand a real file to another app through the FileProvider.
  */
 class DocumentFiles(private val context: Context) {
     private val root = File(context.cacheDir, "docs")
@@ -118,23 +124,54 @@ class DocumentFiles(private val context: Context) {
 /**
  * The first page of the document list and the inbox per server, kept in app-private storage so
  * they can be browsed without a connection. Only titles and IDs of labels, never contents.
+ *
+ * The files are encrypted at rest ([SealedFile]) with the app's data key ([keys]); ordinary files from
+ * before are still read, and sealed when the app starts ([sealOrdinaryFiles]). This is only a cache: a
+ * sealed file that can't be opened is deleted and the list is simply fetched again.
  */
-class ListCache(context: Context) {
+class ListCache(context: Context, private val keys: DataKeyStore) {
     private val root = File(context.filesDir, "list-cache").apply { mkdirs() }
 
     private fun file(serverId: String, key: String) =
         File(root, "${serverId.take(36)}-${MessageDigest.getInstance("SHA-256").digest(key.toByteArray()).take(8).joinToString("") { "%02x".format(it) }}.json")
 
+    @Synchronized
     fun save(serverId: String, key: String, page: Page<Document>) {
-        runCatching { file(serverId, key).writeText(ApiJson.encodeToString(Page.serializer(Document.serializer()), page.copy(results = page.results.map { it.copy(content = null) }))) }
+        runCatching {
+            val json = ApiJson.encodeToString(Page.serializer(Document.serializer()), page.copy(results = page.results.map { it.copy(content = null) }))
+            val target = file(serverId, key)
+            SealedFile.write(keys.get(create = true), target, File(target.path + ".tmp"), json.toByteArray(Charsets.UTF_8))
+        }
     }
 
+    @Synchronized
     fun load(serverId: String, key: String): Page<Document>? = runCatching {
         val f = file(serverId, key)
-        if (!f.exists()) null else ApiJson.decodeFromString(Page.serializer(Document.serializer()), f.readText())
+        if (!f.exists()) {
+            null
+        } else {
+            val plain = try {
+                SealedFile.read(keys.get(create = false), f)
+            } catch (e: SealedDataException) {
+                // Only a cache: one that can't be opened is dropped and fetched again.
+                f.delete()
+                null
+            }
+            plain?.let { ApiJson.decodeFromString(Page.serializer(Document.serializer()), String(it, Charsets.UTF_8)) }
+        }
     }.getOrNull()
 
+    @Synchronized
     fun clear(serverId: String) {
         root.listFiles()?.filter { it.name.startsWith(serverId.take(36)) }?.forEach { it.delete() }
+    }
+
+    /** Seals the ordinary files left from before encryption. Asks for the data key: call it off the main thread. */
+    @Synchronized
+    fun sealOrdinaryFiles() {
+        val key = keys.get(create = true) ?: return
+        root.listFiles()?.filter { it.name.endsWith(".json") && !SealedFile.isSealed(it) }?.forEach {
+            SealedFile.sealInPlace(key, it, File(it.path + ".tmp"))
+        }
     }
 }

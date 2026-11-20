@@ -66,7 +66,6 @@ import com.vknxworks.paperctrl.ui.nav.ScannerRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import kotlin.math.hypot
 
 /** Edits one page: drag its corners, rotate it, pick a filter, retake or delete it. Changes save as you go. */
@@ -81,15 +80,15 @@ fun PageEditScreen(pageId: String) {
     var photo by remember(pageId) { mutableStateOf<Bitmap?>(null) }
     var corners by remember(pageId) { mutableStateOf(page?.corners ?: ImageOps.FULL_PAGE) }
     var showResult by remember { mutableStateOf(false) }
-    var result by remember { mutableStateOf<File?>(null) }
+    var result by remember { mutableStateOf<ByteArray?>(null) }
     var deleting by remember { mutableStateOf(false) }
 
     LaunchedEffect(pageId, page?.version) {
-        photo = withContext(Dispatchers.Default) { runCatching { ImageOps.decode(c.scan.photo(pageId), 1600) }.getOrNull() }
+        photo = withContext(Dispatchers.Default) { runCatching { c.scan.decodePhoto(pageId, 1600) }.getOrNull() }
         page?.let { corners = it.corners }
     }
     LaunchedEffect(page?.version, showResult) {
-        if (showResult && page != null) result = c.scan.previewFile(page, 1400)
+        if (showResult && page != null) result = c.scan.previewImage(page, 1400)
     }
 
     if (page == null) {

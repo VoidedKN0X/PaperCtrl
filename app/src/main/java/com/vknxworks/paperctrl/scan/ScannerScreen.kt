@@ -360,8 +360,8 @@ private fun ScannerContent(retakeId: String?) {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     if (retakeId == null && pages.isNotEmpty()) {
                         val last = pages.last()
-                        var thumb by remember { mutableStateOf<File?>(null) }
-                        LaunchedEffect(last.id, last.version) { thumb = c.scan.previewFile(last, 300) }
+                        var thumb by remember { mutableStateOf<ByteArray?>(null) }
+                        LaunchedEffect(last.id, last.version) { thumb = c.scan.previewImage(last, 300) }
                         Box(
                             Modifier.size(64.dp).clip(RoundedCornerShape(16.dp)).border(2.dp, CtrlColors.Text, RoundedCornerShape(16.dp))
                                 .clickable { nav.navigate(ScanReviewRoute) },

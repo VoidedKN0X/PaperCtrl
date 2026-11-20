@@ -2,6 +2,8 @@ package com.vknxworks.paperctrl
 
 import android.content.Context
 import com.vknxworks.paperctrl.data.auth.SessionManager
+import com.vknxworks.paperctrl.data.crypto.DataKeyStore
+import com.vknxworks.paperctrl.data.crypto.KeystoreWrapper
 import com.vknxworks.paperctrl.data.metadata.MetadataRepository
 import com.vknxworks.paperctrl.data.queue.UploadQueue
 import com.vknxworks.paperctrl.data.net.CleartextPolicy
@@ -48,13 +50,22 @@ class AppContainer(val context: Context) {
     val sessions = SessionManager(context, http, vault, appScope)
     val metadata = MetadataRepository()
 
+    /**
+     * The key that encrypts the upload queue, the scanned pages and the offline lists at rest. Nothing is
+     * read here: the key is unwrapped (by the Android Keystore) the first time it's asked for, which the
+     * queue, the scan session and the list cache only do on background threads.
+     */
+    val dataKeys = DataKeyStore(context.filesDir, KeystoreWrapper(DATA_KEY_ALIAS))
+
     // These four read their folders and saved lists from storage when they're created. They're created on
     // first use, and the start-up job below creates them on a background thread right away, so opening
     // PaperCtrl doesn't wait for storage on the main thread. Whoever needs one earlier simply gets it then.
-    val queue: UploadQueue by lazy { UploadQueue(context) }
-    val scan: ScanSession by lazy { ScanSession(context) }
+    // The queue's list and the check of the scanned pages need the data key: both happen in the background
+    // after creation (UploadQueue.loaded, ScanSession.unreadable), never on the thread that creates them.
+    val queue: UploadQueue by lazy { UploadQueue(context, dataKeys, appScope) }
+    val scan: ScanSession by lazy { ScanSession(context, dataKeys, appScope) }
     val files: DocumentFiles by lazy { DocumentFiles(context) }
-    val listCache: ListCache by lazy { ListCache(context) }
+    val listCache: ListCache by lazy { ListCache(context, dataKeys) }
 
     init {
         appScope.launch(Dispatchers.IO) {
@@ -63,13 +74,14 @@ class AppContainer(val context: Context) {
             // Unfinished uploads get their work scheduled again, as before; the rest is just read ahead.
             runCatching { queue }
             runCatching { scan }
-            runCatching { listCache }
+            runCatching { listCache.sealOrdinaryFiles() }
         }
         // Uploads left behind for a server that's no longer saved (removed before PaperCtrl 0.1.3 deleted
         // them along with it): drop them and their files. Skipped when no server is saved at all, so a
         // settings read that failed can never wipe the queue.
         appScope.launch {
             sessions.awaitReady()
+            queue.awaitLoaded()
             val known = sessions.servers.value.map { it.id }.toSet()
             if (known.isNotEmpty()) {
                 queue.items.value.map { it.serverId }.distinct().filterNot { it in known }.forEach { queue.removeServer(it) }
@@ -126,13 +138,40 @@ class AppContainer(val context: Context) {
         // Viewed and shared document files don't stay on the phone while PaperCtrl is locked.
         if (vault.enabled) appScope.launch(Dispatchers.IO) { runCatching { files.clear() } }
         closeKeyJob?.cancel()
-        if (queue.items.value.none { it.isActive }) {
+        if (queue.loaded.value && queue.items.value.none { it.isActive }) {
             vault.close()
             return
         }
         closeKeyJob = appScope.launch {
+            // Right after the app starts the queue may still be loading: wait for it before deciding.
+            queue.awaitLoaded()
             queue.items.first { list -> list.none { it.isActive } }
             if (!AppLock.unlocked) vault.close()
+        }
+    }
+
+    /**
+     * "Try again" for an upload queue or scanned pages that are encrypted and couldn't be opened: asks the
+     * phone's Keystore for the data key once more and reads them again.
+     */
+    suspend fun retryUnreadable() {
+        withContext(Dispatchers.IO) { dataKeys.reset() }
+        queue.reload()
+        scan.reload()
+    }
+
+    /**
+     * "Start empty": whatever can't be opened (the upload queue, the scanned pages or both) is moved aside,
+     * not deleted, and replaced by an empty one. A data key that can't be unwrapped any more is set aside too
+     * (as `data.key.unreadable`), so a new key can be made; a key that still works is kept.
+     */
+    suspend fun startEmptyUnreadable() {
+        val queueAside = !queue.unreadable.value || queue.setAside()
+        val scanAside = !scan.unreadable.value || scan.setAside()
+        if (queueAside && scanAside) {
+            withContext(Dispatchers.IO) {
+                if (dataKeys.lost()) dataKeys.discard(keep = true)
+            }
         }
     }
 
@@ -160,6 +199,9 @@ class AppContainer(val context: Context) {
     /** A search to show in the Documents tab (from Organise, "More like this", a shortcut). */
     val pendingQuery = MutableStateFlow<DocumentQuery?>(null)
 }
+
+/** Android Keystore alias of the key that wraps the data key ([AppContainer.dataKeys]). */
+private const val DATA_KEY_ALIAS = "paperctrl_data_at_rest"
 
 val Context.container: AppContainer
     get() = (applicationContext as PaperCtrlApp).container

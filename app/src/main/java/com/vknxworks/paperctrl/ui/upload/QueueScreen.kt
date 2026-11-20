@@ -76,6 +76,8 @@ fun QueueScreen() {
     val context = LocalContext.current
     val c = context.container
     val items by c.queue.items.collectAsStateWithLifecycle()
+    val loaded by c.queue.loaded.collectAsStateWithLifecycle()
+    val unreadable by c.queue.unreadable.collectAsStateWithLifecycle()
     val servers by c.sessions.servers.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<QueueItem?>(null) }
     var removing by remember { mutableStateOf<QueueItem?>(null) }
@@ -92,6 +94,18 @@ fun QueueScreen() {
             }
         },
     ) { padding ->
+        if (!loaded) {
+            // Still being read from storage right after the app started: not "nothing in the queue" yet.
+            Box(Modifier.padding(padding).fillMaxSize())
+            return@Scaffold
+        }
+        if (unreadable) {
+            // The encrypted queue can't be opened; the Scan tab offers "Try again" and "Start empty".
+            Box(Modifier.padding(padding).fillMaxSize()) {
+                MessageView(Icons.Outlined.CloudUpload, stringResource(R.string.rest_unreadable_title), stringResource(R.string.rest_unreadable_queue_screen))
+            }
+            return@Scaffold
+        }
         if (sorted.isEmpty()) {
             Box(Modifier.padding(padding).fillMaxSize()) {
                 MessageView(Icons.Outlined.CloudUpload, stringResource(R.string.queue_empty_title), stringResource(R.string.queue_empty_body))

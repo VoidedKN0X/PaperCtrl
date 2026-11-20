@@ -185,6 +185,17 @@
     <string name="queue_still_processing">Paperless is still processing it; checking again shortly</string>
     <string name="queue_consume_failed">Paperless couldn\'t add this document.</string>
     <string name="queue_file_missing">The file is no longer on this phone. Remove this item and share or scan it again.</string>
+    <string name="queue_file_unreadable">This file is stored encrypted on this phone and couldn\'t be opened. It has been kept: tap Retry to try again, or remove this item and share or scan it again.</string>
+    <string name="rest_unreadable_title">Can\'t open what\'s waiting on this phone</string>
+    <string name="rest_unreadable_body_both">Your scanned pages and your upload queue are stored encrypted on this phone, and the key that opens them isn\'t available right now. Nothing has been deleted, and nothing new can be scanned or queued until this is sorted out. Everything on your Paperless server is untouched.</string>
+    <string name="rest_unreadable_body_queue">Your upload queue is stored encrypted on this phone, and it can\'t be opened right now. Nothing has been deleted, and nothing new can be queued until this is sorted out. Everything on your Paperless server is untouched.</string>
+    <string name="rest_unreadable_body_scan">Your scanned pages are stored encrypted on this phone, and the key that opens them isn\'t available right now. Nothing has been deleted, and nothing new can be scanned until this is sorted out. Everything on your Paperless server is untouched.</string>
+    <string name="rest_unreadable_retry">Try again</string>
+    <string name="rest_unreadable_start_empty">Start empty</string>
+    <string name="rest_unreadable_start_empty_title">Start empty?</string>
+    <string name="rest_unreadable_start_empty_body">What can\'t be opened is set aside in PaperCtrl\'s private storage (it isn\'t deleted, but PaperCtrl can\'t show or upload it any more) and you start with nothing waiting. Scan or share those documents again afterwards. If Try again might still work, for example after restarting the phone, do that first.</string>
+    <string name="rest_unreadable_row">Can\'t be opened</string>
+    <string name="rest_unreadable_queue_screen">The upload queue is stored encrypted on this phone and can\'t be opened right now. Nothing has been deleted. Go to the Scan tab to try again.</string>
     <string name="queue_server_removed">The server this was meant for was removed from PaperCtrl.</string>
     <string name="queue_open">Open</string>
     <string name="queue_edit">Edit details</string>

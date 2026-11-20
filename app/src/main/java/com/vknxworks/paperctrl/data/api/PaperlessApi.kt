@@ -100,7 +100,8 @@ suspend fun PaperlessClient.documentTitle(id: Int): String? =
     ((get("documents/$id/", mapOf("fields" to "id,title")) as? JsonObject)?.get("title") as? JsonPrimitive)?.contentOrNull
 
 /**
- * Uploads [file] for Paperless to consume and returns the consumption task's id.
+ * Uploads [file] for Paperless to consume and returns the consumption task's id. When the file is stored
+ * encrypted on the phone, [decrypted] holds its real contents and those are sent instead of the file's bytes.
  * [onProgress] gets the bytes sent so far and the total.
  */
 suspend fun PaperlessClient.postDocument(
@@ -108,10 +109,11 @@ suspend fun PaperlessClient.postDocument(
     fileName: String,
     mimeType: String,
     meta: UploadMeta,
+    decrypted: ByteArray? = null,
     onProgress: (Long, Long) -> Unit,
 ): String {
     val body = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
-        addFormDataPart("document", fileName, ProgressFileBody(file, mimeType, onProgress))
+        addFormDataPart("document", fileName, ProgressFileBody(file, decrypted, mimeType, onProgress))
         meta.title?.takeIf { it.isNotBlank() }?.let { addFormDataPart("title", it.trim()) }
         // Noon, so the date stays the same in any server time zone.
         meta.created?.let { addFormDataPart("created", "${it}T12:00:00") }
@@ -160,15 +162,29 @@ private fun JsonObject.str(key: String): String? = (this[key] as? JsonPrimitive)
 /** A file request body that reports how much has been sent. */
 private class ProgressFileBody(
     private val file: File,
+    /** The contents to send instead of [file]'s own bytes, when the file is stored encrypted. */
+    private val decrypted: ByteArray?,
     mimeType: String,
     private val onProgress: (Long, Long) -> Unit,
 ) : RequestBody() {
     private val type = mimeType.toMediaTypeOrNull()
     override fun contentType() = type
-    override fun contentLength() = file.length()
+    override fun contentLength() = decrypted?.size?.toLong() ?: file.length()
     override fun writeTo(sink: BufferedSink) {
         val total = contentLength()
         var sent = 0L
+        if (decrypted != null) {
+            var offset = 0
+            while (offset < decrypted.size) {
+                val count = minOf(64 * 1024, decrypted.size - offset)
+                sink.write(decrypted, offset, count)
+                offset += count
+                sent = offset.toLong()
+                sink.flush()
+                onProgress(sent, total)
+            }
+            return
+        }
         file.source().use { src ->
             while (true) {
                 val read = src.read(sink.buffer, 64 * 1024L)

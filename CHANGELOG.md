@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+Built and checked by CI only: nothing in this section has been run on a phone.
+
+### Security
+
+- **What waits on the phone is now encrypted at rest.** PaperCtrl now encrypts these files in its private storage with AES-256-GCM, using a key of its own (the "data key"):
+  - **the upload queue list** (`queue.json`: the file names, titles, dates, tags and other details of everything waiting to be uploaded or recently uploaded). Until now this was an ordinary text file;
+  - **the files waiting in the upload queue**, when a file is 16 MB or smaller (a scan of a few dozen pages is). They are decrypted in memory only at the moment they're sent to your server;
+  - **the pages of a scan you haven't uploaded yet** (the photos of each page) and the small processed previews of them. They are decrypted in memory to show, edit and turn into the PDF;
+  - **the offline copies of the first page of Documents and the Inbox** (document titles, dates and label numbers; never contents).
+- **The data key** is 32 random bytes kept in the file `data.key` in PaperCtrl's private storage, itself encrypted by a key in the phone's secure hardware (Android Keystore, in the StrongBox chip when the phone has one) that can't be exported. It needs no PIN or fingerprint, so uploads keep running in the background as before. It is separate from the keys that protect your server logins and the app lock, which are unchanged.
+- **What this protects, and what it doesn't.** Someone who copies PaperCtrl's files off the phone (a backup of the app's data, forensic tools, a rooted phone's file manager) gets unreadable files without the key in the phone's secure hardware. It doesn't protect against someone who can use the unlocked app, or against software that already controls the running app: while PaperCtrl runs, the data key is in its memory, also while the app lock is showing. It works the same with the app lock on or off.
+- **Deliberately not encrypted, and why:**
+  - **Documents you're viewing** (the temporary copies in the cache folder). Android's PDF renderer needs a real file it can jump around in, and Share, "Open with" and Save to Downloads hand a real file to another app. As before, these copies are deleted every time PaperCtrl starts, when a server is removed and, with the app lock on, every time PaperCtrl locks.
+  - **Files larger than 16 MB waiting in the upload queue.** Encrypting a file this way means holding all of it in memory, which a large shared file (up to 1 GB is accepted) would not survive. Such files wait as ordinary files in private storage, as before, and are deleted once Paperless has them.
+  - **Files being prepared** while the Share screen is open or a scan is being turned into a PDF, and the photo the camera has just taken: they exist for moments and are removed (or moved into the queue and encrypted there) right away.
+  - **Settings**, including the list of your servers (names and addresses; the API tokens in it were already encrypted and still are), the ntfy push registration, and the page order, crop corners and filter of an unfinished scan (no page content).
+  - **WorkManager's own job list** (it only holds random item numbers).
+- **Moving to encrypted files loses nothing.** The first time this version starts, each existing file is encrypted like this: an encrypted copy is written next to it and flushed to storage, read back, decrypted and compared byte for byte with the original, and only then put in the original's place in a single step. If anything fails, the original stays and is used as before, and PaperCtrl tries again the next time it starts. If the app is killed halfway, each file is either still the original or already the encrypted copy, never half of one. PaperCtrl reads both kinds of file from now on. On a phone where the secure hardware can't make the key, everything simply stays as it was.
+- **If the key is ever lost** (for example when the app's data is restored onto another phone, or the phone's secure storage is reset), PaperCtrl does not delete or overwrite anything. The Scan tab shows **"Can't open what's waiting on this phone"** with two choices: **Try again**, and **Start empty**, which moves what can't be opened aside inside PaperCtrl's private storage (it is kept, not deleted, but PaperCtrl can't show or upload it any more) and starts with an empty queue and scan. Until you choose, nothing new can be scanned or queued, and Share to PaperCtrl says it couldn't prepare the files. Browsing, searching and editing documents on your server keeps working throughout. Offline list copies that can't be opened are simply fetched again. A single queued file that can't be decrypted is marked as failed with an explanation and kept.
+- **No going back to an older version without losing what's waiting.** PaperCtrl 0.9.0 and older can't read the encrypted files: an older version would show an empty upload queue and could delete the waiting files as leftovers, and couldn't show or upload the pages of an unfinished scan. Before installing an older version, let the queue finish uploading and upload or discard any unfinished scan. Nothing on your Paperless server is affected either way.
+
+### Changed
+
+- **The upload queue is read in the background when the app starts** (it has to be decrypted first). For a moment after starting, the Scan tab and the queue screen show no count rather than "Nothing waiting". Uploads wait for that moment too and then carry on as before.
+- **Previews of scanned pages are shown from memory** instead of from a file, because the files are encrypted now. They look the same.
+
 ## v0.9.0 (2026-11-20)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.
