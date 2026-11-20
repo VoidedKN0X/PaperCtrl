@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -112,15 +113,24 @@ private fun ZoomBox(modifier: Modifier = Modifier, content: @Composable () -> Un
     ) { content() }
 }
 
-/** Renders PDF pages with Android's own PdfRenderer, a few at a time, sharp at the current zoom. */
+/**
+ * Renders PDF pages with Android's own PdfRenderer, a few at a time. Pages are drawn at the width of
+ * the screen while you read, and at twice that (as sharp as before) for as long as you're zoomed in.
+ */
 @Composable
 private fun PdfViewer(file: LocalFile, modifier: Modifier) {
     val density = LocalDensity.current
     val widthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }.toInt()
-    val pdf = remember(file) { runCatching { PdfDoc(file) }.getOrNull() }
-    DisposableEffect(pdf) { onDispose { pdf?.close() } }
+    // The file is opened on a background thread; until then there's no document yet.
+    val holder = remember(file) { PdfHolder() }
+    DisposableEffect(holder) { onDispose { holder.close() } }
+    LaunchedEffect(holder) { withContext(Dispatchers.IO) { holder.open(file) } }
+    val pdf = holder.doc
     if (pdf == null) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(stringResource(R.string.viewer_pdf_failed)) }
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (holder.failed) Text(stringResource(R.string.viewer_pdf_failed))
+            else CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+        }
         return
     }
     val listState = rememberLazyListState()
@@ -132,6 +142,11 @@ private fun PdfViewer(file: LocalFile, modifier: Modifier) {
         scale = (scale * zoom).coerceIn(1f, 5f)
         offset = if (scale == 1f) Offset.Zero else Offset(offset.x + pan.x, offset.y)
     }
+    // Zoomed in: the pages on screen are drawn again at twice the screen's width, the size every page
+    // used to be drawn at, so zoomed text is exactly as sharp as before. Not zoomed: one screen width,
+    // a quarter of the memory per page, so more pages stay ready while scrolling.
+    val zoomed by remember { derivedStateOf { scale > 1f } }
+    val pageWidthPx = if (zoomed) (widthPx * 2).coerceAtMost(2400) else widthPx.coerceAtMost(2400)
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLowest)) {
         LazyColumn(
             state = listState,
@@ -143,7 +158,7 @@ private fun PdfViewer(file: LocalFile, modifier: Modifier) {
                 .graphicsLayer { scaleX = scale; scaleY = scale; translationX = offset.x },
         ) {
             items(pdf.pageCount) { i ->
-                PdfPage(pdf, i, (widthPx * 2).coerceAtMost(2400))
+                PdfPage(pdf, i, pageWidthPx)
             }
         }
         Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.8f), modifier = Modifier.align(Alignment.TopEnd).padding(10.dp)) {
@@ -175,13 +190,47 @@ private fun PdfViewer(file: LocalFile, modifier: Modifier) {
 
 @Composable
 private fun PdfPage(pdf: PdfDoc, index: Int, widthPx: Int) {
-    var bmp by remember(index, widthPx) { mutableStateOf(pdf.cached(index, widthPx)) }
-    LaunchedEffect(index, widthPx) { if (bmp == null) bmp = pdf.render(index, widthPx) }
+    // When the size changes (zooming in or back out), the picture it has stays up until the new one is drawn.
+    var bmp by remember(pdf, index) { mutableStateOf(pdf.cached(index, widthPx)) }
+    LaunchedEffect(pdf, index, widthPx) {
+        val ready = pdf.cached(index, widthPx) ?: pdf.render(index, widthPx)
+        if (ready != null) bmp = ready
+    }
     val aspect = pdf.aspect(index)
     Box(Modifier.fillMaxWidth().aspectRatio(aspect).background(androidx.compose.ui.graphics.Color.White), contentAlignment = Alignment.Center) {
         val b = bmp
         if (b == null) CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
         else Image(b.asImageBitmap(), null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+    }
+}
+
+/** Opens a [PdfDoc] off the main thread and closes it when the viewer goes away, whichever comes first. */
+private class PdfHolder {
+    var doc by mutableStateOf<PdfDoc?>(null)
+        private set
+    var failed by mutableStateOf(false)
+        private set
+    private var closed = false
+
+    /** Call on a background thread. */
+    fun open(file: LocalFile) {
+        val opened = runCatching { PdfDoc(file) }.getOrNull()
+        val alreadyClosed = synchronized(this) {
+            if (!closed) {
+                if (opened != null) doc = opened else failed = true
+            }
+            closed
+        }
+        // The viewer was left while the file was still being opened: nothing will use it.
+        if (alreadyClosed) opened?.close() else opened?.warmAspects()
+    }
+
+    fun close() {
+        val current = synchronized(this) {
+            closed = true
+            doc
+        }
+        current?.close()
     }
 }
 
@@ -206,6 +255,19 @@ internal class PdfDoc(file: LocalFile) {
         return aspects[i].takeIf { it > 0 } ?: 0.707f
     }
 
+    @Volatile private var closed = false
+
+    /**
+     * Reads every page's shape ahead of time, on the background thread that opened the file, so laying
+     * out a page that scrolls in doesn't have to wait on the main thread for a page that's being drawn.
+     */
+    fun warmAspects() {
+        for (i in aspects.indices) {
+            if (closed) return
+            aspect(i)
+        }
+    }
+
     fun cached(i: Int, w: Int): Bitmap? = cache.get("$i@$w")
 
     suspend fun render(i: Int, w: Int): Bitmap? = withContext(Dispatchers.Default) {
@@ -226,6 +288,7 @@ internal class PdfDoc(file: LocalFile) {
     }
 
     fun close() {
+        closed = true
         synchronized(renderer) { runCatching { renderer.close() } }
         runCatching { fd.close() }
         cache.evictAll()

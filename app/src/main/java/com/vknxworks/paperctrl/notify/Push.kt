@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.UUID
 
@@ -214,9 +214,17 @@ class PushReceiver : BroadcastReceiver() {
             Push.ACTION_MESSAGE -> {
                 val bytes = intent.getByteArrayExtra("bytesMessage") ?: intent.getStringExtra("message")?.toByteArray() ?: return
                 Push.ack(context, token, intent.getStringExtra("id"))
-                // The app may have been started just for this message, before settings were read.
-                val enabled = runBlocking { context.container.settings.stored.first().pushEnabled }
-                if (enabled) Push.show(context, bytes)
+                // The app may have been started just for this message, before settings were read: read the
+                // stored setting on a background thread instead of holding up the main thread for it.
+                val app = context.applicationContext
+                val pending = goAsync()
+                app.container.appScope.launch {
+                    try {
+                        if (app.container.settings.stored.first().pushEnabled) Push.show(app, bytes)
+                    } finally {
+                        pending.finish()
+                    }
+                }
             }
         }
     }

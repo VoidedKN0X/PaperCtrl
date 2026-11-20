@@ -47,14 +47,24 @@ class AppContainer(val context: Context) {
     val vault = LockVault(context, "paperctrl")
     val sessions = SessionManager(context, http, vault, appScope)
     val metadata = MetadataRepository()
-    val queue = UploadQueue(context)
-    val scan = ScanSession(context)
-    val files = DocumentFiles(context)
-    val listCache = ListCache(context)
+
+    // These four read their folders and saved lists from storage when they're created. They're created on
+    // first use, and the start-up job below creates them on a background thread right away, so opening
+    // PaperCtrl doesn't wait for storage on the main thread. Whoever needs one earlier simply gets it then.
+    val queue: UploadQueue by lazy { UploadQueue(context) }
+    val scan: ScanSession by lazy { ScanSession(context) }
+    val files: DocumentFiles by lazy { DocumentFiles(context) }
+    val listCache: ListCache by lazy { ListCache(context) }
 
     init {
-        // Viewed documents are only kept while the app runs.
-        appScope.launch(Dispatchers.IO) { files.clear() }
+        appScope.launch(Dispatchers.IO) {
+            // Viewed documents are only kept while the app runs.
+            runCatching { files.clear() }
+            // Unfinished uploads get their work scheduled again, as before; the rest is just read ahead.
+            runCatching { queue }
+            runCatching { scan }
+            runCatching { listCache }
+        }
         // Uploads left behind for a server that's no longer saved (removed before PaperCtrl 0.1.3 deleted
         // them along with it): drop them and their files. Skipped when no server is saved at all, so a
         // settings read that failed can never wipe the queue.

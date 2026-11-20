@@ -14,8 +14,10 @@ import com.vknxworks.paperctrl.data.api.isUnreachable
 import com.vknxworks.paperctrl.data.search.DocumentQuery
 import com.vknxworks.paperctrl.ui.components.friendlyMessage
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A paged document list (Documents tab, Inbox): loads page by page as you scroll, and falls back to
@@ -79,12 +81,13 @@ class DocumentListModel(private val c: AppContainer, private val context: Contex
             total = result.count
             endReached = result.next == null || items.size >= result.count
             offline = false
-            if (next == 1) c.listCache.save(session.server.id, cacheKey, result)
+            // Saved off the main thread; the list above is already showing.
+            if (next == 1) withContext(Dispatchers.IO) { c.listCache.save(session.server.id, cacheKey, result) }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             val cached = if (reset && (isUnreachable(e) || e is PaperlessException && e.httpCode == null)) {
-                c.listCache.load(session.server.id, cacheKey)
+                withContext(Dispatchers.IO) { c.listCache.load(session.server.id, cacheKey) }
             } else {
                 null
             }

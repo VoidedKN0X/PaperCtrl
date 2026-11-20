@@ -19,10 +19,26 @@ data class ServerMetadata(
     val documentTypes: List<NamedObject> = emptyList(),
     val storagePaths: List<NamedObject> = emptyList(),
 ) {
-    fun tag(id: Int) = tags.firstOrNull { it.id == id }
-    fun correspondent(id: Int?) = id?.let { i -> correspondents.firstOrNull { it.id == i } }
-    fun documentType(id: Int?) = id?.let { i -> documentTypes.firstOrNull { it.id == i } }
-    fun storagePath(id: Int?) = id?.let { i -> storagePaths.firstOrNull { it.id == i } }
+    // Looked up for every chip in every list row, so each list is indexed by ID once (first entry wins,
+    // the same answer a search through the list gives).
+    private val tagsById: Map<Int, Tag> by lazy { firstById(tags) { it.id } }
+    private val correspondentsById: Map<Int, NamedObject> by lazy { firstById(correspondents) { it.id } }
+    private val documentTypesById: Map<Int, NamedObject> by lazy { firstById(documentTypes) { it.id } }
+    private val storagePathsById: Map<Int, NamedObject> by lazy { firstById(storagePaths) { it.id } }
+
+    fun tag(id: Int): Tag? = tagsById[id]
+    fun correspondent(id: Int?): NamedObject? = id?.let { i -> correspondentsById[i] }
+    fun documentType(id: Int?): NamedObject? = id?.let { i -> documentTypesById[i] }
+    fun storagePath(id: Int?): NamedObject? = id?.let { i -> storagePathsById[i] }
+}
+
+private inline fun <T> firstById(list: List<T>, id: (T) -> Int): Map<Int, T> {
+    val map = HashMap<Int, T>(list.size * 2)
+    for (item in list) {
+        val key = id(item)
+        if (!map.containsKey(key)) map[key] = item
+    }
+    return map
 }
 
 /**

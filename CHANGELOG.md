@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+Not released yet: these changes are built but ship with the next version.
+
+### Removed
+
+- **The home screen widget is gone.** The "Scan to Paperless" widget with the Scan button and the inbox count has been removed, together with the background job that refreshed its count every few hours. If you had the widget on your home screen, Android removes it (or shows it as unavailable) after the update; an earlier version's refresh job is cancelled the next time you open PaperCtrl.
+- **The Quick Settings tile is gone.** The "Scan to Paperless" tile has been removed. To start a scan in one tap, long-press the PaperCtrl icon and use the **Scan** shortcut, which is unchanged (so are the **Inbox** and **Search** shortcuts).
+- PaperCtrl no longer includes the Glance widget library.
+
+### Changed
+
+- **PDFs scroll more smoothly and use less memory.** While you read at normal size, each page is now drawn at the width of the screen instead of twice that, which takes about a quarter of the memory, so several pages stay ready and scrolling back doesn't draw them again. As soon as you zoom in, the pages on screen are drawn again at the same resolution as before, so zoomed text is exactly as sharp as it was; for a moment after zooming you may see the page sharpen.
+- **Opening a PDF no longer holds up the app.** The file is opened and its page sizes are read in the background (you see a small spinner for that moment), instead of on the thread that draws the screen.
+- **PaperCtrl starts a little faster.** The upload queue, an unfinished scan and the folders for viewed documents are now read from storage in the background when the app starts instead of before the first screen is drawn. Unfinished uploads still continue on their own.
+- **Lists stay responsive while the offline copy is saved.** The first page of Documents and the Inbox that's kept for offline use is written and read in the background.
+- **Tag, correspondent, type and storage path names in lists are looked up faster**, which helps on servers with many tags.
+- **A push message from Paperless is handled in the background**, so a notification that arrives while PaperCtrl isn't running no longer waits on the main thread for your settings to load.
+
+### Security
+
+- **Fewer ways in from other apps.** With the widget and the tile removed, PaperCtrl's only parts other apps can reach are the launcher, Share to PaperCtrl and push from the ntfy app.
+- Locking after the lock timeout while PaperCtrl is in the background works as before: the login is closed and viewed documents are deleted once the chosen time has passed, without waiting for you to open the app.
+
 ## v0.8.0 (2026-11-13)
 
 The scanner now runs on PaperCtrl's own image code, which makes the download about 25 MB smaller.
