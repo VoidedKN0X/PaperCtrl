@@ -51,7 +51,7 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 ## Is it safe to install?
 
 - **Open source:** all of PaperCtrl's code is in this repo, under the GPL-3.0 licence. You can read every line.
-- **Built by GitHub, not on a personal computer:** every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo.
+- **Built by GitHub, not on a personal computer:** every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo. The signing key is kept away from the build: one job builds the APK without any secrets, and a separate job that runs no code from this repo signs it and checks the signature against the fingerprint below.
 - **Always signed with the same key:** Android refuses to install an update signed with a different key, so nobody else can replace PaperCtrl on your phone with their own version. The CtrlF-Droid repo only accepts APKs signed with this key. Its SHA-256 certificate fingerprint is:
 
   ```
