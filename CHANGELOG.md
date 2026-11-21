@@ -4,6 +4,10 @@
 
 Not in a release yet. Built and checked by CI only: none of this had been run on a phone when it was written.
 
+### Fixed
+
+- **Fixed before release: the app would have crashed at start with the new build tools.** PaperCtrl uses WorkManager for its background work, and WorkManager stores its jobs in a small Room database that is created by name when the app starts. The shrinker (R8) in Android Gradle Plugin 9 is stricter than the old one and removed the constructor that needs, which makes the app stop right at launch (a known problem with Room 2.6.1 under Android Gradle Plugin 9). A keep rule for that constructor, the same one newer Room versions ship themselves, is now in `app/proguard-rules.pro`. No released version was affected: the new build tools have not been in any release. Built by CI only; not yet run on a phone.
+
 ### Changed
 
 - **Document lists do a little less work per row while scrolling.** Every thumbnail in the Documents list and grid, the Inbox, the Organise lists and the document picker used to watch the signed-in server by itself, so each row that scrolled into view started its own watcher just to work out the thumbnail's address. The server is now handed down once from the top of the app to all rows, and a row's thumbnail address is worked out once instead of every time the row is redrawn. Thumbnails, where they come from and when they load are unchanged. (Where nothing hands the server down, a thumbnail still watches it itself, as before.)
