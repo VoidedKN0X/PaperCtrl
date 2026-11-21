@@ -25,8 +25,8 @@ android {
         minSdk = 35
         targetSdk = 36
         // Bump both to publish a new release (see CHANGELOG.md).
-        versionCode = 35
-        versionName = "0.10.0"
+        versionCode = 36
+        versionName = "0.11.0"
 
         // Modern 64-bit ARM phones only: keeps native scanner libraries out of the APK for other CPUs.
         ndk { abiFilters += listOf("arm64-v8a") }

@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.11.0 (2026-11-21)
 
-Not in a release yet. Built and checked by CI only: none of this had been run on a phone when it was written.
+Built and checked by CI only: nothing in this release had been run on a phone when it was published. It is the first release built with the new build tools (Android Gradle Plugin 9, stricter code shrinking), so update over your installed version and check that your data and settings are still there.
 
 ### Fixed
 
