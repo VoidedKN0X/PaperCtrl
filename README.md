@@ -18,6 +18,8 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Share to PaperCtrl** from any app, for PDFs, images and other files Paperless accepts
 - **Inbox** to sort new documents with swipes and Paperless' own suggestions
 - **Documents** with full-text search, Paperless' global search (labels, saved views and titles that match what you type), filters including duplicates and barcode contents, saved views and bulk editing; the first page of your list and inbox stays visible offline
+- **Keep documents on the phone** to read them without a connection: chosen per document, stored encrypted, listed under Organise
+- **Live updates**: the Inbox, the Documents list and an open document check your server every 30 seconds while they're on screen and show changes by themselves (a switch in Settings)
 - **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
 - **Versions** of a document's file: look at an older one, label or delete one, upload a new one; and **Remove password** from a protected PDF (both need Paperless-ngx 3)
 - **Share-link bundles**: one public link to a zip of several documents, with a screen to copy, rebuild or revoke them (Paperless-ngx 3)
@@ -29,6 +31,8 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **App shortcuts** (long-press the PaperCtrl icon) to start a scan in one tap
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional [app lock](#app-lock) with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), and **Hide in screenshots** and **Hide in recent apps** switches
+- **Back up and restore** PaperCtrl's own settings to a file (never servers, logins, tokens, certificates or the app lock)
+- **Dutch and English**: the app follows your phone's language
 
 ## Requirements
 
@@ -141,7 +145,7 @@ While the lock, PIN or sign-in screen or a "can't be undone" confirmation is sho
 
 - **Servers:** only the Paperless-ngx servers you add (their main and home-network addresses). Push notifications come through your own ntfy server and the ntfy app, and **Send a test** posts to PaperCtrl's push address there.
 - **Links:** the Install ntfy button and the Support, Report a bug, Source code and Licence rows in About open in your browser only when you tap them; the app itself doesn't contact those sites.
-- **On the phone:** what waits on the phone is encrypted at rest with a key held by the phone's secure hardware: the upload queue (its list and waiting files up to 16 MB), the pages of a scan you haven't uploaded yet, and the offline copies of the first page of Documents and the Inbox. This protects those files when they're copied off the phone; it doesn't protect against someone using the unlocked app. Not encrypted: the temporary copy of a document you're viewing (Android's PDF renderer and other apps need a real file; it's deleted when PaperCtrl starts and, with the app lock on, when it locks), waiting files over 16 MB, and settings such as your servers' names and addresses (the API tokens are encrypted separately).
+- **On the phone:** what waits on the phone is encrypted at rest with a key held by the phone's secure hardware: the upload queue (its list and waiting files up to 16 MB), the pages of a scan you haven't uploaded yet, the offline copies of the first page of Documents and the Inbox, and the documents you chose to keep on the phone (file, details and text; always encrypted, up to 32 MB each). This protects those files when they're copied off the phone; it doesn't protect against someone using the unlocked app. Not encrypted: the temporary copy of a document you're viewing (Android's PDF renderer and other apps need a real file; it's deleted when PaperCtrl starts and, with the app lock on, when it locks), waiting files over 16 MB, and settings such as your servers' names and addresses (the API tokens are encrypted separately).
 - **Notifications** on the lock screen only show their title when you hide sensitive notification content in Android's settings, never a file name or document title. With the app lock on, they only show their title everywhere.
 - **No backups:** Android doesn't back up PaperCtrl's data or move it to a new phone.
 - **No update check:** PaperCtrl never checks for updates by itself; Obtainium or the F-Droid client does that if you use one.

@@ -61,6 +61,8 @@ data class AppSettings(
     val hideScreenshots: Boolean = false,
     /** "Hide in recent apps": the recent-apps view shows a blank card. Screenshots still work. */
     val hideRecents: Boolean = false,
+    /** "Live updates": open lists and documents check the server again every 30 seconds. */
+    val liveUpdates: Boolean = true,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -81,6 +83,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val lockTimeout = stringPreferencesKey("lock_timeout")
         val hideScreenshots = booleanPreferencesKey("hide_screenshots")
         val hideRecents = booleanPreferencesKey("hide_recents")
+        val liveUpdates = booleanPreferencesKey("live_updates")
         /** The old single "Block screenshots" switch: turned on, it turns both switches on. */
         val legacySecureScreens = booleanPreferencesKey("secure_screens")
     }
@@ -112,6 +115,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         lockTimeout = enumOr(this[K.lockTimeout], LockTimeout.IMMEDIATELY),
         hideScreenshots = this[K.hideScreenshots] ?: this[K.legacySecureScreens] ?: false,
         hideRecents = this[K.hideRecents] ?: this[K.legacySecureScreens] ?: false,
+        liveUpdates = this[K.liveUpdates] ?: true,
     )
 
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -132,6 +136,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.lockTimeout] = s.lockTimeout.name
             p[K.hideScreenshots] = s.hideScreenshots
             p[K.hideRecents] = s.hideRecents
+            p[K.liveUpdates] = s.liveUpdates
             p.remove(K.legacySecureScreens)
         }
     }

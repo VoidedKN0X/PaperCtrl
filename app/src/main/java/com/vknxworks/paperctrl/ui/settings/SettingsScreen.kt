@@ -56,6 +56,19 @@ import com.vknxworks.paperctrl.ui.components.GroupChoice
 import com.vknxworks.paperctrl.ui.components.GroupSwitch
 import com.vknxworks.paperctrl.ui.components.ScreenTopBar
 import kotlinx.coroutines.launch
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.Upload
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.vknxworks.paperctrl.data.settings.SettingsBackup
+import com.vknxworks.paperctrl.data.settings.settingChanges
+import com.vknxworks.paperctrl.ui.components.ConfirmDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SettingsScreen() {
@@ -73,6 +86,82 @@ fun SettingsScreen() {
     fun notifySwitch(on: Boolean, change: (AppSettings) -> AppSettings) {
         update(change)
         if (on && !canNotify) askNotify()
+    }
+
+    fun toast(msg: String) = android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_LONG).show()
+    /** Settings read from a file, waiting for the "this will be replaced" confirmation. */
+    var pendingImport by remember { mutableStateOf<AppSettings?>(null) }
+    val exporter = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    val text = SettingsBackup.encode(c.settings.stored.first())
+                    (context.contentResolver.openOutputStream(uri, "wt") ?: error("no stream")).use { it.write(text.toByteArray(Charsets.UTF_8)) }
+                }.isSuccess
+            }
+            toast(context.getString(if (ok) R.string.backup_exported else R.string.backup_export_failed))
+        }
+    }
+    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val backup = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        // A settings file is tiny; anything bigger isn't one and isn't read further.
+                        val bytes = input.readNBytes(SettingsBackup.MAX_BYTES + 1)
+                        if (bytes.size > SettingsBackup.MAX_BYTES) null else SettingsBackup.decode(String(bytes, Charsets.UTF_8))
+                    }
+                }.getOrNull()
+            }
+            if (backup == null) {
+                toast(context.getString(R.string.backup_not_ours))
+                return@launch
+            }
+            val current = c.settings.stored.first()
+            val after = backup.applyTo(current)
+            if (settingChanges(current, after).isEmpty()) toast(context.getString(R.string.backup_nothing_to_change)) else pendingImport = after
+        }
+    }
+
+    pendingImport?.let { after ->
+        val changes = remember(after, s) { settingChanges(s, after) }
+        val on = stringResource(R.string.settings_on)
+        val off = stringResource(R.string.backup_off)
+        val lines = changes.map { ch ->
+            val from = ch.fromLabel?.let { stringResource(it) } ?: if (ch.from == true) on else off
+            val to = ch.toLabel?.let { stringResource(it) } ?: if (ch.to == true) on else off
+            stringResource(R.string.backup_change_line, stringResource(ch.title), from, to)
+        }
+        ConfirmDialog(
+            stringResource(R.string.backup_import_title),
+            stringResource(R.string.backup_import_confirm_body) + "\n\n" + lines.joinToString("\n"),
+            stringResource(R.string.backup_import_confirm),
+            onDismiss = { pendingImport = null },
+            destructive = false,
+        ) {
+            pendingImport = null
+            scope.launch {
+                // Applied on top of what is stored now; the app lock and everything else outside the file stay as they are.
+                c.settings.update { now ->
+                    now.copy(
+                        scanFilter = after.scanFilter,
+                        autoCapture = after.autoCapture,
+                        pdfQuality = after.pdfQuality,
+                        documentsGrid = after.documentsGrid,
+                        notifyAdded = after.notifyAdded,
+                        notifyFailed = after.notifyFailed,
+                        inboxDigest = after.inboxDigest,
+                        liveUpdates = after.liveUpdates,
+                        hideScreenshots = now.hideScreenshots || after.hideScreenshots,
+                        hideRecents = now.hideRecents || after.hideRecents,
+                    )
+                }
+                InboxDigestWorker.schedule(context, after.inboxDigest)
+                toast(context.getString(R.string.backup_imported))
+            }
+        }
     }
 
     Scaffold(
@@ -172,6 +261,12 @@ fun SettingsScreen() {
                 ) { v -> update { it.copy(hideRecents = v) } }
             }
 
+            Group(stringResource(R.string.settings_documents)) {
+                GroupSwitch(stringResource(R.string.settings_live_updates), stringResource(R.string.settings_live_updates_body), s.liveUpdates, icon = Icons.Outlined.Sync) { v ->
+                    update { it.copy(liveUpdates = v) }
+                }
+            }
+
             Group(stringResource(R.string.settings_scanning), footer = stringResource(R.string.settings_quality_footer)) {
                 GroupChoice(
                     stringResource(R.string.settings_quality),
@@ -181,6 +276,19 @@ fun SettingsScreen() {
                 GroupSwitch(stringResource(R.string.settings_auto_capture), stringResource(R.string.settings_auto_capture_body), s.autoCapture) { v ->
                     update { it.copy(autoCapture = v) }
                 }
+            }
+
+            Group(stringResource(R.string.backup_title), footer = stringResource(R.string.backup_footer)) {
+                GroupRow(stringResource(R.string.backup_export), stringResource(R.string.backup_export_body), icon = Icons.Outlined.Upload, onClick = {
+                    AppLock.expectReturn()
+                    runCatching { exporter.launch("paperctrl-settings-${java.time.LocalDate.now()}.json") }
+                        .onFailure { toast(context.getString(R.string.backup_no_file_app)) }
+                })
+                GroupRow(stringResource(R.string.backup_import), stringResource(R.string.backup_import_body), icon = Icons.Outlined.Download, onClick = {
+                    AppLock.expectReturn()
+                    runCatching { importer.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                        .onFailure { toast(context.getString(R.string.backup_no_file_app)) }
+                })
             }
         }
     }

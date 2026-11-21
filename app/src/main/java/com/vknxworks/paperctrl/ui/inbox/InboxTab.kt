@@ -114,6 +114,9 @@ fun InboxTab() {
     val md = rememberMetadata()
     val inboxTags = md.tags.filter { it.isInboxTag }.map { it.id }
     var selected by remember { mutableStateOf<Set<Int>>(emptySet()) }
+    // Live updates: new documents show up by themselves while the Inbox is on show.
+    val liveUpdates = c.settings.settings.collectAsStateWithLifecycle().value.liveUpdates
+    com.vknxworks.paperctrl.ui.components.LiveUpdates(liveUpdates && selected.isEmpty()) { model.quietRefresh() }
     var editing by remember { mutableStateOf<Document?>(null) }
     val snackbar = remember { SnackbarHostState() }
 

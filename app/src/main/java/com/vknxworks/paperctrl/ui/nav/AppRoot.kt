@@ -81,6 +81,7 @@ import com.vknxworks.paperctrl.ui.organise.OrganiseTab
 import com.vknxworks.paperctrl.ui.organise.ObjectListScreen
 import com.vknxworks.paperctrl.ui.organise.TrashScreen
 import com.vknxworks.paperctrl.ui.organise.BundlesScreen
+import com.vknxworks.paperctrl.ui.organise.OfflineScreen
 import com.vknxworks.paperctrl.ui.organise.FailedImportsScreen
 import com.vknxworks.paperctrl.ui.tabs.ScanTab
 import com.vknxworks.paperctrl.ui.document.DocumentScreen
@@ -262,6 +263,7 @@ private fun AppNavHost(navController: NavHostController) {
         composable<TrashRoute> { TrashScreen() }
         composable<FailedImportsRoute> { FailedImportsScreen() }
         composable<BundlesRoute> { BundlesScreen() }
+        composable<OfflineRoute> { OfflineScreen() }
         composable<NtfyRoute> { NtfyScreen() }
         composable<AddServerRoute> {
             val navigator = LocalNavigator.current

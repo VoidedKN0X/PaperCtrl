@@ -12,6 +12,7 @@ import com.vknxworks.paperctrl.data.settings.SettingsRepository
 import com.vknxworks.paperctrl.scan.ScanSession
 import com.vknxworks.paperctrl.data.files.DocumentFiles
 import com.vknxworks.paperctrl.data.files.ListCache
+import com.vknxworks.paperctrl.data.files.OfflineStore
 import com.vknxworks.paperctrl.data.search.DocumentQuery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +68,9 @@ class AppContainer(val context: Context) {
     val files: DocumentFiles by lazy { DocumentFiles(context) }
     val listCache: ListCache by lazy { ListCache(context, dataKeys) }
 
+    /** Documents kept on the phone for offline reading, always encrypted with the data key. */
+    val offline: OfflineStore by lazy { OfflineStore(context, dataKeys) }
+
     init {
         appScope.launch(Dispatchers.IO) {
             // Viewed documents are only kept while the app runs.
@@ -83,6 +87,7 @@ class AppContainer(val context: Context) {
             sessions.awaitReady()
             queue.awaitLoaded()
             val known = sessions.servers.value.map { it.id }.toSet()
+            runCatching { offline.refresh(known) }
             if (known.isNotEmpty()) {
                 queue.items.value.map { it.serverId }.distinct().filterNot { it in known }.forEach { queue.removeServer(it) }
             }
@@ -98,6 +103,7 @@ class AppContainer(val context: Context) {
         queue.removeServer(id)
         metadata.invalidate(id)
         listCache.clear(id)
+        offline.clear(id)
         files.clear()
     }
 

@@ -35,6 +35,8 @@ import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.DownloadForOffline
+import androidx.compose.material.icons.outlined.PhonelinkErase
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LockOpen
@@ -89,6 +91,7 @@ import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.documentOperation
 import com.vknxworks.paperctrl.data.api.pageEditSupport
 import com.vknxworks.paperctrl.data.api.serverFeatures
+import com.vknxworks.paperctrl.ui.components.LiveUpdates
 import com.vknxworks.paperctrl.data.api.webUrl
 import com.vknxworks.paperctrl.data.search.DocumentQuery
 import com.vknxworks.paperctrl.ui.components.ConfirmDialog
@@ -130,6 +133,10 @@ fun DocumentScreen(id: Int) {
     // A split replaced this document (its original was deleted): nothing left to show.
     LaunchedEffect(model.gone) { if (model.gone) nav.back() }
     val server = session?.server
+    val kept by c.offline.kept.collectAsStateWithLifecycle()
+    // Live updates: a change made elsewhere shows up here by itself.
+    val liveUpdates = c.settings.settings.collectAsStateWithLifecycle().value.liveUpdates
+    LiveUpdates(liveUpdates && !managingPages) { model.quietRefresh() }
     val features = remember(server?.apiVersion, server?.serverVersion) { serverFeatures(server?.apiVersion ?: 9, server?.serverVersion) }
     var versionsOpen by remember { mutableStateOf(false) }
     var emailing by remember { mutableStateOf(false) }
@@ -178,6 +185,19 @@ fun DocumentScreen(id: Int) {
                                 c.pendingQuery.value = DocumentQuery(moreLike = id, moreLikeTitle = doc.title, sort = com.vknxworks.paperctrl.data.search.SortField.SCORE)
                                 nav.nav.navigate(DocumentsRoute) { launchSingleTop = true }
                             })
+                            if (model.offlineCopy == null && server != null) {
+                                val isKept = "${server.id}/$id" in kept
+                                DropdownMenuItem(
+                                    colors = ctrlMenuItemColors(),
+                                    text = { Text(stringResource(if (isKept) R.string.offline_remove else R.string.offline_keep)) },
+                                    leadingIcon = { Icon(if (isKept) Icons.Outlined.PhonelinkErase else Icons.Outlined.DownloadForOffline, null) },
+                                    enabled = !model.keepBusy,
+                                    onClick = {
+                                        menu = false
+                                        model.setKept(!isKept)
+                                    },
+                                )
+                            }
                             DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.email_menu)) }, leadingIcon = { Icon(Icons.Outlined.Email, null) }, onClick = {
                                 menu = false
                                 emailing = true
@@ -257,6 +277,20 @@ fun DocumentScreen(id: Int) {
                         )
                     }
                 }
+                model.offlineCopy?.let { copy ->
+                    Row(Modifier.fillMaxWidth().padding(start = Gutter, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            stringResource(
+                                R.string.offline_showing,
+                                formatDate(java.time.Instant.ofEpochMilli(copy.savedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()),
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = { model.load() }) { Text(stringResource(R.string.retry)) }
+                    }
+                }
                 if (model.pageEditRunning) {
                     Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(16.dp), color = CtrlColors.AccentText, strokeWidth = 2.dp)
@@ -271,7 +305,7 @@ fun DocumentScreen(id: Int) {
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     when (DocTab.entries[tab]) {
                         DocTab.PREVIEW -> Column(Modifier.fillMaxSize()) {
-                            if (doc.hasArchive) {
+                            if (doc.hasArchive && model.offlineCopy == null) {
                                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp)) {
                                     SegmentedButton(selected = !model.original, onClick = { model.showOriginal(false) }, shape = SegmentedButtonDefaults.itemShape(0, 2, baseShape = CtrlShapes.Control)) { Text(stringResource(R.string.doc_archived)) }
                                     SegmentedButton(selected = model.original, onClick = { model.showOriginal(true) }, shape = SegmentedButtonDefaults.itemShape(1, 2, baseShape = CtrlShapes.Control)) { Text(stringResource(R.string.doc_original)) }

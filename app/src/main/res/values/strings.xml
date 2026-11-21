@@ -807,4 +807,53 @@
     <string name="filter_duplicates_body">The same file is stored as another document too</string>
     <string name="filter_barcode">Barcode contains</string>
     <string name="filter_barcode_body">Finds documents by the contents of their barcodes or QR codes, when your server stores those</string>
+
+    <!-- Documents kept on the phone -->
+    <string name="offline_title">Kept on this phone</string>
+    <string name="offline_row_body">Documents you can read without a connection</string>
+    <string name="offline_hint">These documents are saved on this phone, encrypted, so you can read them when your server can\'t be reached. A kept copy is saved again when you open a document that changed on the server.</string>
+    <string name="offline_none">Nothing kept yet</string>
+    <string name="offline_none_body">Open a document and choose \"Keep on this phone\" from its menu to read it without a connection.</string>
+    <string name="offline_keep">Keep on this phone</string>
+    <string name="offline_remove">Remove from this phone</string>
+    <string name="offline_kept">Kept on this phone, encrypted. You can read it without a connection.</string>
+    <string name="offline_removed">Removed from this phone. The document on your server isn\'t touched.</string>
+    <string name="offline_too_large">This document is too large to keep on the phone (the limit is 32 MB).</string>
+    <string name="offline_no_key">The phone couldn\'t encrypt the document, so it wasn\'t kept.</string>
+    <string name="offline_unreadable">This kept copy can\'t be opened any more.</string>
+    <string name="offline_showing">Your server can\'t be reached. This is the copy kept on this phone on %1$s.</string>
+    <string name="offline_saved_on">Saved %1$s</string>
+    <string name="offline_document_number">Document #%1$d</string>
+    <string name="offline_open_kept">Open documents kept on this phone</string>
+    <string name="offline_remove_title">Remove from this phone?</string>
+    <string name="offline_remove_body">The copy on this phone is deleted. The document on your server isn\'t touched.</string>
+    <string name="offline_remove_confirm">Remove</string>
+
+    <!-- Live updates -->
+    <string name="settings_documents">Documents</string>
+    <string name="settings_live_updates">Live updates</string>
+    <string name="settings_live_updates_body">While the Inbox, the Documents list or a document is open, PaperCtrl checks your server every 30 seconds and shows what changed by itself. Nothing is checked while the app is in the background.</string>
+
+    <!-- Settings export and import -->
+    <string name="backup_title">Back up and restore</string>
+    <string name="backup_footer">The file holds PaperCtrl\'s own settings only. Servers, logins, tokens, confirmed certificates, the app lock and its PIN, the ntfy set-up, uploads, scans and kept documents are never in it. An import never turns \"Hide in screenshots\" or \"Hide in recent apps\" off.</string>
+    <string name="backup_export">Export settings</string>
+    <string name="backup_export_body">Save your settings to a file you choose</string>
+    <string name="backup_import">Import settings</string>
+    <string name="backup_import_body">Read settings from a file; you see what changes first</string>
+    <string name="backup_exported">Settings exported.</string>
+    <string name="backup_export_failed">Couldn\'t write the file.</string>
+    <string name="backup_no_file_app">No app on this phone can pick a file.</string>
+    <string name="backup_not_ours">This isn\'t a PaperCtrl settings file, or it\'s from a newer version.</string>
+    <string name="backup_nothing_to_change">Your settings already match this file.</string>
+    <string name="backup_import_title">Import these settings?</string>
+    <string name="backup_import_confirm_body">These settings will be replaced:</string>
+    <string name="backup_import_confirm">Import</string>
+    <string name="backup_imported">Settings imported.</string>
+    <string name="backup_change_line">%1$s: %2$s → %3$s</string>
+    <string name="backup_off">Off</string>
+    <string name="backup_scan_filter">Scan filter</string>
+    <string name="backup_documents_view">Documents view</string>
+    <string name="backup_view_list">List</string>
+    <string name="backup_view_grid">Grid</string>
 </resources>

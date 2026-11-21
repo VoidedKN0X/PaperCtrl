@@ -45,6 +45,11 @@ import com.vknxworks.paperctrl.data.api.task
 import com.vknxworks.paperctrl.data.api.uploadVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.vknxworks.paperctrl.data.api.PaperlessException
+import com.vknxworks.paperctrl.data.api.isUnreachable
+import com.vknxworks.paperctrl.data.files.OfflineEntry
+import com.vknxworks.paperctrl.data.files.OfflineNoKeyException
+import com.vknxworks.paperctrl.data.files.OfflineTooLargeException
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -97,7 +102,14 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
     var gone by mutableStateOf(false)
         private set
 
+    /** Set when the server couldn't be reached and the copy kept on this phone is shown instead. */
+    var offlineCopy by mutableStateOf<OfflineEntry?>(null)
+        private set
+    var keepBusy by mutableStateOf(false)
+        private set
+
     val client: PaperlessClient? get() = c.sessions.active.value?.client
+    private val serverId: String? get() = c.sessions.active.value?.server?.id
     val dirty: Boolean get() = doc?.let { edit != null && edit != DocEdit.of(it) } ?: false
 
     init {
@@ -109,17 +121,87 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
             val cl = client ?: return@launch
             try {
                 val d = cl.document(id, fullPerms = true)
+                val wasOffline = offlineCopy != null
+                offlineCopy = null
                 doc = d
                 edit = DocEdit.of(d)
                 error = null
-                if (file == null) loadFile()
+                if (file == null || wasOffline) {
+                    file = null
+                    loadFile()
+                }
                 fields = runCatching { cl.customFields() }.getOrDefault(emptyList())
                 loadLinkTitles(d)
                 links = runCatching { cl.shareLinks(id) }.getOrDefault(emptyList())
+                refreshKeptCopy(d)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                error = e.friendlyMessage(context)
+                // The server can't be reached: show the copy kept on this phone, when there is one.
+                val sid = serverId
+                val kept = if (doc == null && sid != null && (isUnreachable(e) || e is PaperlessException && e.httpCode == null)) {
+                    runCatching { c.offline.entry(sid, id) }.getOrNull()
+                } else {
+                    null
+                }
+                if (kept != null) {
+                    // Shown read-only: nothing can be saved to the server from here.
+                    val d = kept.doc.copy(userCanChange = false)
+                    doc = d
+                    edit = DocEdit.of(d)
+                    offlineCopy = kept
+                    error = null
+                    loadFile()
+                } else {
+                    error = e.friendlyMessage(context)
+                }
+            }
+        }
+    }
+
+    /** Keeps this document on the phone (encrypted), or takes the kept copy off again. */
+    fun setKept(keep: Boolean) {
+        val sid = serverId ?: return
+        val d = doc ?: return
+        if (keepBusy) return
+        keepBusy = true
+        viewModelScope.launch {
+            try {
+                if (!keep) {
+                    c.offline.remove(sid, id)
+                    toast(context.getString(R.string.offline_removed))
+                    return@launch
+                }
+                val cl = client ?: return@launch
+                // The file as the preview shows it by default: the searchable PDF when there is one.
+                val f = c.files.fetch(cl, d, original = false)
+                c.offline.keep(sid, d, f, original = !d.hasArchive)
+                toast(context.getString(R.string.offline_kept))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: OfflineTooLargeException) {
+                toast(context.getString(R.string.offline_too_large))
+            } catch (e: OfflineNoKeyException) {
+                toast(context.getString(R.string.offline_no_key))
+            } catch (e: Exception) {
+                toast(e.friendlyMessage(context))
+            } finally {
+                keepBusy = false
+            }
+        }
+    }
+
+    /** A kept copy follows the document: when it changed on the server since it was saved, it's saved again. */
+    private fun refreshKeptCopy(d: Document) {
+        val sid = serverId ?: return
+        if (!c.offline.isKept(sid, id)) return
+        val cl = client ?: return
+        viewModelScope.launch {
+            runCatching {
+                val saved = c.offline.entry(sid, id)
+                if (saved != null && saved.doc.modified == d.modified) return@runCatching
+                val f = c.files.fetch(cl, d, original = false)
+                c.offline.keep(sid, d, f, original = !d.hasArchive)
             }
         }
     }
@@ -152,6 +234,21 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
 
     fun loadFile() {
         val d = doc ?: return
+        val sid = serverId
+        if (offlineCopy != null && sid != null) {
+            fileJob?.cancel()
+            fileError = null
+            fileJob = viewModelScope.launch {
+                try {
+                    file = c.offline.open(sid, id)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    fileError = context.getString(R.string.offline_unreadable)
+                }
+            }
+            return
+        }
         val cl = client ?: return
         fileJob?.cancel()
         fileError = null
@@ -442,6 +539,36 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
             } finally {
                 pageEditRunning = false
             }
+        }
+    }
+
+    /**
+     * Live updates: asks the server whether the document changed since it was loaded, and loads it again when
+     * it did. Left alone while there are unsaved edits, a save or a page edit is running, or the kept copy is shown.
+     */
+    suspend fun quietRefresh() {
+        val cl = client ?: return
+        val d = doc ?: return
+        if (dirty || saving || pageEditRunning || offlineCopy != null) return
+        val modified = try {
+            ((cl.get("documents/$id/", mapOf("fields" to "id,modified")) as? kotlinx.serialization.json.JsonObject)?.get("modified") as? JsonPrimitive)?.takeIf { it.isString }?.content
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return
+        }
+        if (modified == null || modified == d.modified) return
+        if (dirty || saving || pageEditRunning) return
+        runCatching { c.files.forget(cl, id) }
+        runCatching { cl.document(id, fullPerms = true) }.onSuccess { fresh ->
+            if (dirty || saving || pageEditRunning) return@onSuccess
+            doc = fresh
+            edit = DocEdit.of(fresh)
+            if (version == null) {
+                file = null
+                loadFile()
+            }
+            refreshKeptCopy(fresh)
         }
     }
 

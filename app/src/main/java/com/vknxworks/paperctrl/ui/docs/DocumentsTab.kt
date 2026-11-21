@@ -100,6 +100,9 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Sell
 import com.vknxworks.paperctrl.data.api.Found
+import com.vknxworks.paperctrl.ui.components.LiveUpdates
+import androidx.compose.material3.TextButton
+import com.vknxworks.paperctrl.ui.nav.OfflineRoute
 import com.vknxworks.paperctrl.data.api.FoundKind
 import com.vknxworks.paperctrl.data.api.globalSearch
 import kotlinx.coroutines.delay
@@ -158,6 +161,9 @@ fun DocumentsTab() {
         }
         found = if (s != null && text.trim().length >= 3) runCatching { s.client.globalSearch(text) }.getOrDefault(emptyList()) else emptyList()
     }
+
+    // Live updates: the list looks at the server again every 30 seconds while it's on show.
+    LiveUpdates(settings.liveUpdates && selected.isEmpty()) { model.quietRefresh() }
 
     val q = model.query
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -310,6 +316,14 @@ fun DocumentsTab() {
             }
         }
         if (model.offline) OfflineBanner()
+        if (model.offline || (model.loaded && model.items.isEmpty() && model.error != null)) {
+            val kept by c.offline.kept.collectAsStateWithLifecycle()
+            if (kept.any { it.startsWith("$serverId/") }) {
+                TextButton(onClick = { nav.navigate(OfflineRoute) }, modifier = Modifier.padding(horizontal = Gutter - 8.dp)) {
+                    Text(stringResource(R.string.offline_open_kept))
+                }
+            }
+        }
         if (model.offline || (model.loaded && model.items.isEmpty() && model.error != null)) SwitchAddressBar { model.refresh() }
 
         Box(Modifier.weight(1f)) {

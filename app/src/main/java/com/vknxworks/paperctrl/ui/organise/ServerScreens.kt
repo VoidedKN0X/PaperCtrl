@@ -45,6 +45,9 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vknxworks.paperctrl.R
+import androidx.compose.material.icons.outlined.DownloadForOffline
+import androidx.compose.material.icons.outlined.PhonelinkErase
+import com.vknxworks.paperctrl.data.files.OfflineItem
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.FailedImport
 import com.vknxworks.paperctrl.data.api.ShareBundle
@@ -287,6 +290,91 @@ fun BundlesScreen() {
         ) {
             deleting = null
             act { it.deleteShareBundle(b.id) }
+        }
+    }
+}
+
+/**
+ * Documents kept on this phone for reading without a connection (encrypted at rest). Opening one shows the
+ * live document when the server can be reached and the kept copy when it can't.
+ */
+@Composable
+fun OfflineScreen() {
+    val context = LocalContext.current
+    val c = context.container
+    val nav = LocalNavigator.current
+    val scope = rememberCoroutineScope()
+    val serverId = c.sessions.active.value?.server?.id
+    var items by remember { mutableStateOf<List<OfflineItem>?>(null) }
+    var reload by remember { mutableIntStateOf(0) }
+    var removing by remember { mutableStateOf<OfflineItem?>(null) }
+
+    LaunchedEffect(reload, serverId) {
+        items = if (serverId == null) emptyList() else runCatching { c.offline.list(serverId) }.getOrDefault(emptyList())
+    }
+
+    Scaffold(
+        contentWindowInsets = WindowInsets(0),
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = { ScreenTopBar(stringResource(R.string.offline_title)) },
+    ) { padding ->
+        val list = items
+        Box(Modifier.padding(padding).fillMaxSize()) {
+            when {
+                list == null -> LoadingView()
+                list.isEmpty() -> MessageView(Icons.Outlined.DownloadForOffline, stringResource(R.string.offline_none), stringResource(R.string.offline_none_body))
+                else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = Gutter, end = Gutter, top = 6.dp, bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    item {
+                        Text(stringResource(R.string.offline_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    items(list, key = { it.id }) { item ->
+                        val e = item.entry
+                        CtrlCard(
+                            padding = PaddingValues(start = 16.dp, top = 4.dp, end = 4.dp, bottom = 4.dp),
+                            onClick = if (e != null) { { nav.navigate(DocumentRoute(item.id)) } } else null,
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                androidx.compose.foundation.layout.Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+                                    Text(e?.doc?.title?.ifBlank { null } ?: stringResource(R.string.offline_document_number, item.id), style = MaterialTheme.typography.titleSmall)
+                                    Text(
+                                        if (e == null) {
+                                            stringResource(R.string.offline_unreadable)
+                                        } else {
+                                            listOf(
+                                                stringResource(
+                                                    R.string.offline_saved_on,
+                                                    formatDate(java.time.Instant.ofEpochMilli(e.savedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()),
+                                                ),
+                                                Formatter.formatShortFileSize(context, e.size),
+                                            ).joinToString("  ·  ")
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (e == null) MaterialTheme.colorScheme.error else CtrlColors.Muted,
+                                    )
+                                }
+                                IconButton(onClick = { removing = item }) { Icon(Icons.Outlined.PhonelinkErase, stringResource(R.string.offline_remove)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    removing?.let { item ->
+        ConfirmDialog(
+            stringResource(R.string.offline_remove_title),
+            stringResource(R.string.offline_remove_body),
+            stringResource(R.string.offline_remove_confirm),
+            onDismiss = { removing = null },
+            destructive = false,
+        ) {
+            removing = null
+            if (serverId != null) {
+                scope.launch {
+                    runCatching { c.offline.remove(serverId, item.id) }
+                    reload++
+                }
+            }
         }
     }
 }

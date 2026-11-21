@@ -29,4 +29,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object TrashRoute
 @Serializable data object FailedImportsRoute
 @Serializable data object BundlesRoute
+@Serializable data object OfflineRoute
 @Serializable data object NtfyRoute

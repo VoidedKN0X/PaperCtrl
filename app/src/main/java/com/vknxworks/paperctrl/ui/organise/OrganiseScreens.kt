@@ -79,6 +79,8 @@ import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Link
 import com.vknxworks.paperctrl.data.api.serverFeatures
 import com.vknxworks.paperctrl.ui.nav.BundlesRoute
+import com.vknxworks.paperctrl.ui.nav.OfflineRoute
+import androidx.compose.material.icons.outlined.DownloadForOffline
 import com.vknxworks.paperctrl.ui.nav.FailedImportsRoute
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.CustomField
@@ -166,6 +168,9 @@ fun OrganiseTab() {
             Group {
                 GroupRow(stringResource(R.string.filter_custom_fields), null, icon = Icons.Outlined.EditNote, showChevron = true, onClick = { nav.navigate(ObjectListRoute(ObjectKind.FIELDS.name)) })
                 GroupRow(stringResource(R.string.organise_views), null, icon = Icons.Outlined.Bookmarks, showChevron = true, onClick = { nav.navigate(ObjectListRoute(ObjectKind.VIEWS.name)) })
+            }
+            Group {
+                GroupRow(stringResource(R.string.offline_title), stringResource(R.string.offline_row_body), icon = Icons.Outlined.DownloadForOffline, showChevron = true, onClick = { nav.navigate(OfflineRoute) })
             }
             Group {
                 GroupRow(stringResource(R.string.imports_title), stringResource(R.string.imports_row_body), icon = Icons.Outlined.ErrorOutline, showChevron = true, onClick = { nav.navigate(FailedImportsRoute) })
