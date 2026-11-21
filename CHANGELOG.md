@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.12.0 (2026-11-21)
 
-None of this has been run on a phone: it was built and checked by CI only. What's offered follows your Paperless version, as with the page manager: the parts marked "Paperless-ngx 3" don't show on a 2.x server.
+Built and checked by CI only: nothing in this release had been run on a phone when it was published.
 
 ### New
 
