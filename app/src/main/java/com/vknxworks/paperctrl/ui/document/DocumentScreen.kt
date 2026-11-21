@@ -35,6 +35,9 @@ import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.OpenInBrowser
@@ -85,6 +88,7 @@ import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.documentOperation
 import com.vknxworks.paperctrl.data.api.pageEditSupport
+import com.vknxworks.paperctrl.data.api.serverFeatures
 import com.vknxworks.paperctrl.data.api.webUrl
 import com.vknxworks.paperctrl.data.search.DocumentQuery
 import com.vknxworks.paperctrl.ui.components.ConfirmDialog
@@ -126,6 +130,10 @@ fun DocumentScreen(id: Int) {
     // A split replaced this document (its original was deleted): nothing left to show.
     LaunchedEffect(model.gone) { if (model.gone) nav.back() }
     val server = session?.server
+    val features = remember(server?.apiVersion, server?.serverVersion) { serverFeatures(server?.apiVersion ?: 9, server?.serverVersion) }
+    var versionsOpen by remember { mutableStateOf(false) }
+    var emailing by remember { mutableStateOf(false) }
+    var removingPassword by remember { mutableStateOf(false) }
     val pageSupport = remember(server?.apiVersion, server?.serverVersion) { pageEditSupport(server?.apiVersion ?: 9, server?.serverVersion) }
     if (managingPages && doc != null) {
         PageManagerScreen(model, pageSupport, onClose = { managingPages = false })
@@ -170,6 +178,22 @@ fun DocumentScreen(id: Int) {
                                 c.pendingQuery.value = DocumentQuery(moreLike = id, moreLikeTitle = doc.title, sort = com.vknxworks.paperctrl.data.search.SortField.SCORE)
                                 nav.nav.navigate(DocumentsRoute) { launchSingleTop = true }
                             })
+                            DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.email_menu)) }, leadingIcon = { Icon(Icons.Outlined.Email, null) }, onClick = {
+                                menu = false
+                                emailing = true
+                            })
+                            if (features.versions) {
+                                DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.versions_title)) }, leadingIcon = { Icon(Icons.Outlined.History, null) }, onClick = {
+                                    menu = false
+                                    versionsOpen = true
+                                })
+                            }
+                            if (features.removePassword && doc.userCanChange && doc.mimeType == "application/pdf") {
+                                DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.password_remove_menu)) }, leadingIcon = { Icon(Icons.Outlined.LockOpen, null) }, enabled = !model.pageEditRunning, onClick = {
+                                    menu = false
+                                    removingPassword = true
+                                })
+                            }
                             if (doc.userCanChange && doc.mimeType == "application/pdf") {
                                 DropdownMenuItem(colors = ctrlMenuItemColors(), text = { Text(stringResource(R.string.pages_menu)) }, leadingIcon = { Icon(Icons.Outlined.Layers, null) }, enabled = !model.pageEditRunning, onClick = {
                                     menu = false
@@ -237,7 +261,7 @@ fun DocumentScreen(id: Int) {
                     Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(16.dp), color = CtrlColors.AccentText, strokeWidth = 2.dp)
                         Text(
-                            stringResource(R.string.pages_working),
+                            stringResource(model.workingText),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 10.dp),
@@ -251,6 +275,18 @@ fun DocumentScreen(id: Int) {
                                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp)) {
                                     SegmentedButton(selected = !model.original, onClick = { model.showOriginal(false) }, shape = SegmentedButtonDefaults.itemShape(0, 2, baseShape = CtrlShapes.Control)) { Text(stringResource(R.string.doc_archived)) }
                                     SegmentedButton(selected = model.original, onClick = { model.showOriginal(true) }, shape = SegmentedButtonDefaults.itemShape(1, 2, baseShape = CtrlShapes.Control)) { Text(stringResource(R.string.doc_original)) }
+                                }
+                            }
+                            val shownVersion = model.version?.let { v -> doc.versions.firstOrNull { it.id == v } }
+                            if (shownVersion != null) {
+                                Row(Modifier.fillMaxWidth().padding(start = Gutter, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        stringResource(R.string.versions_showing, versionName(doc.versions, shownVersion)),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    TextButton(onClick = { model.showVersion(null) }) { Text(stringResource(R.string.versions_back_to_current)) }
                                 }
                             }
                             // Deleted when PaperCtrl locked (app lock on): download it again after unlocking.
@@ -299,6 +335,14 @@ fun DocumentScreen(id: Int) {
 
     if (sharing && doc != null) ShareLinksSheet(model, onDismiss = { sharing = false })
     if (permissions && doc != null) PermissionsSheet(model, onDismiss = { permissions = false })
+    if (versionsOpen && doc != null) VersionsSheet(model, onDismiss = { versionsOpen = false })
+    if (emailing && doc != null) EmailSheet(model, onDismiss = { emailing = false })
+    if (removingPassword) {
+        RemovePasswordDialog(onDismiss = { removingPassword = false }) { password ->
+            removingPassword = false
+            model.removePassword(password)
+        }
+    }
     linkPicker?.let { onPicked ->
         DocumentSearchSheet(excludeId = id, onDismiss = { linkPicker = null }) { picked ->
             linkPicker = null

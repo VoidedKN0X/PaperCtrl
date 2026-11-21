@@ -48,6 +48,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vknxworks.paperctrl.R
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.material.icons.outlined.FileCopy
+import androidx.compose.material.icons.outlined.QrCode2
+import com.vknxworks.paperctrl.data.api.serverFeatures
+import com.vknxworks.paperctrl.ui.components.CtrlTextField
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.CustomField
 import com.vknxworks.paperctrl.data.api.User
@@ -85,6 +90,8 @@ fun FilterSheet(initial: DocumentQuery, md: ServerMetadata, onDismiss: () -> Uni
         users = s.client.users()
         fields = runCatching { s.client.customFields() }.getOrDefault(emptyList())
     }
+    // What's offered follows the server's Paperless version.
+    val features = remember { c.sessions.active.value?.server.let { serverFeatures(it?.apiVersion ?: 9, it?.serverVersion) } }
     val any = stringResource(R.string.filter_any)
     fun names(ids: Set<Int>, lookup: (Int) -> String?) = ids.mapNotNull(lookup).joinToString(", ").ifEmpty { any }
 
@@ -93,7 +100,7 @@ fun FilterSheet(initial: DocumentQuery, md: ServerMetadata, onDismiss: () -> Uni
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = CtrlColors.Surface,
     ) {
-        Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding()) {
+        Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding().imePadding()) {
             Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 12.dp)) {
                 Text(stringResource(R.string.filters), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                 TextButton(onClick = { q = DocumentQuery(text = q.text, textMode = q.textMode, sort = q.sort, reverse = q.reverse) }) {
@@ -144,6 +151,20 @@ fun FilterSheet(initial: DocumentQuery, md: ServerMetadata, onDismiss: () -> Uni
             }
             Group {
                 GroupSwitch(stringResource(R.string.filter_inbox_only), checked = q.inboxOnly, icon = Icons.Outlined.Inbox) { q = q.copy(inboxOnly = it) }
+                if (features.duplicatesFilter || q.hasDuplicates) {
+                    GroupSwitch(stringResource(R.string.filter_duplicates), stringResource(R.string.filter_duplicates_body), checked = q.hasDuplicates, icon = Icons.Outlined.FileCopy) { q = q.copy(hasDuplicates = it) }
+                }
+            }
+            if (features.barcodeSearch || q.barcode.isNotBlank()) {
+                CtrlTextField(
+                    value = q.barcode,
+                    onValueChange = { q = q.copy(barcode = it.take(200)) },
+                    label = { Text(stringResource(R.string.filter_barcode)) },
+                    supportingText = { Text(stringResource(R.string.filter_barcode_body)) },
+                    leadingIcon = { Icon(Icons.Outlined.QrCode2, null) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp),
+                )
             }
             if (q.extra.isNotEmpty()) {
                 Group(footer = stringResource(R.string.filter_view_rules_footer)) {

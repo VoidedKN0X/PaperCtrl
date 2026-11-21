@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+None of this has been run on a phone: it was built and checked by CI only. What's offered follows your Paperless version, as with the page manager: the parts marked "Paperless-ngx 3" don't show on a 2.x server.
+
+### New
+
+- **Failed imports.** Organise has a new **Failed imports** screen: every file Paperless tried to add and couldn't, with the file's name, the date and Paperless' own explanation (which you can select and copy). When the reason is that the file is a duplicate, a button opens the document it duplicates. Dismiss one, or all of them after a confirmation; dismissing takes them off the list in the Paperless web app too and deletes nothing. Pull down to refresh.
+- **Document versions (Paperless-ngx 3).** A document's menu has **Versions**: the list of every version of its file, newest first. Tap one to look at it in the preview (a line above the preview says which version you see, with a button back to the current one), give a version a label, delete a version that isn't the first file (after a confirmation: it is deleted for good, not moved to the trash), or upload a file from your phone as a new version, with an optional label. PaperCtrl waits for Paperless to finish reading the new file and then shows it.
+- **Share-link bundles (Paperless-ngx 3).** Select documents in the Documents tab and choose **Share as one link** from the menu: pick when the link expires and whether it holds the searchable PDFs or the original files. The link is copied right away; Paperless builds the zip file in the background and the link starts working when it's ready. Organise has a new **Share-link bundles** screen that lists your bundles with their state, size and expiry, where you copy or share a link, have a bundle built again or revoke it (after a confirmation). While a bundle is being prepared that screen checks again every few seconds.
+- **Remove a PDF's password (Paperless-ngx 3).** A PDF's menu has **Remove password**: type the PDF's password and Paperless saves a copy without one as a new version of the document. The password is sent to your own server for this and isn't kept on the phone. PaperCtrl says so when the password was wrong or the PDF had no password.
+- **E-mail a document through your server.** A document's menu has **E-mail from Paperless**: recipients, subject, message and the searchable PDF or the original file. Your Paperless server sends it from its own mail account; no mail app on the phone is involved. When the server says e-mail isn't set up, the sheet tells you and the Send button stays off.
+- **Save a scan as a PDF on the phone, without uploading.** The scan review screen has a save button in the top bar that writes the pages as one PDF to Downloads/PaperCtrl, at the PDF quality from Settings. Nothing is uploaded and the pages stay in the scanner, so you can still upload or discard them afterwards.
+- **Global search.** While you type in the Documents tab, a second row shows what Paperless' own global search finds by name: tags, correspondents, document types, storage paths, custom fields, saved views and documents by title. Tap a label or saved view to see its documents, or a document to open it.
+- **Filter on duplicates (Paperless-ngx 3.2) and on barcodes (Paperless-ngx 3.3).** The filter sheet has **Only documents with duplicates** (the same file is stored as another document too) and **Barcode contains**, which finds documents by the contents of their barcodes and QR codes when your server stores those. Both only show when your server's version has them.
+
 ## v0.11.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published. It is the first release built with the new build tools (Android Gradle Plugin 9, stricter code shrinking), so update over your installed version and check that your data and settings are still there.

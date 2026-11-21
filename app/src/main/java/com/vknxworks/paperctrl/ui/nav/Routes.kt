@@ -27,4 +27,6 @@ import kotlinx.serialization.Serializable
 // Organise
 @Serializable data class ObjectListRoute(val kind: String)
 @Serializable data object TrashRoute
+@Serializable data object FailedImportsRoute
+@Serializable data object BundlesRoute
 @Serializable data object NtfyRoute

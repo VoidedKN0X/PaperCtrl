@@ -707,4 +707,104 @@
     <string name="stats_paths">Paths</string>
     <string name="stats_file_types">File types</string>
     <string name="stats_other_types">Other</string>
+
+    <!-- Failed imports -->
+    <string name="imports_title">Failed imports</string>
+    <string name="imports_row_body">Files Paperless couldn\'t add, and why</string>
+    <string name="imports_hint">Files Paperless tried to add and couldn\'t. Dismissing one takes it off this list on the server too; the file itself isn\'t touched.</string>
+    <string name="imports_none">No failed imports</string>
+    <string name="imports_none_body">Every file Paperless was given has been added, or the failures were already dismissed.</string>
+    <string name="imports_unnamed">File without a name</string>
+    <string name="imports_no_reason">Paperless didn\'t say why.</string>
+    <string name="imports_duplicate">It is a duplicate of document #%1$s.</string>
+    <string name="imports_open_duplicate">Open that document</string>
+    <string name="imports_dismiss">Dismiss</string>
+    <string name="imports_dismiss_all">Dismiss all</string>
+    <string name="imports_dismiss_all_title">Dismiss every failed import?</string>
+    <string name="imports_dismiss_all_body">They disappear from this list, in the Paperless web app too. No file or document is deleted.</string>
+
+    <!-- Share-link bundles (Paperless-ngx 3) -->
+    <string name="bundles_title">Share-link bundles</string>
+    <string name="bundles_row_body">One public link to several documents</string>
+    <string name="bundles_hint">Each bundle is one public link to a zip file of several documents. Anyone with the link can download it until it expires or you revoke it.</string>
+    <string name="bundles_none">No bundles yet</string>
+    <string name="bundles_none_body">Select documents in the Documents tab and choose \"Share as one link\" to make one.</string>
+    <string name="bundles_ready">Ready</string>
+    <string name="bundles_building">Being prepared…</string>
+    <string name="bundles_failed">Couldn\'t be built</string>
+    <string name="bundles_rebuild">Build again</string>
+    <string name="bundles_delete_title">Revoke this link?</string>
+    <string name="bundles_delete_body">The link stops working right away and the zip file is removed from the server. The documents themselves stay.</string>
+    <string name="bundles_share">Share as one link</string>
+    <string name="bundles_create">Create link</string>
+    <string name="bundles_created">Link copied. Paperless is preparing the zip file; the link works as soon as it\'s ready. You\'ll find it under Organise, Share-link bundles.</string>
+    <plurals name="bundles_documents">
+        <item quantity="one">%d document</item>
+        <item quantity="other">%d documents</item>
+    </plurals>
+    <plurals name="bundles_share_body">
+        <item quantity="one">One public link to a zip file with the selected document. Anyone with the link can download it.</item>
+        <item quantity="other">One public link to a zip file with the %d selected documents. Anyone with the link can download it.</item>
+    </plurals>
+
+    <!-- Document versions (Paperless-ngx 3) -->
+    <string name="versions_title">Versions</string>
+    <string name="versions_body">Paperless keeps every version of this document\'s file. Tap one to look at it. Page edits and a removed password are saved as new versions.</string>
+    <string name="versions_number">Version %1$d</string>
+    <string name="versions_current">Current</string>
+    <string name="versions_first">First file</string>
+    <string name="versions_shown">Shown now</string>
+    <string name="versions_label">Label</string>
+    <string name="versions_label_optional">Label (optional)</string>
+    <string name="versions_label_hint">For example \"Signed copy\"</string>
+    <string name="versions_new">Add a new version</string>
+    <string name="versions_choose_file">Choose a file to upload</string>
+    <string name="versions_file_failed">Couldn\'t read that file.</string>
+    <string name="versions_added">The new version is in.</string>
+    <string name="versions_add_failed">Paperless couldn\'t add the new version.</string>
+    <string name="versions_deleted">Version deleted.</string>
+    <string name="versions_delete_title">Delete this version?</string>
+    <string name="versions_delete_body">\"%1$s\" is deleted for good. It doesn\'t go to the trash. The other versions stay.</string>
+    <string name="versions_showing">Showing: %1$s</string>
+    <string name="versions_back_to_current">Current version</string>
+    <string name="doc_working">Paperless is working on the document…</string>
+    <string name="doc_still_working">Paperless is still working on the document. Open it again in a while to see the result.</string>
+
+    <!-- Remove a PDF\'s password (Paperless-ngx 3) -->
+    <string name="password_remove_menu">Remove password</string>
+    <string name="password_remove_title">Remove the PDF\'s password</string>
+    <string name="password_remove_body">Paperless opens the PDF with its password and saves a copy without one as a new version of this document. The password is sent to your server for that and isn\'t kept on this phone.</string>
+    <string name="password_remove_field">The PDF\'s password</string>
+    <string name="password_remove_confirm">Remove</string>
+    <string name="password_removed">Password removed. The unprotected file is the new version.</string>
+    <string name="password_remove_failed">Paperless couldn\'t remove the password. Check the password and try again.</string>
+    <string name="password_remove_nothing">Paperless didn\'t change anything: this PDF doesn\'t seem to have a password.</string>
+
+    <!-- E-mail through the server -->
+    <string name="email_menu">E-mail from Paperless</string>
+    <string name="email_title">E-mail this document</string>
+    <string name="email_body">Your Paperless server sends the document as an attachment from its own mail account. Nothing goes through a mail app on this phone.</string>
+    <string name="email_not_set_up">E-mail isn\'t set up on your Paperless server, so it can\'t send documents. The server\'s administrator sets this up in its configuration.</string>
+    <string name="email_to">To</string>
+    <string name="email_to_hint">One or more addresses, separated by commas</string>
+    <string name="email_subject">Subject</string>
+    <string name="email_message">Message</string>
+    <string name="email_send">Send</string>
+    <string name="email_sent">Paperless sent the e-mail.</string>
+    <string name="email_failed">Paperless couldn\'t send the e-mail. Check the mail settings on your server.</string>
+
+    <!-- Save a scan as a PDF on the phone -->
+    <string name="scan_save_pdf">Save as PDF on this phone</string>
+    <string name="scan_pdf_saved">Saved in Downloads/PaperCtrl as %1$s. Nothing was uploaded; the pages are still here.</string>
+    <string name="scan_pdf_failed">Couldn\'t save the PDF.</string>
+
+    <!-- Global search and the newer filters -->
+    <string name="found_document">Document</string>
+    <string name="found_tag">Tag</string>
+    <string name="found_field">Custom field</string>
+    <string name="found_view">Saved view</string>
+    <string name="filter_duplicates">Only documents with duplicates</string>
+    <string name="filter_duplicates_body">The same file is stored as another document too</string>
+    <string name="filter_barcode">Barcode contains</string>
+    <string name="filter_barcode_body">Finds documents by the contents of their barcodes or QR codes, when your server stores those</string>
 </resources>

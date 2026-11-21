@@ -93,6 +93,15 @@ import com.vknxworks.paperctrl.ui.components.SwitchAddressBar
 import com.vknxworks.paperctrl.ui.nav.DocumentRoute
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.theme.Gutter
+import androidx.compose.material.icons.outlined.Bookmarks
+import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Sell
+import com.vknxworks.paperctrl.data.api.Found
+import com.vknxworks.paperctrl.data.api.FoundKind
+import com.vknxworks.paperctrl.data.api.globalSearch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -115,6 +124,8 @@ fun DocumentsTab() {
     val md = rememberMetadata()
     var text by rememberSaveable { mutableStateOf(model.query.text) }
     var suggestions by remember { mutableStateOf<List<String>>(emptyList()) }
+    // Paperless' global search: labels, saved views and document titles that match what's typed.
+    var found by remember { mutableStateOf<List<Found>>(emptyList()) }
     var filters by remember { mutableStateOf(false) }
     var sortMenu by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf<Set<Int>>(emptySet()) }
@@ -145,6 +156,7 @@ fun DocumentsTab() {
         } else {
             emptyList()
         }
+        found = if (s != null && text.trim().length >= 3) runCatching { s.client.globalSearch(text) }.getOrDefault(emptyList()) else emptyList()
     }
 
     val q = model.query
@@ -157,7 +169,7 @@ fun DocumentsTab() {
                 placeholder = { Text(stringResource(R.string.documents_search_hint, stringResource(q.textMode.label))) },
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 trailingIcon = {
-                    if (text.isNotEmpty()) IconButton(onClick = { text = ""; suggestions = emptyList() }) { Icon(Icons.Outlined.Close, stringResource(R.string.clear)) }
+                    if (text.isNotEmpty()) IconButton(onClick = { text = ""; suggestions = emptyList(); found = emptyList() }) { Icon(Icons.Outlined.Close, stringResource(R.string.clear)) }
                 },
                 singleLine = true,
                 shape = CtrlShapes.Field,
@@ -180,6 +192,66 @@ fun DocumentsTab() {
                             suggestions = emptyList()
                         },
                     ) { Text(s, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) }
+                }
+            }
+        }
+        if (found.isNotEmpty()) {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Gutter, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                found.forEach { f ->
+                    Surface(
+                        shape = CtrlShapes.Chip,
+                        color = CtrlColors.Surface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, CtrlColors.ControlOutline),
+                        modifier = Modifier.clickable {
+                            val target = when (f.kind) {
+                                FoundKind.DOCUMENT -> null
+                                FoundKind.TAG -> DocumentQuery(tags = setOf(f.id))
+                                FoundKind.CORRESPONDENT -> DocumentQuery(correspondents = setOf(f.id))
+                                FoundKind.TYPE -> DocumentQuery(documentTypes = setOf(f.id))
+                                FoundKind.PATH -> DocumentQuery(storagePaths = setOf(f.id))
+                                FoundKind.FIELD -> DocumentQuery(customFields = setOf(f.id))
+                                FoundKind.VIEW -> views.firstOrNull { it.id == f.id }?.let { DocumentQuery.fromSavedView(it) } ?: DocumentQuery()
+                            }
+                            if (target == null) {
+                                nav.navigate(DocumentRoute(f.id))
+                            } else {
+                                focus.clearFocus()
+                                suggestions = emptyList()
+                                found = emptyList()
+                                text = ""
+                                model.load(target)
+                            }
+                        },
+                    ) {
+                        Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                when (f.kind) {
+                                    FoundKind.DOCUMENT -> Icons.Outlined.Description
+                                    FoundKind.TAG -> Icons.Outlined.Sell
+                                    FoundKind.CORRESPONDENT -> Icons.Outlined.Person
+                                    FoundKind.TYPE -> Icons.Outlined.Category
+                                    FoundKind.PATH -> Icons.Outlined.Folder
+                                    FoundKind.FIELD -> Icons.Outlined.EditNote
+                                    FoundKind.VIEW -> Icons.Outlined.Bookmarks
+                                },
+                                stringResource(
+                                    when (f.kind) {
+                                        FoundKind.DOCUMENT -> R.string.found_document
+                                        FoundKind.TAG -> R.string.found_tag
+                                        FoundKind.CORRESPONDENT -> R.string.meta_correspondent
+                                        FoundKind.TYPE -> R.string.meta_type
+                                        FoundKind.PATH -> R.string.meta_storage_path
+                                        FoundKind.FIELD -> R.string.found_field
+                                        FoundKind.VIEW -> R.string.found_view
+                                    },
+                                ),
+                                Modifier.size(16.dp),
+                                tint = CtrlColors.Muted,
+                            )
+                            Spacer(Modifier.size(6.dp))
+                            Text(f.name, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                        }
+                    }
                 }
             }
         }

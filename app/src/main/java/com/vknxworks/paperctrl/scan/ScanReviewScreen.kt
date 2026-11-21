@@ -79,6 +79,8 @@ import com.vknxworks.paperctrl.ui.components.Group
 import com.vknxworks.paperctrl.ui.components.GroupRow
 import com.vknxworks.paperctrl.ui.components.MessageView
 import com.vknxworks.paperctrl.ui.components.PillButton
+import androidx.compose.material.icons.outlined.SaveAlt
+import com.vknxworks.paperctrl.data.files.LocalFile
 import com.vknxworks.paperctrl.ui.components.ScreenTopBar
 import com.vknxworks.paperctrl.ui.nav.LocalNavigator
 import com.vknxworks.paperctrl.ui.nav.PageEditRoute
@@ -101,6 +103,9 @@ fun ScanReviewScreen() {
     var dragOffset by remember { mutableStateOf(Offset.Zero) }
     var discard by remember { mutableStateOf(false) }
     var uploading by remember { mutableStateOf(false) }
+    var savingPdf by remember { mutableStateOf(false) }
+    val saveScope = rememberCoroutineScope()
+    val pdfQuality = c.settings.settings.collectAsStateWithLifecycle().value.pdfQuality.quality
     val gridState = rememberLazyGridState()
 
     Scaffold(
@@ -108,6 +113,34 @@ fun ScanReviewScreen() {
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ScreenTopBar(pluralTitle(pages.size)) {
+                if (pages.isNotEmpty()) {
+                    if (savingPdf) {
+                        CircularProgressIndicator(Modifier.padding(horizontal = 12.dp).size(20.dp), color = CtrlColors.AccentText, strokeWidth = 2.dp)
+                    } else {
+                        // A PDF of the pages in Downloads/PaperCtrl, without uploading. The pages stay here.
+                        IconButton(onClick = {
+                            savingPdf = true
+                            saveScope.launch {
+                                val saved = runCatching {
+                                    val dir = c.queue.newStagingDir()
+                                    try {
+                                        val pdf = File(dir, "scan.pdf")
+                                        c.scan.writePdf(pdf, pdfQuality)
+                                        c.files.saveToDownloads(LocalFile(pdf, "Scan ${Staging.timestamp()}.pdf", "application/pdf"))
+                                    } finally {
+                                        c.queue.discardStaging(dir)
+                                    }
+                                }
+                                savingPdf = false
+                                Toast.makeText(
+                                    context,
+                                    saved.fold({ context.getString(R.string.scan_pdf_saved, it) }, { context.getString(R.string.scan_pdf_failed) }),
+                                    Toast.LENGTH_LONG,
+                                ).show()
+                            }
+                        }) { Icon(Icons.Outlined.SaveAlt, stringResource(R.string.scan_save_pdf)) }
+                    }
+                }
                 if (pages.isNotEmpty()) IconButton(onClick = { discard = true }) { Icon(Icons.Outlined.DeleteSweep, stringResource(R.string.scan_discard)) }
             }
         },

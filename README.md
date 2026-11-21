@@ -12,13 +12,17 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 ## Features
 
-- **Scanner** with edge detection, auto-capture, multi-page documents, draggable corners to crop and straighten, and four filters (original, enhanced colour, grey, black and white), saved as one PDF; or **Add from gallery** for photos you already took. Edge detection, straightening and filters are PaperCtrl's own on-device code (no ML Kit, no OpenCV)
+- **Scanner** with edge detection, auto-capture, multi-page documents, draggable corners to crop and straighten, and four filters (original, enhanced colour, grey, black and white), saved as one PDF that you upload or just save on the phone (Downloads/PaperCtrl) without uploading; or **Add from gallery** for photos you already took. Edge detection, straightening and filters are PaperCtrl's own on-device code (no ML Kit, no OpenCV)
 - **Details before uploading**: title, correspondent, document type, storage path, tags and archive serial number (ASN), with ASN labels read by the camera
 - **Upload queue** that works offline and uploads when your server is reachable
 - **Share to PaperCtrl** from any app, for PDFs, images and other files Paperless accepts
 - **Inbox** to sort new documents with swipes and Paperless' own suggestions
-- **Documents** with full-text search, filters, saved views and bulk editing; the first page of your list and inbox stays visible offline
+- **Documents** with full-text search, Paperless' global search (labels, saved views and titles that match what you type), filters including duplicates and barcode contents, saved views and bulk editing; the first page of your list and inbox stays visible offline
 - **Document viewer** for the original and the searchable (OCR'd) version, with notes, history and share links
+- **Versions** of a document's file: look at an older one, label or delete one, upload a new one; and **Remove password** from a protected PDF (both need Paperless-ngx 3)
+- **Share-link bundles**: one public link to a zip of several documents, with a screen to copy, rebuild or revoke them (Paperless-ngx 3)
+- **E-mail a document** from your Paperless server's own mail account
+- **Failed imports**: the files Paperless couldn't add and why, to dismiss when you've seen them
 - **Page manager**: delete, reorder, rotate and split a document's pages on your server, from page thumbnails drawn on the phone (what's offered follows your Paperless version)
 - **Organise** tags, correspondents, document types, storage paths, custom fields and saved views, and restore documents from the trash, with your library's statistics at the top
 - **Notifications** when uploads finish or fail, a daily inbox reminder, and push from Paperless through **[ntfy](https://f-droid.org/packages/io.heckel.ntfy/)** and your own ntfy server

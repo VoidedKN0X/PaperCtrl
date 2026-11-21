@@ -75,6 +75,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.paperctrl.R
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.Link
+import com.vknxworks.paperctrl.data.api.serverFeatures
+import com.vknxworks.paperctrl.ui.nav.BundlesRoute
+import com.vknxworks.paperctrl.ui.nav.FailedImportsRoute
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.CustomField
 import com.vknxworks.paperctrl.data.api.Document
@@ -143,6 +148,11 @@ private data class Item(
 fun OrganiseTab() {
     val nav = LocalNavigator.current
     val md = rememberMetadata()
+    val session by LocalContext.current.container.sessions.active.collectAsStateWithLifecycle()
+    // What's offered follows the server's Paperless version.
+    val features = remember(session?.server?.apiVersion, session?.server?.serverVersion) {
+        serverFeatures(session?.server?.apiVersion ?: 9, session?.server?.serverVersion)
+    }
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         TabTitle(stringResource(R.string.tab_organise))
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = LocalBottomClearance.current + 16.dp)) {
@@ -158,6 +168,10 @@ fun OrganiseTab() {
                 GroupRow(stringResource(R.string.organise_views), null, icon = Icons.Outlined.Bookmarks, showChevron = true, onClick = { nav.navigate(ObjectListRoute(ObjectKind.VIEWS.name)) })
             }
             Group {
+                GroupRow(stringResource(R.string.imports_title), stringResource(R.string.imports_row_body), icon = Icons.Outlined.ErrorOutline, showChevron = true, onClick = { nav.navigate(FailedImportsRoute) })
+                if (features.bundles) {
+                    GroupRow(stringResource(R.string.bundles_title), stringResource(R.string.bundles_row_body), icon = Icons.Outlined.Link, showChevron = true, onClick = { nav.navigate(BundlesRoute) })
+                }
                 GroupRow(stringResource(R.string.trash), stringResource(R.string.trash_body), icon = Icons.Outlined.DeleteOutline, showChevron = true, onClick = { nav.navigate(TrashRoute) })
             }
         }

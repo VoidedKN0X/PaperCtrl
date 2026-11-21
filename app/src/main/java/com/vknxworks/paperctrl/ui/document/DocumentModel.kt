@@ -38,6 +38,13 @@ import com.vknxworks.paperctrl.data.api.deletePages
 import com.vknxworks.paperctrl.data.api.editPdf
 import com.vknxworks.paperctrl.data.api.pageEditTasks
 import com.vknxworks.paperctrl.data.api.splitDocument
+import com.vknxworks.paperctrl.data.api.deleteVersion
+import com.vknxworks.paperctrl.data.api.labelVersion
+import com.vknxworks.paperctrl.data.api.removePassword
+import com.vknxworks.paperctrl.data.api.task
+import com.vknxworks.paperctrl.data.api.uploadVersion
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -74,6 +81,14 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
     var original by mutableStateOf(false)
         private set
     private var fileJob: Job? = null
+
+    /** What the "working" line under the tabs says while [pageEditRunning]. */
+    var workingText by mutableStateOf(R.string.pages_working)
+        private set
+
+    /** The version of the file shown in the preview (Paperless-ngx 3); null is the current one. */
+    var version by mutableStateOf<Int?>(null)
+        private set
 
     /** A page edit was sent and PaperCtrl is waiting for Paperless to finish it. */
     var pageEditRunning by mutableStateOf(false)
@@ -143,7 +158,7 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
         progress = 0f
         fileJob = viewModelScope.launch {
             try {
-                file = c.files.fetch(cl, d, original) { p -> progress = p }
+                file = c.files.fetch(cl, d, original, version) { p -> progress = p }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -230,6 +245,7 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
     fun applyPageEdit(plan: PagePlan, support: PageEditSupport) {
         val cl = client ?: return
         if (pageEditRunning) return
+        workingText = R.string.pages_working
         pageEditRunning = true
         viewModelScope.launch {
             fun toast(msg: String) = Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
@@ -291,6 +307,155 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
             }
         }
     }
+
+    /** Shows version [v] of the file in the preview; null (or the newest one) goes back to the current file. */
+    fun showVersion(v: Int?) {
+        val pick = v?.takeIf { it != doc?.versions?.firstOrNull()?.id }
+        if (pick == version) return
+        version = pick
+        file = null
+        loadFile()
+    }
+
+    /** Sets or clears a version's label. */
+    fun labelVersion(versionId: Int, label: String?) {
+        val cl = client ?: return
+        viewModelScope.launch {
+            runCatching { cl.labelVersion(id, versionId, label) }
+                .onSuccess { reloadDetails() }
+                .onFailure { toast(it.friendlyMessage(context)) }
+        }
+    }
+
+    /** Deletes one version for good; the preview goes back to the current file. */
+    fun deleteVersion(versionId: Int) {
+        val cl = client ?: return
+        viewModelScope.launch {
+            runCatching { cl.deleteVersion(id, versionId) }
+                .onSuccess {
+                    version = null
+                    refreshAfterEdit()
+                    toast(context.getString(R.string.versions_deleted))
+                }
+                .onFailure { toast(it.friendlyMessage(context)) }
+        }
+    }
+
+    /**
+     * Uploads [upload] as a new version of this document and waits for Paperless to finish reading it.
+     * [upload] is a temporary copy and is deleted afterwards.
+     */
+    fun addVersion(upload: java.io.File, fileName: String, mimeType: String, label: String?) {
+        val cl = client ?: run { upload.delete(); return }
+        if (pageEditRunning) { upload.delete(); return }
+        workingText = R.string.doc_working
+        pageEditRunning = true
+        viewModelScope.launch {
+            try {
+                val taskId = try {
+                    cl.uploadVersion(id, upload, fileName, mimeType, label)
+                } finally {
+                    withContext(Dispatchers.IO) { upload.delete() }
+                }
+                val until = System.currentTimeMillis() + 5 * 60_000L
+                var result: com.vknxworks.paperctrl.data.api.TaskStatus? = null
+                while (System.currentTimeMillis() < until) {
+                    delay(2500)
+                    val t = runCatching { cl.task(taskId) }.getOrNull() ?: continue
+                    if (t.state == TaskState.SUCCESS || t.state == TaskState.FAILURE) {
+                        result = t
+                        break
+                    }
+                }
+                when {
+                    result == null -> toast(context.getString(R.string.doc_still_working))
+                    result.state == TaskState.FAILURE ->
+                        toast(context.getString(R.string.versions_add_failed) + (result.message?.let { "\n\n$it" } ?: ""))
+                    else -> {
+                        version = null
+                        refreshAfterEdit()
+                        toast(context.getString(R.string.versions_added))
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                toast(e.friendlyMessage(context))
+            } finally {
+                pageEditRunning = false
+            }
+        }
+    }
+
+    /**
+     * Asks Paperless to remove the PDF's password. The unprotected file comes back as a new version through
+     * a consume task, found in the task list the same way page edits are.
+     */
+    fun removePassword(password: String) {
+        val cl = client ?: return
+        if (pageEditRunning) return
+        workingText = R.string.doc_working
+        pageEditRunning = true
+        viewModelScope.launch {
+            try {
+                val before = runCatching { cl.pageEditTasks(id).map { it.taskId }.toSet() }.getOrDefault(emptySet())
+                try {
+                    cl.removePassword(id, password)
+                } catch (e: com.vknxworks.paperctrl.data.api.PaperlessException) {
+                    // Paperless answers a wrong password with a plain "check the logs" error.
+                    if (e.httpCode == 400) {
+                        toast(context.getString(R.string.password_remove_failed))
+                        return@launch
+                    }
+                    throw e
+                }
+                val until = System.currentTimeMillis() + 5 * 60_000L
+                var finished: com.vknxworks.paperctrl.data.api.PageEditTask? = null
+                var polls = 0
+                while (System.currentTimeMillis() < until) {
+                    delay(2500)
+                    polls++
+                    val fresh = runCatching { cl.pageEditTasks(id) }.getOrNull()?.filter { it.taskId !in before } ?: continue
+                    val done = fresh.firstOrNull { it.status.state == TaskState.SUCCESS || it.status.state == TaskState.FAILURE }
+                    if (done != null) {
+                        finished = done
+                        break
+                    }
+                    // No task at all after a while: the PDF had no password, so Paperless left it alone.
+                    if (fresh.isEmpty() && polls >= 6) break
+                }
+                when {
+                    finished == null && polls >= 6 && System.currentTimeMillis() < until -> toast(context.getString(R.string.password_remove_nothing))
+                    finished == null -> toast(context.getString(R.string.doc_still_working))
+                    finished.status.state == TaskState.FAILURE ->
+                        toast(context.getString(R.string.password_remove_failed) + (finished.status.message?.let { "\n\n$it" } ?: ""))
+                    else -> {
+                        version = null
+                        refreshAfterEdit()
+                        toast(context.getString(R.string.password_removed))
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                toast(e.friendlyMessage(context))
+            } finally {
+                pageEditRunning = false
+            }
+        }
+    }
+
+    /** Reads the document's details again without touching the edits or the file on screen. */
+    private suspend fun reloadDetails() {
+        val cl = client ?: return
+        runCatching { cl.document(id, fullPerms = true) }.onSuccess { d ->
+            val untouched = !dirty
+            doc = d
+            if (untouched) edit = DocEdit.of(d)
+        }
+    }
+
+    private fun toast(msg: String) = Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
 
     private suspend fun refreshAfterEdit() {
         val cl = client ?: return

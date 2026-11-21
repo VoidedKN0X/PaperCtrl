@@ -5,6 +5,8 @@ import com.vknxworks.paperctrl.R
 import com.vknxworks.paperctrl.data.api.SavedView
 import kotlinx.serialization.Serializable
 
+private val BARCODE_SEPARATORS = Regex("[^\\p{L}\\p{N}]+")
+
 @Serializable
 enum class TextMode(@StringRes val label: Int) {
     TITLE_CONTENT(R.string.search_mode_title_content),
@@ -43,6 +45,10 @@ data class DocumentQuery(
     val addedFrom: String? = null,
     val addedTo: String? = null,
     val inboxOnly: Boolean = false,
+    /** Only documents whose file is also stored as another document (Paperless-ngx 3.2+). */
+    val hasDuplicates: Boolean = false,
+    /** Text a stored barcode must contain (Paperless-ngx 3.3+, when the server keeps barcode contents). */
+    val barcode: String = "",
     val sort: SortField = SortField.CREATED,
     val reverse: Boolean = true,
     /** Raw parameters from a saved view's rules. */
@@ -54,10 +60,11 @@ data class DocumentQuery(
         get() = listOf(
             tags.isNotEmpty(), tagsExcluded.isNotEmpty(), correspondents.isNotEmpty(), documentTypes.isNotEmpty(),
             storagePaths.isNotEmpty(), owners.isNotEmpty(), customFields.isNotEmpty(), createdFrom != null || createdTo != null,
-            addedFrom != null || addedTo != null, inboxOnly, extra.isNotEmpty(),
+            addedFrom != null || addedTo != null, inboxOnly, extra.isNotEmpty(), hasDuplicates, barcodeTerms(barcode).isNotEmpty(),
         ).count { it }
 
-    val isFullText: Boolean get() = (text.isNotBlank() && textMode == TextMode.FULLTEXT) || moreLike != null
+    val isFullText: Boolean get() = (text.isNotBlank() && textMode == TextMode.FULLTEXT) || moreLike != null ||
+        barcodeTerms(barcode).isNotEmpty()
 
     fun toParams(): Map<String, String> {
         val p = linkedMapOf<String, String>()
@@ -84,6 +91,11 @@ data class DocumentQuery(
         addedFrom?.let { p["added__date__gte"] = it }
         addedTo?.let { p["added__date__lte"] = it }
         if (inboxOnly) p["is_in_inbox"] = "true"
+        if (hasDuplicates) p["has_duplicates"] = "true"
+        // Barcodes are only in the search index, so the filter is a search term. "More like this" can't be
+        // combined with a search query, so it's left out there.
+        val barcodes = barcodeTerms(barcode)
+        if (barcodes.isNotEmpty() && moreLike == null) p["query"] = listOfNotNull(p["query"], barcodes).joinToString(" ")
         // Full-text results come sorted by relevance unless another order was picked.
         if (!(isFullText && sort == SortField.SCORE)) {
             val field = if (sort == SortField.SCORE) SortField.CREATED.api else sort.api
@@ -93,6 +105,13 @@ data class DocumentQuery(
     }
 
     companion object {
+        /**
+         * [value] as search terms for stored barcodes: "barcodes:part" for every part of it. Paperless strips
+         * separators from barcode contents, so each run of letters and digits is searched on its own.
+         */
+        fun barcodeTerms(value: String): String =
+            value.split(BARCODE_SEPARATORS).filter { it.isNotEmpty() }.joinToString(" ") { "barcodes:$it" }
+
         /**
          * A saved view's filter rules as list parameters, the way the Paperless web app applies them.
          * Rules that several values can share (tags, correspondents…) are combined.

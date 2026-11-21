@@ -42,14 +42,18 @@ class DocumentFiles(private val context: Context) {
      * The document's file: the archived (searchable PDF) version, or the original. Downloaded once
      * per app run; [onProgress] reports 0..1 while downloading.
      */
-    suspend fun fetch(client: PaperlessClient, doc: Document, original: Boolean, onProgress: (Float) -> Unit = {}): LocalFile =
+    suspend fun fetch(client: PaperlessClient, doc: Document, original: Boolean, version: Int? = null, onProgress: (Float) -> Unit = {}): LocalFile =
         withContext(Dispatchers.IO) {
             val useOriginal = original || !doc.hasArchive
             val name = if (useOriginal) doc.originalFileName ?: "document-${doc.id}" else (doc.archivedFileName ?: "document-${doc.id}.pdf")
             val mime = if (useOriginal) doc.mimeType ?: "application/octet-stream" else "application/pdf"
-            val target = File(dirFor(client), "${doc.id}-${if (useOriginal) "o" else "a"}-${hash(doc.modified ?: "")}")
+            // An older version (Paperless-ngx 3) is asked for by its id and kept as its own file.
+            val target = File(dirFor(client), "${doc.id}-${if (useOriginal) "o" else "a"}${version?.let { "-v$it" } ?: ""}-${hash(doc.modified ?: "")}")
             if (target.exists() && target.length() > 0) return@withContext LocalFile(target, Staging.safeName(name, mime), mime)
-            val url = client.url("documents/${doc.id}/download/", if (useOriginal) mapOf("original" to "true") else emptyMap())
+            val url = client.url(
+                "documents/${doc.id}/download/",
+                mapOf("original" to "true".takeIf { useOriginal }, "version" to version?.toString()),
+            )
             client.http.newCall(client.request(url, accept = "*/*").get().build()).execute().use { resp ->
                 if (!resp.isSuccessful) throw errorFor(resp.code, resp.body?.string().orEmpty())
                 val body = resp.body ?: throw PaperlessException(com.vknxworks.paperctrl.data.api.ErrorKind.UNEXPECTED)

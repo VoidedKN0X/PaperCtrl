@@ -47,6 +47,8 @@ data class Document(
     /** View/change users and groups; only with full_perms=true. */
     val permissions: JsonObject? = null,
     @SerialName("__search_hit__") val searchHit: SearchHit? = null,
+    /** Paperless-ngx 3: every version of the file, newest first; only on the detail request. */
+    val versions: List<DocumentVersion> = emptyList(),
 ) {
     val hasArchive: Boolean get() = !archivedFileName.isNullOrBlank()
     val noteCount: Int get() = when (val n = notes) {

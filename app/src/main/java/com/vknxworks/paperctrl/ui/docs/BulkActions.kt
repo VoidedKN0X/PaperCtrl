@@ -39,6 +39,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vknxworks.paperctrl.R
+import androidx.compose.material.icons.outlined.Link
+import com.vknxworks.paperctrl.data.api.serverFeatures
 import com.vknxworks.paperctrl.container
 import com.vknxworks.paperctrl.data.api.PaperlessClient
 import com.vknxworks.paperctrl.data.api.body
@@ -84,6 +86,9 @@ fun BulkBar(
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmMerge by remember { mutableStateOf(false) }
     var working by remember { mutableStateOf(false) }
+    var bundling by remember { mutableStateOf(false) }
+    // Share-link bundles came with Paperless-ngx 3: what's offered follows the server's version.
+    val canBundle = remember { c.sessions.active.value?.server?.let { serverFeatures(it.apiVersion, it.serverVersion).bundles } == true }
 
     fun run(removed: Boolean = false, block: suspend (PaperlessClient) -> Unit) {
         val client = c.sessions.active.value?.client ?: return
@@ -163,6 +168,14 @@ fun BulkBar(
                                     Toast.makeText(context, context.getString(R.string.bulk_rotate_started), Toast.LENGTH_LONG).show()
                                 },
                             )
+                            if (canBundle) {
+                                DropdownMenuItem(
+                                    colors = ctrlMenuItemColors(),
+                                    text = { Text(stringResource(R.string.bundles_share)) },
+                                    leadingIcon = { Icon(Icons.Outlined.Link, null) },
+                                    onClick = { menu = false; bundling = true },
+                                )
+                            }
                             if (selected.size > 1) {
                                 DropdownMenuItem(
                                     colors = ctrlMenuItemColors(),
@@ -183,6 +196,8 @@ fun BulkBar(
             }
         }
     }
+
+    if (bundling) BundleSheet(selected, onDismiss = { bundling = false })
 
     pick?.let { p ->
         val (title, options, multi) = when (p) {
