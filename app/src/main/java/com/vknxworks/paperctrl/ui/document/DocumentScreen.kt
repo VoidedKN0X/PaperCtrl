@@ -499,6 +499,8 @@ private fun NotesTab(model: DocumentModel) {
 private fun HistoryTab(model: DocumentModel, md: com.vknxworks.paperctrl.data.metadata.ServerMetadata) {
     LaunchedEffect(Unit) { if (model.history == null) model.loadHistory() }
     val history = model.history
+    val added = stringResource(R.string.history_added)
+    val removed = stringResource(R.string.history_removed)
     when {
         history == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         history.isEmpty() -> MessageView(Icons.Outlined.Description, stringResource(R.string.history_none), model.historyError ?: stringResource(R.string.history_none_body))
@@ -506,12 +508,12 @@ private fun HistoryTab(model: DocumentModel, md: com.vknxworks.paperctrl.data.me
             items(history, key = { it.id }) { h ->
                 Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.large).padding(14.dp)) {
                     Text(
-                        listOfNotNull(h.action?.replaceFirstChar { it.uppercase() }, h.actorName, h.timestamp?.let { formatDate(it.take(10)) + " " + it.drop(11).take(5) }).joinToString("  ·  "),
+                        listOfNotNull(historyAction(h.action), h.actorName, h.timestamp?.let { formatDate(it.take(10)) + " " + it.drop(11).take(5) }).joinToString("  ·  "),
                         style = MaterialTheme.typography.labelLarge,
                     )
                     (h.changes as? JsonObject)?.forEach { (field, change) ->
                         Text(
-                            "$field: ${describeChange(field, change, md)}",
+                            "${historyField(field)}: ${describeChange(field, change, md, added, removed)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 4,
@@ -525,8 +527,34 @@ private fun HistoryTab(model: DocumentModel, md: com.vknxworks.paperctrl.data.me
     }
 }
 
-/** "old → new" for an audit log change, with names for tags and other labels where they're known. */
-private fun describeChange(field: String, change: JsonElement, md: com.vknxworks.paperctrl.data.metadata.ServerMetadata): String {
+/** The audit log's action ("create", "update", "delete") in the phone's language; anything else as Paperless wrote it. */
+@Composable
+private fun historyAction(action: String?): String? = when (action?.lowercase()) {
+    null -> null
+    "create" -> stringResource(R.string.history_created)
+    "update" -> stringResource(R.string.history_changed)
+    "delete" -> stringResource(R.string.history_deleted)
+    else -> action?.replaceFirstChar { it.uppercase() }
+}
+
+/** A changed field's name as the upload screen calls it; fields without a label there stay as Paperless names them. */
+@Composable
+private fun historyField(field: String): String = when (field) {
+    "title" -> stringResource(R.string.meta_title)
+    "correspondent" -> stringResource(R.string.meta_correspondent)
+    "document_type" -> stringResource(R.string.meta_type)
+    "storage_path" -> stringResource(R.string.meta_storage_path)
+    "tags" -> stringResource(R.string.meta_tags)
+    "created" -> stringResource(R.string.meta_created)
+    "archive_serial_number" -> stringResource(R.string.meta_asn)
+    else -> field
+}
+
+/**
+ * "old → new" for an audit log change, with names for tags and other labels where they're known.
+ * [added] and [removed] are the translated "%1$s added" / "%1$s removed" sentences for tag changes.
+ */
+private fun describeChange(field: String, change: JsonElement, md: com.vknxworks.paperctrl.data.metadata.ServerMetadata, added: String, removed: String): String {
     fun name(v: JsonElement?): String {
         val s = (v as? JsonPrimitive)?.contentOrNull ?: return v?.toString()?.take(120) ?: "–"
         val id = s.toIntOrNull()
@@ -545,7 +573,12 @@ private fun describeChange(field: String, change: JsonElement, md: com.vknxworks
             val op = (change["operation"] as? JsonPrimitive)?.contentOrNull
             if (objects != null) {
                 val names = objects.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }.map { o -> o.toIntOrNull()?.let { md.tag(it)?.name } ?: o }
-                "${op ?: ""} ${names.joinToString(", ")}".trim()
+                val list = names.joinToString(", ")
+                when (op) {
+                    "add" -> String.format(added, list)
+                    "remove" -> String.format(removed, list)
+                    else -> "${op ?: ""} $list".trim()
+                }
             } else {
                 change.toString().take(160)
             }

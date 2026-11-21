@@ -415,6 +415,11 @@
     <string name="notes_delete_body">La note est supprimée pour tout le monde.</string>
     <string name="history_none">Aucun historique</string>
     <string name="history_none_body">Les modifications apparaissent ici quand le journal d\'audit est activé dans Paperless.</string>
+    <string name="history_created">Créé</string>
+    <string name="history_changed">Modifié</string>
+    <string name="history_deleted">Supprimé</string>
+    <string name="history_added">ajout de %1$s</string>
+    <string name="history_removed">retrait de %1$s</string>
     <string name="viewer_unsupported">PaperCtrl ne peut pas afficher ce type de fichier.</string>
     <string name="viewer_open_with">Ouvrir avec…</string>
     <string name="viewer_pages">Toutes les pages</string>

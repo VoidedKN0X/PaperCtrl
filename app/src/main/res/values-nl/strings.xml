@@ -374,6 +374,11 @@
     <string name="notes_delete_body">De notitie wordt voor iedereen verwijderd.</string>
     <string name="history_none">Geen geschiedenis</string>
     <string name="history_none_body">Wijzigingen verschijnen hier als het auditlogboek in Paperless aanstaat.</string>
+    <string name="history_created">Aangemaakt</string>
+    <string name="history_changed">Gewijzigd</string>
+    <string name="history_deleted">Verwijderd</string>
+    <string name="history_added">%1$s toegevoegd</string>
+    <string name="history_removed">%1$s verwijderd</string>
     <string name="viewer_unsupported">PaperCtrl kan dit soort bestand niet tonen.</string>
     <string name="viewer_open_with">Openen met…</string>
     <string name="viewer_pages">Alle pagina\'s</string>

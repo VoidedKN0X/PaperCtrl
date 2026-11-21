@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **A document's History tab now speaks your language.** Each entry started with Paperless' own English action word ("Create", "Update"), the changed fields showed Paperless' internal names ("document_type", "archive_serial_number"), and tag changes read "add Invoice" / "remove Bank". The action now shows as Created, Changed or Deleted, the usual fields (title, correspondent, document type, storage path, tags, date, ASN) use the same names as the upload screen, and tag changes read "Invoice added" / "Bank removed", all in English, Dutch, French or German. Fields the app has no name for still show as Paperless names them.
+
 ## v0.13.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

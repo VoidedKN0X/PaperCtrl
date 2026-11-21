@@ -420,6 +420,11 @@
     <string name="notes_delete_body">The note is removed for everyone.</string>
     <string name="history_none">No history</string>
     <string name="history_none_body">Changes appear here when the audit log is turned on in Paperless.</string>
+    <string name="history_created">Created</string>
+    <string name="history_changed">Changed</string>
+    <string name="history_deleted">Deleted</string>
+    <string name="history_added">%1$s added</string>
+    <string name="history_removed">%1$s removed</string>
     <string name="viewer_unsupported">PaperCtrl can\'t show this kind of file.</string>
     <string name="viewer_open_with">Open with…</string>
     <string name="viewer_pages">All pages</string>

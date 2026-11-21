@@ -415,6 +415,11 @@
     <string name="notes_delete_body">Die Notiz wird für alle entfernt.</string>
     <string name="history_none">Kein Verlauf</string>
     <string name="history_none_body">Änderungen erscheinen hier, wenn das Audit-Log in Paperless eingeschaltet ist.</string>
+    <string name="history_created">Erstellt</string>
+    <string name="history_changed">Geändert</string>
+    <string name="history_deleted">Gelöscht</string>
+    <string name="history_added">%1$s hinzugefügt</string>
+    <string name="history_removed">%1$s entfernt</string>
     <string name="viewer_unsupported">PaperCtrl kann diese Dateiart nicht anzeigen.</string>
     <string name="viewer_open_with">Öffnen mit…</string>
     <string name="viewer_pages">Alle Seiten</string>
