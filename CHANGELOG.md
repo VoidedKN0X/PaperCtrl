@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### New
+
+- **PaperCtrl in French and German, following the phone's language.** On a phone set to French or German every screen, notification and message is now in that language (French with the polite "vous", German with the informal "du"); Dutch stays Dutch and any other language gets English. PaperCtrl now also tells Android which languages it has, so Android's per-app language setting (Settings > Apps > PaperCtrl > Language) lists English, Dutch, French and German. As in Dutch, technical names (Paperless-ngx, ntfy, ASN, the names of Paperless' own workflow options such as Document Added and Send as JSON) stay as they are, and text that comes from your server stays in the server's language. The translation has not been read on a phone yet.
+
 ## v0.12.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

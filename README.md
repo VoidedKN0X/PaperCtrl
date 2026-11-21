@@ -32,7 +32,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Several servers and accounts**, two-factor sign-in, self-signed certificates you confirm by fingerprint, and an optional home-network address you switch to yourself (PaperCtrl never changes addresses on its own)
 - **Privacy**: your password is never saved (only an API token, encrypted on the phone), an optional [app lock](#app-lock) with its own PIN and optional fingerprint unlock (your server logins stay encrypted while the app is locked), and **Hide in screenshots** and **Hide in recent apps** switches
 - **Back up and restore** PaperCtrl's own settings to a file (never servers, logins, tokens, certificates or the app lock)
-- **Dutch and English**: the app follows your phone's language
+- **English, Dutch, French and German**: the app follows your phone's language
 
 ## Requirements
 

@@ -1,0 +1,854 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- German (du). Paperless-ngx, ntfy, ASN, Paperless' own option names and the app name stay as they are. -->
+<resources>
+    <string name="app_name">PaperCtrl</string>
+    <string name="lock_locked">Gesperrt</string>
+    <string name="inbox_hero_label">Zu sortieren</string>
+    <string name="inbox_hero_tags">Posteingangs-Tags · %1$d</string>
+    <string name="you_profile">Profil</string>
+    <string name="you_app">App</string>
+    <string name="scan_hero_label">Scanner</string>
+    <string name="scan_hero_pages">Seiten bereit</string>
+    <string name="scan_hero_uploading">%1$d werden hochgeladen</string>
+
+    <!-- Tabs -->
+    <string name="tab_inbox">Posteingang</string>
+    <string name="tab_documents">Dokumente</string>
+    <string name="tab_scan">Scannen</string>
+    <string name="tab_organise">Ordnen</string>
+
+    <string name="scan_empty_title">Zu Paperless scannen</string>
+    <string name="scan_empty_body">Scanne Papier mit der Kamera: PaperCtrl findet die Seite, richtet sie gerade aus und macht ein PDF daraus. Oder lade PDFs und Fotos hoch, die schon auf diesem Handy sind.</string>
+    <string name="scan_pick_files">Dateien hochladen</string>
+    <string name="scan_share_hint">Du kannst auch aus jeder anderen App Dateien an PaperCtrl teilen.</string>
+    <string name="scan_queue_idle">Nichts wartet</string>
+
+    <!-- Common -->
+    <string name="back">Zurück</string>
+    <string name="you">Du</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="open_link_failed">Keine App gefunden, die diesen Link öffnen kann</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="not_encrypted">Nicht verschlüsselt (HTTP)</string>
+    <string name="retry">Wiederholen</string>
+    <string name="ok">OK</string>
+    <string name="done">Fertig</string>
+    <string name="save">Speichern</string>
+    <string name="close">Schließen</string>
+    <string name="clear">Leeren</string>
+    <string name="search">Suchen</string>
+
+    <!-- You page -->
+    <string name="you_paperless_version">Paperless-ngx %1$s</string>
+    <string name="you_admin">Administrator</string>
+    <string name="you_server">Server</string>
+    <string name="you_via_home">Heimnetzadresse in Verwendung · tippen zum Ändern</string>
+    <string name="you_via_main">Hauptadresse in Verwendung · tippen zum Ändern</string>
+    <string name="settings">Einstellungen</string>
+    <string name="support_title">PaperCtrl unterstützen</string>
+    <string name="support_subtitle">PaperCtrl ist kostenlos und Open Source. Unterstütze die Entwicklung auf GitHub</string>
+    <string name="group_about">Info</string>
+    <string name="bugs_title">Fehler melden</string>
+    <string name="bugs_subtitle">Ein Problem gefunden oder eine Idee? Erstelle ein Issue auf GitHub</string>
+    <string name="source_title">Quellcode</string>
+    <string name="source_subtitle">github.com/VoidedKN0X/PaperCtrl</string>
+    <string name="licence_title">Lizenz</string>
+    <string name="licence_subtitle">GNU General Public License v3.0</string>
+    <string name="about_footer">PaperCtrl %1$s · VKNXWorks</string>
+
+    <!-- Settings -->
+    <string name="theme_system">Systemeinstellung</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_black">Reines Schwarz</string>
+    <!-- Server setup -->
+    <string name="setup_add_title">Server hinzufügen</string>
+    <string name="setup_intro">Verbinde dich mit deinem Paperless-ngx-Server über die Adresse, die du im Browser öffnen würdest.</string>
+    <string name="setup_address">Serveradresse</string>
+    <string name="setup_address_hint">paperless.example.com</string>
+    <string name="setup_http_notice">Nicht verschlüsselt (HTTP). Dein Passwort und deine Dokumente werden im Klartext gesendet. In Ordnung im Heimnetz, anderswo riskant.</string>
+    <string name="setup_lan_add">Heimnetzadresse hinzufügen</string>
+    <string name="setup_lan_address">Heimnetzadresse (optional)</string>
+    <string name="setup_lan_address_hint">192.168.1.20:8000</string>
+    <string name="setup_lan_http_notice">Nicht verschlüsselt (HTTP). Solange du diese Adresse verwendest, gehen dein Token und deine Dokumente im Klartext dorthin.</string>
+    <string name="setup_lan_notice">PaperCtrl startet mit der Hauptadresse. Um diese hier zu verwenden (zu Hause schneller), wähle sie unter Du → Server und Konten → Verwendete Adresse. PaperCtrl wechselt nie von selbst: Es bleibt bei der gewählten Adresse, bis du sie änderst.</string>
+    <string name="setup_method_password">Passwort</string>
+    <string name="setup_method_token">API-Token</string>
+    <string name="setup_username">Benutzername</string>
+    <string name="setup_password">Passwort</string>
+    <string name="setup_show_password">Passwort anzeigen</string>
+    <string name="setup_hide_password">Passwort verbergen</string>
+    <string name="setup_mfa_add">Ich verwende Zwei-Faktor-Authentifizierung</string>
+    <string name="setup_mfa_code">Authentifizierungscode</string>
+    <string name="setup_token">API-Token</string>
+    <string name="setup_token_help">Verwende ein Token, wenn du dich bei Paperless per Single Sign-On (SSO) anmeldest oder dein Passwort hier lieber nicht eingibst. Öffne in der Paperless-Web-App dein Profilbild → My Profile und kopiere oder erzeuge das API Auth Token.</string>
+    <string name="setup_connect">Verbinden</string>
+    <string name="setup_privacy">PaperCtrl speichert nur ein API-Token, verschlüsselt auf diesem Handy, und sendet es nur an deinen Server. Dein Passwort wird einmal verwendet, um das Token zu holen, und nie gespeichert.</string>
+    <string name="setup_http_title">Unverschlüsselte Verbindung verwenden?</string>
+    <string name="setup_http_body">PaperCtrl konnte sich nicht per HTTPS mit diesem Server verbinden. Es kann stattdessen einfaches HTTP versuchen, aber dann werden dein Passwort und deine Dokumente unverschlüsselt gesendet und jeder im Netzwerk kann sie lesen. Mach das nur in einem Netzwerk, dem du vertraust.</string>
+    <string name="setup_http_confirm">HTTP verwenden</string>
+    <string name="setup_lan_failed_title">Heimnetzadresse hat nicht funktioniert</string>
+    <string name="setup_lan_failed_body">Die Anmeldung hat geklappt, aber die Heimnetzadresse konnte nicht geprüft werden:\n\n%1$s\n\nDu kannst den Server jetzt ohne sie speichern und sie später erneut hinzufügen.</string>
+    <string name="setup_lan_failed_save">Ohne sie speichern</string>
+
+    <!-- Certificate trust -->
+    <string name="trust_title">Diesem Zertifikat vertrauen?</string>
+    <string name="trust_body">%1$s hat ein Zertifikat vorgelegt, dem Android nicht vertraut. Das ist bei einem selbstsignierten Zertifikat auf deinem eigenen Server normal. Prüfe, ob der Fingerabdruck unten zu dem deines Servers passt, bevor du ihm vertraust.</string>
+    <string name="trust_changed_title">Das Zertifikat hat sich geändert</string>
+    <string name="trust_changed_body">%1$s hat ein anderes Zertifikat vorgelegt als das, dem du vorher vertraut hast. Wenn du es nicht selbst erneuert oder ersetzt hast, fängt eventuell jemand die Verbindung ab. Fahre nur fort, wenn der Fingerabdruck unten zum neuen Zertifikat deines Servers passt.</string>
+    <string name="trust_issued_to">Ausgestellt für</string>
+    <string name="trust_issued_by">Ausgestellt von</string>
+    <string name="trust_self_signed">Sich selbst (selbstsigniert)</string>
+    <string name="trust_valid">Gültig</string>
+    <string name="trust_fingerprint">SHA-256-Fingerabdruck</string>
+    <string name="trust_check">Auf dem Server gibt dieser Befehl ihn aus: openssl x509 -noout -fingerprint -sha256 -in your-cert.pem</string>
+    <string name="trust_confirm">Diesem Zertifikat vertrauen</string>
+
+    <!-- Servers -->
+    <string name="servers_title">Server und Konten</string>
+    <string name="servers_footer">Tippe auf einen Server, um zu ihm zu wechseln.</string>
+    <string name="servers_row_title">%1$s auf %2$s</string>
+    <string name="servers_active">Aktiv</string>
+    <string name="servers_add">Server oder Konto hinzufügen</string>
+    <string name="servers_remove">Entfernen</string>
+    <string name="servers_remove_title">%1$s von diesem Handy entfernen?</string>
+    <string name="servers_remove_body">PaperCtrl vergisst den Server und sein Token und löscht alles, was in der Upload-Warteschlange noch für ihn wartet. Das Token bleibt auf dem Server gültig; du kannst es dort in deinem Profil löschen.</string>
+    <string name="servers_home_address">zu Hause: %1$s</string>
+    <string name="servers_home_not_encrypted">Heimadresse nicht verschlüsselt (HTTP)</string>
+    <string name="servers_using_main">Hauptadresse in Verwendung</string>
+    <string name="servers_using_home">Heimadresse in Verwendung</string>
+    <string name="address_title">Verwendete Adresse</string>
+    <string name="address_footer">PaperCtrl verwendet die hier gewählte Adresse und bleibt dabei, bis du sie änderst. Es wechselt nie von selbst, also wähle zu Hause die Heimnetzadresse und unterwegs die Hauptadresse.</string>
+    <string name="address_main">Hauptadresse</string>
+    <string name="address_home">Heimnetzadresse</string>
+    <string name="address_option">%1$s · %2$s</string>
+    <string name="address_pick_title">Adresse für %1$s</string>
+    <string name="address_unreachable_main">Paperless ist über die Hauptadresse nicht erreichbar.</string>
+    <string name="address_unreachable_home">Paperless ist über die Heimnetzadresse nicht erreichbar.</string>
+    <string name="address_use_main">Hauptadresse verwenden</string>
+    <string name="address_use_home">Heimadresse verwenden</string>
+    <string name="servers_version">Paperless-ngx %1$s</string>
+
+    <!-- Errors -->
+    <string name="error_unreachable">Server nicht erreichbar. Prüfe die Adresse und ob dein Handy ihn erreichen kann (WLAN, VPN).</string>
+    <string name="error_tls">Die sichere Verbindung ist fehlgeschlagen, daher wurde nichts gesendet. Das Zertifikat des Servers wurde nicht akzeptiert.</string>
+    <string name="error_cert_changed">Das Zertifikat des Servers hat sich geändert, seit du ihm vertraut hast. Entferne den Server und füge ihn erneut hinzu, um das neue zu prüfen.</string>
+    <string name="error_bad_credentials">Falscher Benutzername oder falsches Passwort.</string>
+    <string name="error_bad_token">Der Server hat das Token nicht akzeptiert. Es wurde vielleicht gelöscht oder ersetzt; melde dich erneut an.</string>
+    <string name="error_mfa_required">Dieses Konto verwendet Zwei-Faktor-Authentifizierung. Gib den Code aus deiner Authenticator-App ein.</string>
+    <string name="error_mfa_invalid">Dieser Authentifizierungscode war nicht richtig. Codes ändern sich alle 30 Sekunden; versuch den aktuellen.</string>
+    <string name="error_not_paperless">Unter dieser Adresse hat etwas geantwortet, aber nicht die API von Paperless-ngx. Prüfe die Adresse; wenn Paperless unter einem Unterpfad läuft, gib ihn mit an (zum Beispiel example.com/paperless).</string>
+    <string name="error_proxy_login">Die Adresse leitet zu einer Anmeldeseite auf %1$s weiter statt zu Paperless. Wenn dein Reverse Proxy Paperless mit einer Anmeldung schützt (Authelia, Authentik…), lass den Pfad /api/ ohne sie durch oder verwende die Heimnetzadresse.</string>
+    <string name="error_too_old">Diese Paperless-ngx-Version ist zu alt für PaperCtrl. Aktualisiere den Server auf eine aktuelle Version.</string>
+    <string name="error_too_old_version">Dieser Server läuft mit Paperless-ngx %1$s, das ist zu alt für PaperCtrl. Aktualisiere auf eine aktuelle Version.</string>
+    <string name="error_forbidden">Dein Konto darf das auf dem Server nicht.</string>
+    <string name="error_not_found">Das ist nicht mehr auf dem Server.</string>
+    <string name="error_throttled">Zu viele Versuche. Warte eine Minute und versuch es noch einmal.</string>
+    <string name="error_server">Auf dem Server ist ein Problem aufgetreten. Sieh in seine Logs.</string>
+    <string name="error_unexpected">Etwas Unerwartetes ist schiefgelaufen.</string>
+    <string name="error_cleartext_blocked">Eine unverschlüsselte (HTTP-)Verbindung, zu der der Server umgeleitet hat, wurde blockiert.</string>
+    <string name="error_too_large">Die Datei ist zu groß für den Server. Wenn Paperless hinter einem Reverse Proxy läuft, erhöhe dessen Upload-Limit (client_max_body_size in Nginx).</string>
+    <string name="error_https_failed">Keine sichere Verbindung (HTTPS) möglich.</string>
+    <!-- Upload details -->
+    <string name="meta_title">Titel</string>
+    <string name="meta_title_hint">Aus dem Dateinamen</string>
+    <string name="meta_footer">Alles, was auf Automatisch bleibt, füllt Paperless mit seiner eigenen Zuordnung aus, nachdem es das Dokument gelesen hat.</string>
+    <string name="meta_auto">Automatisch</string>
+    <string name="meta_auto_long">Automatisch (Paperless entscheiden lassen)</string>
+    <string name="meta_load_failed">Deine Tags und Korrespondenten konnten nicht geladen werden</string>
+    <string name="meta_created">Datum</string>
+    <string name="meta_created_auto">Automatisch (aus dem Dokument gelesen)</string>
+    <string name="meta_correspondent">Korrespondent</string>
+    <string name="meta_type">Dokumenttyp</string>
+    <string name="meta_tags">Tags</string>
+    <string name="meta_storage_path">Speicherpfad</string>
+    <string name="meta_asn">Archiv-Seriennummer (ASN)</string>
+    <string name="meta_asn_next">Nächste freie</string>
+    <string name="picker_empty">Nichts gefunden</string>
+
+    <!-- Upload queue -->
+    <string name="queue_title">Upload-Warteschlange</string>
+    <string name="queue_clear_done">Fertige entfernen</string>
+    <string name="queue_empty_title">Nichts in der Warteschlange</string>
+    <string name="queue_empty_body">Dokumente, die du scannst oder an PaperCtrl teilst, warten hier, bis Paperless sie hat, auch ohne Verbindung.</string>
+    <string name="queue_status_waiting">Wartet auf Upload</string>
+    <string name="queue_status_uploading">Wird hochgeladen, %1$d%%</string>
+    <string name="queue_status_consuming">Paperless verarbeitet es</string>
+    <string name="queue_status_done">Zu Paperless hinzugefügt</string>
+    <string name="queue_status_failed">Fehlgeschlagen</string>
+    <string name="queue_waiting_server">Wartet, bis der Server erreichbar ist</string>
+    <string name="queue_still_processing">Paperless verarbeitet es noch; gleich wird erneut geprüft</string>
+    <string name="queue_consume_failed">Paperless konnte dieses Dokument nicht hinzufügen.</string>
+    <string name="queue_file_missing">Die Datei ist nicht mehr auf diesem Handy. Entferne diesen Eintrag und teile oder scanne sie erneut.</string>
+    <string name="queue_file_unreadable">Diese Datei ist verschlüsselt auf diesem Handy gespeichert und konnte nicht geöffnet werden. Sie wurde behalten: Tippe auf Wiederholen, um es erneut zu versuchen, oder entferne diesen Eintrag und teile oder scanne sie erneut.</string>
+    <string name="rest_unreadable_title">Was auf diesem Handy wartet, lässt sich nicht öffnen</string>
+    <string name="rest_unreadable_body_both">Deine gescannten Seiten und deine Upload-Warteschlange sind verschlüsselt auf diesem Handy gespeichert, und der Schlüssel dafür ist gerade nicht verfügbar. Nichts wurde gelöscht, und nichts Neues kann gescannt oder eingereiht werden, bis das geklärt ist. Auf deinem Paperless-Server bleibt alles unverändert.</string>
+    <string name="rest_unreadable_body_queue">Deine Upload-Warteschlange ist verschlüsselt auf diesem Handy gespeichert und lässt sich gerade nicht öffnen. Nichts wurde gelöscht, und nichts Neues kann eingereiht werden, bis das geklärt ist. Auf deinem Paperless-Server bleibt alles unverändert.</string>
+    <string name="rest_unreadable_body_scan">Deine gescannten Seiten sind verschlüsselt auf diesem Handy gespeichert, und der Schlüssel dafür ist gerade nicht verfügbar. Nichts wurde gelöscht, und nichts Neues kann gescannt werden, bis das geklärt ist. Auf deinem Paperless-Server bleibt alles unverändert.</string>
+    <string name="rest_unreadable_retry">Erneut versuchen</string>
+    <string name="rest_unreadable_start_empty">Leer beginnen</string>
+    <string name="rest_unreadable_start_empty_title">Leer beginnen?</string>
+    <string name="rest_unreadable_start_empty_body">Was sich nicht öffnen lässt, wird im privaten Speicher von PaperCtrl beiseitegelegt (es wird nicht gelöscht, aber PaperCtrl kann es nicht mehr anzeigen oder hochladen) und du beginnst ohne wartende Einträge. Scanne oder teile diese Dokumente danach erneut. Wenn Erneut versuchen noch klappen könnte, etwa nach einem Neustart des Handys, mach das zuerst.</string>
+    <string name="rest_unreadable_row">Lässt sich nicht öffnen</string>
+    <string name="rest_unreadable_queue_screen">Die Upload-Warteschlange ist verschlüsselt auf diesem Handy gespeichert und lässt sich gerade nicht öffnen. Nichts wurde gelöscht. Geh zum Tab Scannen, um es erneut zu versuchen.</string>
+    <string name="queue_server_removed">Der Server, für den das bestimmt war, wurde aus PaperCtrl entfernt.</string>
+    <string name="queue_open">Öffnen</string>
+    <string name="queue_edit">Details bearbeiten</string>
+    <string name="queue_try_now">Jetzt versuchen</string>
+    <string name="queue_remove">Entfernen</string>
+    <string name="queue_dismiss">Verwerfen</string>
+    <string name="queue_remove_title">Aus der Warteschlange entfernen?</string>
+    <string name="queue_remove_body">Die Datei wird von diesem Handy gelöscht und nicht hochgeladen.</string>
+    <string name="queue_remove_body_sent">Paperless hat die Datei schon und fügt sie eventuell noch hinzu. PaperCtrl verfolgt sie nicht mehr und löscht seine Kopie auf diesem Handy.</string>
+
+    <!-- Share to PaperCtrl -->
+    <string name="share_title">Zu Paperless hochladen</string>
+    <string name="share_merge">Bilder zu einem PDF kombinieren</string>
+    <string name="share_merge_footer">Praktisch für die Seiten eines Briefes. Schalte es aus, um jedes Bild als eigenes Dokument hochzuladen.</string>
+    <string name="share_merged_name">Bilder</string>
+    <string name="share_server">Server</string>
+    <string name="share_details">Details</string>
+    <string name="share_details_off">Optional: Titel, Datum, Korrespondent, Tags…</string>
+    <string name="share_details_on">Lass alles, was du nicht weißt, auf Automatisch</string>
+    <string name="share_upload_quick">Schnell hochladen</string>
+    <string name="share_upload_details">Mit Details hochladen</string>
+    <string name="share_prepare_failed">Die Dateien konnten nicht für den Upload vorbereitet werden.</string>
+    <string name="share_no_server_title">Noch kein Server</string>
+    <string name="share_no_server_body">Öffne PaperCtrl und verbinde dich zuerst mit deinem Paperless-ngx-Server, dann teile erneut.</string>
+    <string name="share_open_app">PaperCtrl öffnen</string>
+    <string name="share_nothing_title">Nichts hochzuladen</string>
+    <string name="share_nothing_body">PaperCtrl konnte das Geteilte nicht lesen, oder es ist größer als 1 GB. Versuch, die Datei selbst statt eines Links darauf zu teilen.</string>
+
+    <!-- Notifications -->
+    <string name="channel_uploads">Laufende Uploads</string>
+    <string name="channel_uploads_desc">Zeigt den Fortschritt, während Dokumente hochgeladen und von Paperless verarbeitet werden.</string>
+    <string name="channel_results">Upload-Ergebnisse</string>
+    <string name="channel_results_desc">Sagt dir, wann ein Dokument zu Paperless hinzugefügt wurde oder warum nicht.</string>
+    <string name="notif_upload_title">Upload zu Paperless</string>
+    <string name="notif_uploading">%1$s wird gesendet</string>
+    <string name="notif_consuming">Paperless verarbeitet %1$s</string>
+    <string name="notif_added_title">Dokument hinzugefügt</string>
+    <string name="notif_failed_title">Upload fehlgeschlagen</string>
+
+    <plurals name="share_files">
+        <item quantity="one">%d Datei</item>
+        <item quantity="other">%d Dateien</item>
+    </plurals>
+    <plurals name="share_merge_body">
+        <item quantity="one">%d Bild wird ein PDF</item>
+        <item quantity="other">%d Bilder werden ein PDF, in dieser Reihenfolge</item>
+    </plurals>
+    <plurals name="share_queued">
+        <item quantity="one">Zur Upload-Warteschlange hinzugefügt</item>
+        <item quantity="other">%d Dokumente zur Upload-Warteschlange hinzugefügt</item>
+    </plurals>
+    <plurals name="share_skipped">
+        <item quantity="one">%d Datei wurde ausgelassen: Sie war nicht lesbar, ist größer als 1 GB oder dein Handy ist fast voll.</item>
+        <item quantity="other">%d Dateien wurden ausgelassen: Sie waren nicht lesbar, sind größer als 1 GB oder dein Handy ist fast voll.</item>
+    </plurals>
+    <plurals name="scan_queue_active">
+        <item quantity="one">%d Dokument unterwegs</item>
+        <item quantity="other">%d Dokumente unterwegs</item>
+    </plurals>
+    <plurals name="scan_queue_failed">
+        <item quantity="one">%d Upload fehlgeschlagen</item>
+        <item quantity="other">%d Uploads fehlgeschlagen</item>
+    </plurals>
+    <!-- Common (full app) -->
+    <string name="delete">Löschen</string>
+    <string name="more">Mehr</string>
+    <string name="copy">Kopieren</string>
+    <string name="copied">Kopiert</string>
+    <string name="share">Teilen</string>
+    <string name="undo">Rückgängig</string>
+    <string name="load_failed">Konnte nicht geladen werden</string>
+    <string name="offline_banner">Offline: Es wird angezeigt, was zuletzt geladen wurde.</string>
+    <string name="download_saved">In Downloads/PaperCtrl als %1$s gespeichert</string>
+
+    <!-- Scanner -->
+    <string name="scan_start">Dokument scannen</string>
+    <string name="scan_continue">Scan fortsetzen</string>
+    <string name="scan_add_pages">Seiten hinzufügen</string>
+    <string name="scan_upload">Hochladen</string>
+    <string name="scan_upload_title">Dieses Dokument hochladen</string>
+    <string name="scan_upload_footer">Die Seiten werden ein PDF (Qualität %1$s; änderbar in den Einstellungen). Paperless liest den Text selbst.</string>
+    <string name="scan_queued">Zur Upload-Warteschlange hinzugefügt</string>
+    <string name="scan_discard">Scan verwerfen</string>
+    <string name="scan_discard_title">Diesen Scan verwerfen?</string>
+    <string name="scan_discard_body">Alle Seiten dieses Scans werden vom Handy gelöscht.</string>
+    <string name="scan_no_pages">Noch keine Seiten</string>
+    <string name="scan_no_pages_body">Scanne eine Seite mit der Kamera, um ein Dokument zu beginnen.</string>
+    <string name="scan_reorder_hint">Tippe auf eine Seite, um sie zuzuschneiden, zu drehen oder ihren Filter zu ändern. Lange drücken und ziehen zum Umsortieren.</string>
+    <string name="scanner_camera_needed">Kamerazugriff erforderlich</string>
+    <string name="scanner_camera_needed_body">PaperCtrl braucht die Kamera, um Dokumente zu scannen. Fotos bleiben auf dem Handy, bis du sie auf deinen Server hochlädst.</string>
+    <string name="scanner_allow_camera">Kamera erlauben</string>
+    <string name="scanner_open_settings">App-Einstellungen öffnen</string>
+    <string name="scanner_capture_failed">Foto konnte nicht aufgenommen werden. Versuch es noch einmal.</string>
+    <string name="scanner_torch">Taschenlampe</string>
+    <string name="scanner_capture">Foto aufnehmen</string>
+    <string name="scanner_auto_on">Automatische Aufnahme an</string>
+    <string name="scanner_auto_off">Automatische Aufnahme aus</string>
+    <string name="scanner_hint_searching">Suche nach einem Dokument…</string>
+    <string name="scanner_hint_hold">Stillhalten zum Aufnehmen</string>
+    <string name="scanner_hint_found">Dokument gefunden: Tippe auf den Knopf</string>
+    <string name="scanner_hint_saving">Seite wird gespeichert…</string>
+    <string name="scanner_import">Aus Galerie hinzufügen</string>
+    <string name="scanner_review">Seiten prüfen</string>
+    <string name="page_title">Seite %1$d von %2$d</string>
+    <string name="page_show_result">Ergebnis zeigen</string>
+    <string name="page_show_crop">Ecken zeigen</string>
+    <string name="page_rotate_left">Links</string>
+    <string name="page_rotate_right">Rechts</string>
+    <string name="page_detect">Erkennen</string>
+    <string name="page_full">Ganzes Foto</string>
+    <string name="page_retake">Neu aufnehmen</string>
+    <string name="page_delete">Löschen</string>
+    <string name="page_delete_title">Diese Seite löschen?</string>
+    <string name="page_delete_body">Die Seite wird aus diesem Scan entfernt.</string>
+    <string name="page_filter_all">Für alle Seiten verwenden</string>
+    <string name="filter_original">Original</string>
+    <string name="filter_enhanced">Verbessert</string>
+    <string name="filter_grey">Graustufen</string>
+    <string name="filter_bw">Schwarzweiß</string>
+    <string name="asn_scan">ASN-Etikett scannen</string>
+    <string name="asn_scan_hint">Richte die Kamera auf das Etikett mit der Archiv-Seriennummer (Barcode oder QR-Code).</string>
+    <string name="quality_compact">Kompakt (150 dpi)</string>
+    <string name="quality_standard">Standard (200 dpi)</string>
+    <string name="quality_high">Hoch (300 dpi)</string>
+
+    <!-- Documents -->
+    <string name="documents_search_hint">%1$s durchsuchen</string>
+    <string name="search_mode_title_content">Titel und Text</string>
+    <string name="search_mode_title">Titel</string>
+    <string name="search_mode_fulltext">Volltext</string>
+    <string name="search_mode_asn">ASN</string>
+    <string name="sort_created">Erstellt</string>
+    <string name="sort_added">Hinzugefügt</string>
+    <string name="sort_title">Titel</string>
+    <string name="sort_correspondent">Korrespondent</string>
+    <string name="sort_asn">ASN</string>
+    <string name="sort_relevance">Relevanz</string>
+    <string name="filters">Filter</string>
+    <string name="filters_reset">Zurücksetzen</string>
+    <string name="filters_apply">Ergebnisse zeigen</string>
+    <string name="filter_any">Beliebig</string>
+    <string name="filter_none">Keine</string>
+    <string name="filter_search_in">Suchen in</string>
+    <string name="filter_labels">Labels</string>
+    <string name="filter_tags_any">einer davon</string>
+    <string name="filter_tags_all">alle davon</string>
+    <string name="filter_tags_all_switch">Muss alle gewählten Tags haben</string>
+    <string name="filter_tags_exclude">Ohne Tags</string>
+    <string name="filter_custom_fields">Benutzerdefinierte Felder</string>
+    <string name="filter_owner">Eigentümer</string>
+    <string name="filter_dates">Daten</string>
+    <string name="filter_created_from">Erstellt ab</string>
+    <string name="filter_created_to">Erstellt bis</string>
+    <string name="filter_added_from">Hinzugefügt ab</string>
+    <string name="filter_added_to">Hinzugefügt bis</string>
+    <string name="filter_inbox_only">Nur Dokumente im Posteingang</string>
+    <string name="filter_view_rules">Regeln der gespeicherten Ansicht</string>
+    <string name="filter_view_rules_footer">Regeln aus der gewählten gespeicherten Ansicht, die dieses Blatt nicht anzeigen kann. Entferne sie, um die ganze Bibliothek zu durchsuchen.</string>
+    <string name="documents_toggle_view">Zwischen Liste und Raster wechseln</string>
+    <string name="documents_more_like">Ähnlich wie „%1$s“</string>
+    <string name="documents_none">Keine Dokumente</string>
+    <string name="documents_none_body">Scanne oder teile ein Dokument, um es zu Paperless hinzuzufügen.</string>
+    <string name="documents_none_filtered">Nichts passt zu deiner Suche und deinen Filtern.</string>
+    <string name="bulk_clear">Auswahl aufheben</string>
+    <string name="bulk_add_tags">Tags hinzufügen</string>
+    <string name="bulk_remove_tags">Tags entfernen</string>
+    <string name="bulk_set_none">Keine (entfernen)</string>
+    <string name="bulk_download">Als ZIP herunterladen</string>
+    <string name="bulk_rotate">Um 90° drehen</string>
+    <string name="bulk_rotate_started">Paperless dreht die Dokumente; das dauert einen Moment.</string>
+    <string name="bulk_merge">Zu einem zusammenführen</string>
+    <string name="bulk_merge_title">Ausgewählte Dokumente zusammenführen?</string>
+    <string name="bulk_merge_body">Paperless erstellt daraus ein neues Dokument, in der Reihenfolge deiner Auswahl. Die Originale bleiben erhalten.</string>
+    <string name="bulk_merge_started">Paperless führt die Dokumente zusammen; das neue erscheint gleich.</string>
+    <string name="delete_documents_body">Gelöschte Dokumente kommen in den Papierkorb von Paperless, wo du sie wiederherstellen kannst, bis er geleert wird.</string>
+
+    <!-- Document -->
+    <string name="doc_tab_preview">Vorschau</string>
+    <string name="doc_tab_details">Details</string>
+    <string name="doc_tab_content">Text</string>
+    <string name="doc_tab_notes">Notizen</string>
+    <string name="doc_tab_history">Verlauf</string>
+    <string name="doc_archived">Durchsuchbares PDF</string>
+    <string name="doc_original">Original</string>
+    <string name="doc_download">In Downloads speichern</string>
+    <string name="doc_share_file">Datei teilen</string>
+    <string name="doc_open_browser">Im Browser öffnen</string>
+    <string name="doc_more_like">Ähnliche Dokumente</string>
+    <string name="doc_reprocess">Neu verarbeiten</string>
+    <string name="doc_reprocess_started">Paperless liest das Dokument erneut.</string>
+    <string name="doc_permissions">Berechtigungen</string>
+    <string name="doc_delete_title">Dieses Dokument löschen?</string>
+    <string name="doc_delete_body_trash">Es kommt in den Papierkorb von Paperless und bleibt dort %1$d Tage, bevor es endgültig gelöscht wird.</string>
+    <string name="doc_file_loading">Die Datei wird noch geladen.</string>
+    <string name="doc_saved">Gespeichert</string>
+    <string name="doc_added_on">Hinzugefügt am %1$s</string>
+    <string name="doc_pages">%1$d Seiten</string>
+    <string name="doc_find">Im Text suchen</string>
+    <string name="doc_no_content">Kein Text</string>
+    <string name="doc_no_content_body">Paperless hat in diesem Dokument keinen Text gefunden.</string>
+    <string name="detail_none">Keine</string>
+    <string name="detail_custom_fields">Benutzerdefinierte Felder</string>
+    <string name="detail_add_field">Feld hinzufügen</string>
+    <string name="detail_remove_field">Feld entfernen</string>
+    <string name="detail_link_document">Dokument verknüpfen</string>
+    <string name="field_string">Text</string>
+    <string name="field_longtext">Langer Text</string>
+    <string name="field_url">Link</string>
+    <string name="field_date">Datum</string>
+    <string name="field_boolean">Ja / nein</string>
+    <string name="field_integer">Ganzzahl</string>
+    <string name="field_float">Zahl</string>
+    <string name="field_monetary">Geldbetrag</string>
+    <string name="field_monetary_hint">%1$s12.50</string>
+    <string name="field_select">Auswahl</string>
+    <string name="field_documentlink">Verknüpfte Dokumente</string>
+    <string name="notes_none">Keine Notizen</string>
+    <string name="notes_none_body">Füge unten eine Notiz hinzu; jeder, der das Dokument sehen kann, kann sie lesen.</string>
+    <string name="notes_add">Notiz hinzufügen</string>
+    <string name="notes_send">Hinzufügen</string>
+    <string name="notes_delete_title">Diese Notiz löschen?</string>
+    <string name="notes_delete_body">Die Notiz wird für alle entfernt.</string>
+    <string name="history_none">Kein Verlauf</string>
+    <string name="history_none_body">Änderungen erscheinen hier, wenn das Audit-Log in Paperless eingeschaltet ist.</string>
+    <string name="viewer_unsupported">PaperCtrl kann diese Dateiart nicht anzeigen.</string>
+    <string name="viewer_open_with">Öffnen mit…</string>
+    <string name="viewer_pages">Alle Seiten</string>
+    <string name="viewer_pdf_failed">Das PDF konnte nicht geöffnet werden.</string>
+    <string name="share_links">Freigabelinks</string>
+    <string name="share_links_body">Jeder mit einem Link kann das Dokument ohne Anmeldung öffnen, bis der Link abläuft oder du ihn widerrufst.</string>
+    <string name="share_link_new">Neuer Link</string>
+    <string name="share_link_create">Link erstellen und teilen</string>
+    <string name="share_link_archive">Durchsuchbares PDF</string>
+    <string name="share_link_original">Originaldatei</string>
+    <string name="share_link_expires">Läuft ab am %1$s</string>
+    <string name="share_link_never">Läuft nie ab</string>
+    <string name="share_link_never_short">Nie</string>
+    <string name="share_link_revoke">Link widerrufen</string>
+    <string name="perm_owner">Eigentümer</string>
+    <string name="perm_no_owner">Kein Eigentümer (alle)</string>
+    <string name="perm_view">Darf ansehen</string>
+    <string name="perm_change">Darf bearbeiten</string>
+    <string name="perm_users">Benutzer</string>
+    <string name="perm_groups">Gruppen</string>
+    <string name="perm_nobody">Niemand sonst</string>
+    <string name="perm_footer">Der Eigentümer und Administratoren können immer ansehen und bearbeiten.</string>
+
+    <!-- Inbox -->
+    <string name="inbox_mark_done">Erledigt</string>
+    <string name="inbox_quick_edit">Bearbeiten</string>
+    <string name="inbox_swipe_hint">Nach rechts wischen, wenn erledigt, nach links zum Bearbeiten</string>
+    <string name="inbox_done_snack">„%1$s“ hat den Posteingang verlassen</string>
+    <string name="inbox_empty_done">Posteingang leer</string>
+    <string name="inbox_empty_done_body">Jedes Dokument ist sortiert. Neue erscheinen hier.</string>
+    <string name="inbox_no_tag">Kein Posteingangs-Tag</string>
+    <string name="inbox_no_tag_body">Markiere einen Tag als Posteingangs-Tag (Ordnen → Tags), dann fügt Paperless ihn jedem neuen Dokument hinzu.</string>
+    <string name="inbox_suggestions">Vorschläge von Paperless</string>
+    <string name="inbox_save_done">Speichern und erledigt</string>
+
+    <!-- Organise -->
+    <string name="organise_correspondents">Korrespondenten</string>
+    <string name="organise_types">Dokumenttypen</string>
+    <string name="organise_paths">Speicherpfade</string>
+    <string name="organise_views">Gespeicherte Ansichten</string>
+    <string name="organise_add">Hinzufügen</string>
+    <string name="organise_new">Neu</string>
+    <string name="organise_edit">Bearbeiten</string>
+    <string name="organise_name">Name</string>
+    <string name="organise_empty">Hier ist noch nichts</string>
+    <string name="organise_inbox_tag">Posteingangs-Tag</string>
+    <string name="organise_inbox_tag_body">Wird jedem neuen Dokument hinzugefügt, damit es im Posteingang erscheint</string>
+    <string name="organise_path_template">Pfadvorlage</string>
+    <string name="organise_field_type">Typ</string>
+    <string name="organise_select_options">Auswahlmöglichkeiten</string>
+    <string name="organise_select_options_hint">Trenne die Möglichkeiten mit Kommas</string>
+    <string name="organise_currency">Standardwährung (z. B. EUR)</string>
+    <string name="organise_matching">Automatische Zuordnung</string>
+    <string name="organise_matching_footer">Wie Paperless entscheidet, dies neuen Dokumenten zuzuweisen.</string>
+    <string name="organise_algorithm">Zuordnung</string>
+    <string name="organise_match">Wörter oder Muster zum Abgleichen</string>
+    <string name="organise_insensitive">Groß- und Kleinschreibung ignorieren</string>
+    <string name="organise_delete_title">„%1$s“ löschen?</string>
+    <string name="organise_delete_body">Es wird von jedem Dokument entfernt, das es hat. Die Dokumente selbst bleiben erhalten.</string>
+    <string name="organise_delete_view_body">Die gespeicherte Ansicht wird gelöscht. Keine Dokumente ändern sich.</string>
+    <string name="match_auto">Automatisch (aus Dokumenten lernen)</string>
+    <string name="match_none">Keine</string>
+    <string name="match_any">Eines der Wörter</string>
+    <string name="match_all">Alle Wörter</string>
+    <string name="match_exact">Genauer Text</string>
+    <string name="match_regex">Regulärer Ausdruck</string>
+    <string name="match_fuzzy">Unscharfe Suche</string>
+    <string name="trash">Papierkorb</string>
+    <string name="trash_body">Gelöschte Dokumente, bis der Papierkorb geleert wird</string>
+    <string name="trash_none">Der Papierkorb ist leer</string>
+    <string name="trash_hint">Wähle Dokumente aus, um sie wiederherzustellen.</string>
+    <string name="trash_restore">Wiederherstellen</string>
+    <string name="trash_empty">Papierkorb leeren</string>
+    <string name="trash_empty_title">Papierkorb leeren?</string>
+    <string name="trash_empty_body">Jedes Dokument im Papierkorb wird endgültig gelöscht. Das kann nicht rückgängig gemacht werden.</string>
+
+    <!-- Settings (full app) -->
+    <string name="settings_scanning">Scannen</string>
+    <string name="settings_quality">PDF-Qualität</string>
+    <string name="settings_quality_footer">Standard passt für die meisten Briefe und Rechnungen. Hoch hält Kleingedrucktes schärfer, macht aber größere Dateien.</string>
+    <string name="settings_auto_capture">Automatisch aufnehmen</string>
+    <string name="settings_auto_capture_body">Nimmt das Foto auf, sobald die Seite stillhält</string>
+    <string name="settings_notifications">Benachrichtigungen</string>
+    <string name="notifications_blocked">Benachrichtigungen sind blockiert</string>
+    <string name="notifications_blocked_body">Android lässt PaperCtrl keine Benachrichtigungen anzeigen, daher erscheinen Upload-Fortschritt, Ergebnisse, die Posteingangserinnerung und ntfy-Pushes nicht</string>
+    <string name="notifications_allow">Erlauben</string>
+    <string name="settings_notify_added">Dokument hinzugefügt</string>
+    <string name="settings_notify_added_body">Wenn Paperless deinen Upload fertig hinzugefügt hat</string>
+    <string name="settings_notify_failed">Upload fehlgeschlagen</string>
+    <string name="settings_notify_failed_body">Wenn Paperless ein Dokument nicht hinzufügen konnte, mit Grund</string>
+    <string name="settings_digest">Tägliche Posteingangserinnerung</string>
+    <string name="settings_digest_body">Gegen 9:00, wenn Dokumente im Posteingang warten</string>
+    <string name="settings_ntfy_body">Aus: Lass dich über Dokumente benachrichtigen, die per E-Mail oder über den Consume-Ordner hinzugefügt wurden</string>
+    <string name="settings_on">An</string>
+    <string name="settings_privacy">Datenschutz und Sicherheit</string>
+    <string name="settings_privacy_footer">Die Anmeldung sowie die Sperr- und PIN-Bildschirme werden immer aus Screenshots und Bildschirmaufnahmen herausgehalten. Bei eingeschalteter App-Sperre zeigt die Übersicht der letzten Apps immer eine leere Karte.</string>
+    <string name="settings_app_lock">App-Sperre</string>
+    <string name="settings_app_lock_body">Beim Öffnen von PaperCtrl eine App-PIN (und optional deinen Fingerabdruck) verlangen. Solange gesperrt, bleiben deine Serveranmeldungen mit der PIN verschlüsselt.</string>
+    <string name="settings_lock_background_note">Bei eingeschalteter App-Sperre wird ein Upload, der schon gesendet wird, auch dann fertig, wenn PaperCtrl sperrt. Uploads, die noch nicht begonnen haben, und die tägliche Posteingangserinnerung warten, bis du PaperCtrl entsperrst, weil die Anmeldung im gesperrten Zustand verschlüsselt bleibt. Push von Paperless über ntfy funktioniert weiter.</string>
+    <string name="settings_change_pin">App-PIN ändern</string>
+    <string name="settings_change_pin_body">Mindestens %1$d Ziffern, getrennt von der PIN deines Handys</string>
+    <string name="settings_fingerprint">Mit Fingerabdruck entsperren</string>
+    <string name="settings_fingerprint_body">Nur starke Biometrie wie dein Fingerabdruck, geprüft von der sicheren Hardware des Handys. Die PIN wird nach einem Neustart und alle 72 Stunden weiterhin benötigt.</string>
+    <string name="settings_fingerprint_unavailable">Richte zuerst einen Fingerabdruck auf diesem Handy ein</string>
+    <string name="settings_fingerprint_failed">Entsperren per Fingerabdruck konnte nicht eingerichtet werden</string>
+    <string name="settings_lock_again">Erneut sperren</string>
+    <string name="lock_again_immediately">Sobald du die App verlässt</string>
+    <string name="lock_again_1m">Nach 1 Minute Abwesenheit</string>
+    <string name="lock_again_5m">Nach 5 Minuten Abwesenheit</string>
+    <string name="lock_again_15m">Nach 15 Minuten Abwesenheit</string>
+    <string name="lock_again_1h">Nach 1 Stunde Abwesenheit</string>
+    <string name="lock_again_restart">Nur beim Neustart der App</string>
+    <string name="hide_screenshots">In Screenshots ausblenden</string>
+    <string name="hide_screenshots_subtitle">Screenshots und Bildschirmaufnahmen zeigen einen leeren Bildschirm</string>
+    <string name="hide_recents">In letzten Apps ausblenden</string>
+    <string name="hide_recents_subtitle">Die Übersicht der letzten Apps zeigt statt der App eine leere Karte</string>
+    <string name="lock_title">PaperCtrl ist gesperrt</string>
+    <string name="lock_subtitle">Bestätige, dass du es bist, um eine App-PIN festzulegen</string>
+    <string name="lock_legacy_body">Entsperre ein letztes Mal mit Fingerabdruck, Gesicht oder Displaysperre und lege dann eine App-PIN fest.</string>
+    <string name="lock_unlock">Entsperren</string>
+    <string name="lock_enter_pin">Gib deine PIN ein</string>
+    <string name="lock_pin_due">Gib deine PIN ein. Sie wird nach einem Neustart und alle 72 Stunden benötigt.</string>
+    <string name="lock_wrong_pin">Falsche PIN</string>
+    <string name="lock_too_many">Zu viele Versuche. Versuch es in %1$d s noch einmal</string>
+    <string name="lock_use_fingerprint">Fingerabdruck verwenden</string>
+    <string name="lock_use_pin">PIN verwenden</string>
+    <string name="lock_fingerprint_title">PaperCtrl entsperren</string>
+    <string name="lock_fingerprint_subtitle">Bestätige, dass du es bist, um deine Dokumente zu sehen</string>
+    <string name="lock_fingerprint_changed">Ein Fingerabdruck wurde hinzugefügt oder entfernt. Entsperre mit deiner PIN und schalte das Entsperren per Fingerabdruck dann wieder ein.</string>
+    <string name="lock_fingerprint_failed">Entsperren per Fingerabdruck nicht möglich. Verwende deine PIN.</string>
+    <string name="lock_fingerprint_enrol_title">Entsperren per Fingerabdruck einschalten</string>
+    <string name="lock_fingerprint_enrol_subtitle">Bestätige deinen Fingerabdruck</string>
+    <string name="lock_forgot">PIN vergessen?</string>
+    <string name="lock_forgot_title">PIN vergessen?</string>
+    <string name="lock_forgot_body">Die PIN kann nicht wiederhergestellt werden, weil sie deine Serveranmeldungen verschlüsselt. PaperCtrl entfernt jeden Server von diesem Handy, samt wartenden Uploads und zwischengespeicherten Daten. Auf deinem Paperless-Server bleibt alles erhalten.</string>
+    <string name="lock_forgot_confirm">Server entfernen und zurücksetzen</string>
+    <string name="lock_choose_title">App-PIN festlegen</string>
+    <string name="lock_choose_intro">Mindestens %1$d Ziffern, anders als die PIN deines Handys. Wenn du sie vergisst, kommst du nur wieder hinein, indem du deine Server entfernst und dich erneut anmeldest.</string>
+    <string name="lock_migrate_intro">Die App-Sperre von PaperCtrl hat jetzt eine eigene PIN, getrennt von der deines Handys. Solange die App gesperrt ist, sind deine Serveranmeldungen damit verschlüsselt.</string>
+    <string name="lock_change_title">App-PIN ändern</string>
+    <string name="lock_change_intro">Mindestens %1$d Ziffern, anders als die PIN deines Handys.</string>
+    <string name="lock_disable_title">App-Sperre ausschalten</string>
+    <string name="lock_disable_intro">Gib deine App-PIN ein, um die Sperre auszuschalten.</string>
+    <string name="lock_current_pin">Gib deine aktuelle PIN ein</string>
+    <string name="lock_repeat_pin">Gib dieselbe PIN noch einmal ein</string>
+    <string name="lock_too_easy">Zu leicht zu erraten. Wähle eine weniger naheliegende PIN.</string>
+    <string name="lock_mismatch">Die PINs stimmen nicht überein. Fang noch einmal an.</string>
+    <string name="lock_save_failed">PIN konnte nicht gespeichert werden. Versuch es noch einmal.</string>
+    <string name="lock_next">Weiter</string>
+    <string name="lock_done">Fertig</string>
+    <string name="lock_ok">OK</string>
+    <string name="lock_delete">Löschen</string>
+    <string name="lock_cancel">Abbrechen</string>
+    <string name="lock_prompt_failed">Die Entsperrabfrage konnte nicht angezeigt werden</string>
+    <string name="queue_waiting_unlock">Wartet, bis du PaperCtrl entsperrst</string>
+
+    <!-- ntfy / UnifiedPush -->
+    <string name="ntfy_title">Push von Paperless (ntfy)</string>
+    <string name="ntfy_intro">Paperless kann deinem Handy über deinen eigenen ntfy-Server Bescheid geben, wenn Dokumente per E-Mail oder über den Consume-Ordner ankommen. PaperCtrl bekommt von der ntfy-App eine private Adresse; ein Paperless-Workflow sendet dorthin.</string>
+    <string name="ntfy_no_distributor">ntfy installieren</string>
+    <string name="ntfy_no_distributor_body">ntfy ist nicht installiert. Push von Paperless kommt nur über die ntfy-App: Installiere sie aus F-Droid, verbinde sie mit deinem ntfy-Server und komm dann hierher zurück. Die eigenen Benachrichtigungen von PaperCtrl zu Uploads und die Posteingangserinnerung funktionieren auch ohne sie.</string>
+    <string name="ntfy_enable">Benachrichtigungen von Paperless</string>
+    <string name="ntfy_enable_body">Über die ntfy-App und deinen ntfy-Server</string>
+    <string name="ntfy_endpoint">Push-Adresse von PaperCtrl</string>
+    <string name="ntfy_waiting">Warte auf ntfy…</string>
+    <string name="ntfy_waiting_body">Öffne die ntfy-App einmal, wenn hier nichts erscheint.</string>
+    <string name="ntfy_failed">ntfy konnte PaperCtrl nicht registrieren (%1$s). Prüfe die Servereinstellungen der ntfy-App.</string>
+    <string name="ntfy_retry">Erneut versuchen</string>
+    <string name="ntfy_temp_unavailable">ntfy vorübergehend nicht verfügbar</string>
+    <string name="ntfy_temp_unavailable_body">ntfy erreicht deinen ntfy-Server gerade nicht. Die Adresse bleibt gleich, und Benachrichtigungen kommen wieder an, sobald er zurück ist.</string>
+    <string name="ntfy_test">Test senden</string>
+    <string name="ntfy_test_body">Sendet eine Testnachricht an die Adresse oben</string>
+    <string name="ntfy_test_message">Test von PaperCtrl</string>
+    <string name="ntfy_test_failed">Der Test kam nicht durch. Prüfe, ob die Adresse von diesem Handy aus erreichbar ist.</string>
+    <string name="ntfy_setup">Paperless einrichten</string>
+    <string name="ntfy_steps">1. Öffne in Paperless Workflows und füge einen hinzu.\n2. Auslöser: Document Added (und wenn du willst Document Updated).\n3. Aktion: Webhook. URL: die Push-Adresse von PaperCtrl oben. Schalte „Send as JSON“ ein und lass „Use parameters“ aus.\n4. Body: Füge den Text unten ein.\n5. Speichern. Das nächste Dokument, das Paperless hinzufügt, erscheint als Benachrichtigung.</string>
+    <string name="ntfy_body">Webhook-Body</string>
+    <string name="ntfy_internal_note">Wenn dein ntfy-Server im Heimnetz steht, blockiert Paperless eventuell Webhooks an lokale Adressen: Setze PAPERLESS_WEBHOOKS_ALLOW_INTERNAL_REQUESTS=true auf dem Server oder verwende die öffentliche HTTPS-Adresse von ntfy.</string>
+    <string name="push_added_title">Dokument zu Paperless hinzugefügt</string>
+    <string name="push_updated_title">Dokument aktualisiert</string>
+    <string name="push_generic_title">Paperless</string>
+    <string name="channel_digest">Posteingangserinnerung</string>
+    <string name="channel_digest_desc">Eine tägliche Erinnerung, wenn Dokumente in deinem Posteingang warten.</string>
+    <string name="channel_events">Von Paperless</string>
+    <string name="channel_events_desc">Dokumente, die Paperless hinzugefügt oder geändert hat, gesendet über ntfy.</string>
+    <string name="digest_body">Tippe, um sie zu sortieren.</string>
+
+    <!-- Shortcuts -->
+    <string name="shortcut_scan">Scannen</string>
+    <string name="shortcut_inbox">Posteingang</string>
+    <string name="shortcut_search">Suchen</string>
+
+    <plurals name="bulk_selected">
+        <item quantity="one">%d ausgewählt</item>
+        <item quantity="other">%d ausgewählt</item>
+    </plurals>
+    <plurals name="delete_documents_title">
+        <item quantity="one">%d Dokument löschen?</item>
+        <item quantity="other">%d Dokumente löschen?</item>
+    </plurals>
+    <plurals name="digest_title">
+        <item quantity="one">%d Dokument in deinem Posteingang</item>
+        <item quantity="other">%d Dokumente in deinem Posteingang</item>
+    </plurals>
+    <plurals name="doc_matches">
+        <item quantity="one">%d Treffer</item>
+        <item quantity="other">%d Treffer</item>
+    </plurals>
+    <plurals name="documents_count">
+        <item quantity="one">%d Dokument</item>
+        <item quantity="other">%d Dokumente</item>
+    </plurals>
+    <plurals name="inbox_count">
+        <item quantity="one">%d zu sortieren</item>
+        <item quantity="other">%d zu sortieren</item>
+    </plurals>
+    <plurals name="organise_count">
+        <item quantity="one">%d</item>
+        <item quantity="other">%d</item>
+    </plurals>
+    <plurals name="scan_pages_title">
+        <item quantity="one">%d Seite</item>
+        <item quantity="other">%d Seiten</item>
+    </plurals>
+    <plurals name="scan_pages_waiting">
+        <item quantity="one">%d gescannte Seite wartet</item>
+        <item quantity="other">%d gescannte Seiten warten</item>
+    </plurals>
+    <plurals name="share_link_days">
+        <item quantity="one">%d Tag</item>
+        <item quantity="other">%d Tage</item>
+    </plurals>
+    <string name="error_different_server">Diese Adresse führt zu einem anderen Paperless-Server.</string>
+    <string name="error_redirect_refused">Der Server hat diese Anfrage an einen anderen Server umgeleitet, daher hat PaperCtrl sie nicht weitergeschickt. Prüfe die Serveradresse.</string>
+    <string name="error_too_many_redirects">Diese Adresse leitet ständig weiter, daher war Paperless-ngx nicht erreichbar. Prüfe die Adresse.</string>
+    <string name="error_no_upload_task">Der Server hat für den Upload keine Aufgabe zurückgegeben.</string>
+    <string name="queue_duplicate_of">Es ist ein Duplikat von Dokument #%1$s.</string>
+
+    <!-- Page manager -->
+    <string name="pages_menu">Seiten verwalten</string>
+    <string name="pages_title">Seiten</string>
+    <string name="pages_reset">Alle Änderungen rückgängig</string>
+    <string name="pages_hint">Tippe auf Seiten, um sie auszuwählen. Lange drücken und eine Seite ziehen, um sie zu verschieben.</string>
+    <string name="pages_hint_legacy">Tippe auf Seiten, um sie auszuwählen. Diese Paperless-Version kann Seiten löschen und Dokumente teilen; aktualisiere auf 2.18 oder neuer, um einzelne Seiten zu verschieben und zu drehen.</string>
+    <string name="pages_split_after">Danach teilen</string>
+    <string name="pages_split_here">Nach dieser Seite beginnt ein neues Dokument</string>
+    <string name="pages_clear_selection">Fertig</string>
+    <string name="pages_keep_one">Ein Dokument braucht mindestens eine Seite.</string>
+    <string name="pages_doc_label">Dok. %1$d</string>
+    <string name="pages_legacy_one_at_a_time">Diese Paperless-Version kann nicht in einem Schritt Seiten löschen und teilen. Speichere zuerst eine Änderung, dann die andere.</string>
+    <string name="pages_confirm_title">Seitenänderungen speichern?</string>
+    <string name="pages_confirm_body">Paperless ändert die Datei des Dokuments und liest seinen Text erneut.</string>
+    <string name="pages_confirm_body_version">Paperless speichert die geänderte Datei als neue Version dieses Dokuments und liest seinen Text erneut. Die frühere Version bleibt im Versionsverlauf.</string>
+    <string name="pages_confirm_split_title">Dieses Dokument teilen?</string>
+    <string name="pages_delete_original">Original danach löschen</string>
+    <string name="pages_working">Paperless bearbeitet die Seiten…</string>
+    <string name="pages_saved">Seiten gespeichert.</string>
+    <string name="pages_still_working">Paperless bearbeitet die Seiten noch. Öffne das Dokument später erneut, um das Ergebnis zu sehen.</string>
+    <string name="pages_failed">Paperless konnte die Seiten nicht ändern.</string>
+    <plurals name="pages_count">
+        <item quantity="one">%d Seite</item>
+        <item quantity="other">%d Seiten</item>
+    </plurals>
+    <plurals name="pages_documents">
+        <item quantity="one">%d Dokument</item>
+        <item quantity="other">%d Dokumente</item>
+    </plurals>
+    <plurals name="pages_confirm_split_body">
+        <item quantity="one">Paperless erstellt aus diesen Seiten %d neues Dokument, mit Titel, Tags und anderen Details dieses Dokuments.</item>
+        <item quantity="other">Paperless erstellt aus diesen Seiten %d neue Dokumente, jedes mit Titel, Tags und anderen Details dieses Dokuments.</item>
+    </plurals>
+    <plurals name="pages_split_done">
+        <item quantity="one">%d neues Dokument hinzugefügt.</item>
+        <item quantity="other">%d neue Dokumente hinzugefügt.</item>
+    </plurals>
+
+    <!-- Statistics -->
+    <string name="stats_label">Bibliothek</string>
+    <string name="stats_asn">ASN %1$d</string>
+    <string name="stats_documents">Dokumente</string>
+    <string name="stats_in_inbox">%1$s im Posteingang</string>
+    <string name="stats_characters">%1$s Zeichen</string>
+    <string name="stats_correspondents">Personen</string>
+    <string name="stats_types">Typen</string>
+    <string name="stats_paths">Pfade</string>
+    <string name="stats_file_types">Dateitypen</string>
+    <string name="stats_other_types">Andere</string>
+
+    <!-- Failed imports -->
+    <string name="imports_title">Fehlgeschlagene Importe</string>
+    <string name="imports_row_body">Dateien, die Paperless nicht hinzufügen konnte, und warum</string>
+    <string name="imports_hint">Dateien, die Paperless hinzufügen wollte und nicht konnte. Wenn du eine verwirfst, verschwindet sie auch auf dem Server von dieser Liste; die Datei selbst bleibt unberührt.</string>
+    <string name="imports_none">Keine fehlgeschlagenen Importe</string>
+    <string name="imports_none_body">Jede Datei, die Paperless bekommen hat, wurde hinzugefügt, oder die Fehler wurden schon verworfen.</string>
+    <string name="imports_unnamed">Datei ohne Namen</string>
+    <string name="imports_no_reason">Paperless hat keinen Grund genannt.</string>
+    <string name="imports_duplicate">Es ist ein Duplikat von Dokument #%1$s.</string>
+    <string name="imports_open_duplicate">Dieses Dokument öffnen</string>
+    <string name="imports_dismiss">Verwerfen</string>
+    <string name="imports_dismiss_all">Alle verwerfen</string>
+    <string name="imports_dismiss_all_title">Alle fehlgeschlagenen Importe verwerfen?</string>
+    <string name="imports_dismiss_all_body">Sie verschwinden von dieser Liste, auch in der Paperless-Web-App. Keine Datei und kein Dokument wird gelöscht.</string>
+
+    <!-- Share-link bundles (Paperless-ngx 3) -->
+    <string name="bundles_title">Freigabelink-Pakete</string>
+    <string name="bundles_row_body">Ein öffentlicher Link zu mehreren Dokumenten</string>
+    <string name="bundles_hint">Jedes Paket ist ein öffentlicher Link zu einer ZIP-Datei mit mehreren Dokumenten. Jeder mit dem Link kann sie herunterladen, bis er abläuft oder du ihn widerrufst.</string>
+    <string name="bundles_none">Noch keine Pakete</string>
+    <string name="bundles_none_body">Wähle im Tab Dokumente Dokumente aus und wähle \"Als ein Link teilen\", um eines zu erstellen.</string>
+    <string name="bundles_ready">Bereit</string>
+    <string name="bundles_building">Wird vorbereitet…</string>
+    <string name="bundles_failed">Konnte nicht erstellt werden</string>
+    <string name="bundles_rebuild">Neu erstellen</string>
+    <string name="bundles_delete_title">Diesen Link widerrufen?</string>
+    <string name="bundles_delete_body">Der Link funktioniert sofort nicht mehr und die ZIP-Datei wird vom Server entfernt. Die Dokumente selbst bleiben.</string>
+    <string name="bundles_share">Als ein Link teilen</string>
+    <string name="bundles_create">Link erstellen</string>
+    <string name="bundles_created">Link kopiert. Paperless bereitet die ZIP-Datei vor; der Link funktioniert, sobald sie fertig ist. Du findest ihn unter Ordnen, Freigabelink-Pakete.</string>
+    <plurals name="bundles_documents">
+        <item quantity="one">%d Dokument</item>
+        <item quantity="other">%d Dokumente</item>
+    </plurals>
+    <plurals name="bundles_share_body">
+        <item quantity="one">Ein öffentlicher Link zu einer ZIP-Datei mit dem ausgewählten Dokument. Jeder mit dem Link kann sie herunterladen.</item>
+        <item quantity="other">Ein öffentlicher Link zu einer ZIP-Datei mit den %d ausgewählten Dokumenten. Jeder mit dem Link kann sie herunterladen.</item>
+    </plurals>
+
+    <!-- Document versions (Paperless-ngx 3) -->
+    <string name="versions_title">Versionen</string>
+    <string name="versions_body">Paperless behält jede Version der Datei dieses Dokuments. Tippe auf eine, um sie anzusehen. Seitenänderungen und ein entferntes Passwort werden als neue Versionen gespeichert.</string>
+    <string name="versions_number">Version %1$d</string>
+    <string name="versions_current">Aktuell</string>
+    <string name="versions_first">Erste Datei</string>
+    <string name="versions_shown">Wird angezeigt</string>
+    <string name="versions_label">Bezeichnung</string>
+    <string name="versions_label_optional">Bezeichnung (optional)</string>
+    <string name="versions_label_hint">Zum Beispiel \"Unterschriebene Kopie\"</string>
+    <string name="versions_new">Neue Version hinzufügen</string>
+    <string name="versions_choose_file">Datei zum Hochladen wählen</string>
+    <string name="versions_file_failed">Diese Datei konnte nicht gelesen werden.</string>
+    <string name="versions_added">Die neue Version ist da.</string>
+    <string name="versions_add_failed">Paperless konnte die neue Version nicht hinzufügen.</string>
+    <string name="versions_deleted">Version gelöscht.</string>
+    <string name="versions_delete_title">Diese Version löschen?</string>
+    <string name="versions_delete_body">\"%1$s\" wird endgültig gelöscht. Sie kommt nicht in den Papierkorb. Die anderen Versionen bleiben.</string>
+    <string name="versions_showing">Angezeigt: %1$s</string>
+    <string name="versions_back_to_current">Aktuelle Version</string>
+    <string name="doc_working">Paperless bearbeitet das Dokument…</string>
+    <string name="doc_still_working">Paperless bearbeitet das Dokument noch. Öffne es später erneut, um das Ergebnis zu sehen.</string>
+
+    <!-- Remove a PDF's password (Paperless-ngx 3) -->
+    <string name="password_remove_menu">Passwort entfernen</string>
+    <string name="password_remove_title">Passwort des PDFs entfernen</string>
+    <string name="password_remove_body">Paperless öffnet das PDF mit seinem Passwort und speichert eine Kopie ohne Passwort als neue Version dieses Dokuments. Das Passwort wird dafür an deinen Server gesendet und nicht auf diesem Handy gespeichert.</string>
+    <string name="password_remove_field">Passwort des PDFs</string>
+    <string name="password_remove_confirm">Entfernen</string>
+    <string name="password_removed">Passwort entfernt. Die ungeschützte Datei ist die neue Version.</string>
+    <string name="password_remove_failed">Paperless konnte das Passwort nicht entfernen. Prüfe das Passwort und versuch es noch einmal.</string>
+    <string name="password_remove_nothing">Paperless hat nichts geändert: Dieses PDF scheint kein Passwort zu haben.</string>
+
+    <!-- E-mail through the server -->
+    <string name="email_menu">E-Mail von Paperless</string>
+    <string name="email_title">Dieses Dokument per E-Mail senden</string>
+    <string name="email_body">Dein Paperless-Server sendet das Dokument als Anhang von seinem eigenen Mailkonto. Nichts läuft über eine Mail-App auf diesem Handy.</string>
+    <string name="email_not_set_up">E-Mail ist auf deinem Paperless-Server nicht eingerichtet, daher kann er keine Dokumente senden. Der Administrator des Servers richtet das in dessen Konfiguration ein.</string>
+    <string name="email_to">An</string>
+    <string name="email_to_hint">Eine oder mehrere Adressen, durch Kommas getrennt</string>
+    <string name="email_subject">Betreff</string>
+    <string name="email_message">Nachricht</string>
+    <string name="email_send">Senden</string>
+    <string name="email_sent">Paperless hat die E-Mail gesendet.</string>
+    <string name="email_failed">Paperless konnte die E-Mail nicht senden. Prüfe die Mail-Einstellungen auf deinem Server.</string>
+
+    <!-- Save a scan as a PDF on the phone -->
+    <string name="scan_save_pdf">Als PDF auf diesem Handy speichern</string>
+    <string name="scan_pdf_saved">In Downloads/PaperCtrl als %1$s gespeichert. Nichts wurde hochgeladen; die Seiten sind noch da.</string>
+    <string name="scan_pdf_failed">Das PDF konnte nicht gespeichert werden.</string>
+
+    <!-- Global search and the newer filters -->
+    <string name="found_document">Dokument</string>
+    <string name="found_tag">Tag</string>
+    <string name="found_field">Benutzerdefiniertes Feld</string>
+    <string name="found_view">Gespeicherte Ansicht</string>
+    <string name="filter_duplicates">Nur Dokumente mit Duplikaten</string>
+    <string name="filter_duplicates_body">Dieselbe Datei ist auch als anderes Dokument gespeichert</string>
+    <string name="filter_barcode">Barcode enthält</string>
+    <string name="filter_barcode_body">Findet Dokumente anhand des Inhalts ihrer Barcodes oder QR-Codes, wenn dein Server diese speichert</string>
+
+    <!-- Documents kept on the phone -->
+    <string name="offline_title">Auf diesem Handy behalten</string>
+    <string name="offline_row_body">Dokumente, die du ohne Verbindung lesen kannst</string>
+    <string name="offline_hint">Diese Dokumente sind verschlüsselt auf diesem Handy gespeichert, damit du sie lesen kannst, wenn dein Server nicht erreichbar ist. Eine behaltene Kopie wird neu gespeichert, wenn du ein Dokument öffnest, das sich auf dem Server geändert hat.</string>
+    <string name="offline_none">Noch nichts behalten</string>
+    <string name="offline_none_body">Öffne ein Dokument und wähle in seinem Menü \"Auf diesem Handy behalten\", um es ohne Verbindung zu lesen.</string>
+    <string name="offline_keep">Auf diesem Handy behalten</string>
+    <string name="offline_remove">Von diesem Handy entfernen</string>
+    <string name="offline_kept">Verschlüsselt auf diesem Handy behalten. Du kannst es ohne Verbindung lesen.</string>
+    <string name="offline_removed">Von diesem Handy entfernt. Das Dokument auf deinem Server bleibt unberührt.</string>
+    <string name="offline_too_large">Dieses Dokument ist zu groß, um es auf dem Handy zu behalten (das Limit ist 32 MB).</string>
+    <string name="offline_no_key">Das Handy konnte das Dokument nicht verschlüsseln, daher wurde es nicht behalten.</string>
+    <string name="offline_unreadable">Diese behaltene Kopie lässt sich nicht mehr öffnen.</string>
+    <string name="offline_showing">Dein Server ist nicht erreichbar. Das ist die Kopie, die am %1$s auf diesem Handy gespeichert wurde.</string>
+    <string name="offline_saved_on">Gespeichert am %1$s</string>
+    <string name="offline_document_number">Dokument #%1$d</string>
+    <string name="offline_open_kept">Auf diesem Handy behaltene Dokumente öffnen</string>
+    <string name="offline_remove_title">Von diesem Handy entfernen?</string>
+    <string name="offline_remove_body">Die Kopie auf diesem Handy wird gelöscht. Das Dokument auf deinem Server bleibt unberührt.</string>
+    <string name="offline_remove_confirm">Entfernen</string>
+
+    <!-- Live updates -->
+    <string name="settings_documents">Dokumente</string>
+    <string name="settings_live_updates">Live-Aktualisierung</string>
+    <string name="settings_live_updates_body">Solange der Posteingang, die Dokumentliste oder ein Dokument offen ist, prüft PaperCtrl deinen Server alle 30 Sekunden und zeigt Änderungen von selbst. Im Hintergrund wird nichts geprüft.</string>
+
+    <!-- Settings export and import -->
+    <string name="backup_title">Sichern und wiederherstellen</string>
+    <string name="backup_footer">Die Datei enthält nur die eigenen Einstellungen von PaperCtrl. Server, Anmeldungen, Tokens, bestätigte Zertifikate, die App-Sperre und ihre PIN, die ntfy-Einrichtung, Uploads, Scans und behaltene Dokumente sind nie darin. Ein Import schaltet \"In Screenshots ausblenden\" oder \"In letzten Apps ausblenden\" nie aus.</string>
+    <string name="backup_export">Einstellungen exportieren</string>
+    <string name="backup_export_body">Deine Einstellungen in einer Datei deiner Wahl speichern</string>
+    <string name="backup_import">Einstellungen importieren</string>
+    <string name="backup_import_body">Einstellungen aus einer Datei lesen; du siehst zuerst, was sich ändert</string>
+    <string name="backup_exported">Einstellungen exportiert.</string>
+    <string name="backup_export_failed">Die Datei konnte nicht geschrieben werden.</string>
+    <string name="backup_no_file_app">Keine App auf diesem Handy kann eine Datei auswählen.</string>
+    <string name="backup_not_ours">Das ist keine PaperCtrl-Einstellungsdatei, oder sie stammt aus einer neueren Version.</string>
+    <string name="backup_nothing_to_change">Deine Einstellungen entsprechen bereits dieser Datei.</string>
+    <string name="backup_import_title">Diese Einstellungen importieren?</string>
+    <string name="backup_import_confirm_body">Diese Einstellungen werden ersetzt:</string>
+    <string name="backup_import_confirm">Importieren</string>
+    <string name="backup_imported">Einstellungen importiert.</string>
+    <string name="backup_change_line">%1$s: %2$s → %3$s</string>
+    <string name="backup_off">Aus</string>
+    <string name="backup_scan_filter">Scanfilter</string>
+    <string name="backup_documents_view">Dokumentansicht</string>
+    <string name="backup_view_list">Liste</string>
+    <string name="backup_view_grid">Raster</string>
+</resources>
