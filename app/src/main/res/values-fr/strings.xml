@@ -555,6 +555,10 @@
     <string name="lock_forgot">Code PIN oublié ?</string>
     <string name="lock_forgot_title">Code PIN oublié ?</string>
     <string name="lock_forgot_body">Le code PIN ne peut pas être récupéré, car il chiffre vos connexions aux serveurs. PaperCtrl va retirer tous les serveurs de ce téléphone, avec leurs envois en file et leurs données en cache. Tout ce qui est sur votre serveur Paperless reste.</string>
+    <string name="lock_forgot_screen_lock">Le verrouillage d\'écran de votre téléphone vous sera d\'abord demandé, pour que vous seul puissiez le réinitialiser.</string>
+    <string name="lock_reset_prompt_title">Réinitialiser le verrouillage de PaperCtrl</string>
+    <string name="lock_reset_prompt_subtitle">Utilisez le verrouillage d\'écran de votre téléphone pour confirmer votre identité</string>
+    <string name="lock_reset_prompt_failed">Impossible d\'afficher le verrouillage d\'écran</string>
     <string name="lock_forgot_confirm">Retirer les serveurs et réinitialiser</string>
     <string name="lock_choose_title">Choisissez un code PIN</string>
     <string name="lock_choose_intro">Au moins %1$d chiffres, différent du code PIN de votre téléphone. Si vous l\'oubliez, la seule solution est de retirer vos serveurs et de vous reconnecter.</string>

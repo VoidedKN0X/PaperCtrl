@@ -508,6 +508,10 @@
     <string name="lock_forgot">Pincode vergeten?</string>
     <string name="lock_forgot_title">Je pincode vergeten?</string>
     <string name="lock_forgot_body">De pincode kan niet hersteld worden, omdat ze je serverlogins versleutelt. PaperCtrl verwijdert elke server van deze telefoon, samen met de uploads in de wachtrij en de bewaarde gegevens. Alles op je Paperless-server blijft staan.</string>
+    <string name="lock_forgot_screen_lock">Eerst vraagt je telefoon zijn schermvergrendeling, zodat alleen jij dit kunt resetten.</string>
+    <string name="lock_reset_prompt_title">App-vergrendeling van PaperCtrl resetten</string>
+    <string name="lock_reset_prompt_subtitle">Bevestig met de schermvergrendeling van je telefoon dat jij het bent</string>
+    <string name="lock_reset_prompt_failed">De schermvergrendeling kon niet getoond worden</string>
     <string name="lock_forgot_confirm">Servers verwijderen en opnieuw beginnen</string>
     <string name="lock_choose_title">Kies een app-pincode</string>
     <string name="lock_choose_intro">Minstens %1$d cijfers, anders dan de pincode van je telefoon. Als je ze vergeet, kom je er alleen weer in door je servers te verwijderen en opnieuw aan te melden.</string>

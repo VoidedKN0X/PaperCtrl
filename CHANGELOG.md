@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **The share-link bundles screen no longer keeps asking the server every 4 seconds without end.** While a bundle was still being prepared, the screen checked again every 4 seconds for as long as it was open, also with PaperCtrl in the background, and forever if Paperless never finished it (for example with its worker stopped). It now only checks while the screen is actually on show, waits a little longer each time (4 s, 8 s, 16 s… up to once a minute), and stops after about 10 minutes or at the first error. Pull down to refresh, **Retry**, or rebuilding/deleting a bundle starts the checks again. The 30-second live updates of the lists and documents are unchanged.
+
+### Security
+
+- **Decrypted copies of documents kept offline no longer stay in the cache.** Opening a kept-offline document decrypts it into a temporary file so it can be shown. With the app lock off, that plain copy stayed in PaperCtrl's cache until the next app start, which could be days. It's now deleted as soon as you leave the document's screen (it's decrypted again the next time you open it). Documents on the phone stay encrypted as before.
+- **"Forgot PIN?" now asks for your phone's own screen lock first.** Before, anyone holding your unlocked phone could tap "Forgot PIN?" on PaperCtrl's lock screen and reset it. Now, if your phone has a screen lock (PIN, pattern, password, or a strong fingerprint), PaperCtrl asks for it before it removes anything; cancelling leaves everything as it was. The dialog says so. If your phone has no screen lock, it works as before (you only confirm the dialog).
+
 ## v0.13.1 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

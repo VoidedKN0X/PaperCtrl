@@ -555,6 +555,10 @@
     <string name="lock_forgot">PIN vergessen?</string>
     <string name="lock_forgot_title">PIN vergessen?</string>
     <string name="lock_forgot_body">Die PIN kann nicht wiederhergestellt werden, weil sie deine Serveranmeldungen verschlüsselt. PaperCtrl entfernt jeden Server von diesem Handy, samt wartenden Uploads und zwischengespeicherten Daten. Auf deinem Paperless-Server bleibt alles erhalten.</string>
+    <string name="lock_forgot_screen_lock">Zuerst wird die Displaysperre deines Smartphones abgefragt, damit nur du zurücksetzen kannst.</string>
+    <string name="lock_reset_prompt_title">App-Sperre von PaperCtrl zurücksetzen</string>
+    <string name="lock_reset_prompt_subtitle">Bestätige mit der Displaysperre deines Smartphones, dass du es bist</string>
+    <string name="lock_reset_prompt_failed">Displaysperre konnte nicht angezeigt werden</string>
     <string name="lock_forgot_confirm">Server entfernen und zurücksetzen</string>
     <string name="lock_choose_title">App-PIN festlegen</string>
     <string name="lock_choose_intro">Mindestens %1$d Ziffern, anders als die PIN deines Handys. Wenn du sie vergisst, kommst du nur wieder hinein, indem du deine Server entfernst und dich erneut anmeldest.</string>

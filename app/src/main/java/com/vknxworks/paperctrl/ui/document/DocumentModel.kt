@@ -105,6 +105,18 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
     /** Set when the server couldn't be reached and the copy kept on this phone is shown instead. */
     var offlineCopy by mutableStateOf<OfflineEntry?>(null)
         private set
+
+    /** Decrypted copies of the kept file this screen opened; deleted when the screen is gone ([onCleared]). */
+    private val openedOffline = java.util.Collections.synchronizedSet(HashSet<java.io.File>())
+
+    override fun onCleared() {
+        val opened = synchronized(openedOffline) { openedOffline.toList() }
+        if (opened.isNotEmpty()) {
+            // The plaintext copy doesn't stay in the cache once nobody looks at it (the app lock may be off).
+            c.appScope.launch(Dispatchers.IO) { opened.forEach { c.offline.discardOpened(it) } }
+        }
+        super.onCleared()
+    }
     var keepBusy by mutableStateOf(false)
         private set
 
@@ -240,7 +252,7 @@ class DocumentModel(private val c: AppContainer, private val context: Context, v
             fileError = null
             fileJob = viewModelScope.launch {
                 try {
-                    file = c.offline.open(sid, id)
+                    file = c.offline.open(sid, id).also { openedOffline += it.file }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {

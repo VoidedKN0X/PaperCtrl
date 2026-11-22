@@ -1,6 +1,7 @@
 package com.vknxworks.paperctrl.ui.organise
 
 import android.content.Intent
+import android.os.SystemClock
 import android.text.format.Formatter
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -190,18 +194,35 @@ fun BundlesScreen() {
     var reload by remember { mutableIntStateOf(0) }
     var deleting by remember { mutableStateOf<ShareBundle?>(null) }
 
+    // True when the list was loaded.
+    suspend fun load(): Boolean {
+        val cl = c.sessions.active.value?.client ?: return false
+        return runCatching { cl.shareBundles() }
+            .onSuccess { list -> items = list.sortedByDescending { it.created.orEmpty() }; error = null }
+            .onFailure { error = it.friendlyMessage(context) }
+            .isSuccess
+    }
+
     LaunchedEffect(reload) {
-        val cl = c.sessions.active.value?.client
-        if (cl != null) {
-            runCatching { cl.shareBundles() }
-                .onSuccess { list -> items = list.sortedByDescending { it.created.orEmpty() }; error = null }
-                .onFailure { error = it.friendlyMessage(context) }
-        }
+        load()
         refreshing = false
-        // While Paperless is still building one, look again every few seconds (only while this screen is open).
-        if (items?.any { it.isBuilding } == true) {
-            delay(4000)
-            reload++
+    }
+
+    // While Paperless is still building one, look again by itself: only while this screen is on show (not in
+    // the background or under another screen), backing off from 4 s to once a minute, and stopping after about
+    // 10 minutes or at the first error. Pull to refresh, Retry or an action starts it again.
+    val owner = LocalLifecycleOwner.current
+    val building = items?.any { it.isBuilding } == true
+    LaunchedEffect(building, reload, owner) {
+        if (!building) return@LaunchedEffect
+        owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            val started = SystemClock.elapsedRealtime()
+            var round = 0
+            while (BundlePolling.keepGoing(SystemClock.elapsedRealtime() - started)) {
+                delay(BundlePolling.delayFor(round++))
+                if (!load()) break
+                if (items?.any { it.isBuilding } != true) break
+            }
         }
     }
     fun act(block: suspend (com.vknxworks.paperctrl.data.api.PaperlessClient) -> Unit) {

@@ -560,6 +560,10 @@
     <string name="lock_forgot">Forgot PIN?</string>
     <string name="lock_forgot_title">Forgot your PIN?</string>
     <string name="lock_forgot_body">The PIN can\'t be recovered, because it encrypts your server logins. PaperCtrl will remove every server from this phone, with its queued uploads and cached data. Everything on your Paperless server stays.</string>
+    <string name="lock_forgot_screen_lock">Your phone\'s screen lock is asked for first, so only you can reset it.</string>
+    <string name="lock_reset_prompt_title">Reset PaperCtrl\'s app lock</string>
+    <string name="lock_reset_prompt_subtitle">Use your phone\'s screen lock to confirm it\'s you</string>
+    <string name="lock_reset_prompt_failed">Couldn\'t show the screen lock prompt</string>
     <string name="lock_forgot_confirm">Remove servers and reset</string>
     <string name="lock_choose_title">Choose an app PIN</string>
     <string name="lock_choose_intro">At least %1$d digits, different from your phone\'s PIN. If you forget it, the only way back in is to remove your servers and sign in again.</string>

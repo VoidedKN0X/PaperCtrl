@@ -169,6 +169,17 @@ class OfflineStore(private val context: Context, private val keys: DataKeyStore)
         LocalFile(target, Staging.safeName(entry.fileName, entry.mimeType), entry.mimeType)
     }
 
+    /**
+     * Deletes [file], a decrypted copy that [open] made, when the document screen that showed it is gone.
+     * Without this, with the app lock off, plaintext copies of kept documents stayed in the cache for as long
+     * as the process lived. Only files in the offline viewer folder are touched; [open] decrypts again when needed.
+     */
+    fun discardOpened(file: File) {
+        val dir = File(context.cacheDir, "docs/offline")
+        val inside = runCatching { file.parentFile?.canonicalPath == dir.canonicalPath }.getOrDefault(false)
+        if (inside) runCatching { file.delete() }
+    }
+
     /** The user took document [id] off the phone: its kept copy is deleted (the document on the server isn't touched). */
     suspend fun remove(serverId: String, id: Int) = withContext(Dispatchers.IO) {
         data(serverId, id).delete()
