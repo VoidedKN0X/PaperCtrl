@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.13.2 (2026-11-22)
+
+Built and checked by CI only: nothing in this release had been run on a phone when it was published.
 
 ### Fixed
 
